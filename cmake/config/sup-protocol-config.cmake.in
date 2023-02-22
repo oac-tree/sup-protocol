@@ -1,0 +1,15 @@
+#  SUP_PROTOCOL_INCLUDE_DIRS - include directories
+#  SUP_PROTOCOL_LIBRARIES    - libraries to link against
+
+get_filename_component(SUP_PROTOCOL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+if(TARGET sup-protocol::sup-protocol)
+else()
+  message(STATUS "sup-protocol-config.cmake including ${SUP_PROTOCOL_CMAKE_DIR}/sup-protocol-targets.cmake")
+  include("${SUP_PROTOCOL_CMAKE_DIR}/sup-protocol-targets.cmake")
+endif()
+
+set(SUP_PROTOCOL_LIBRARIES sup-protocol::sup-protocol)
+
+message(STATUS "sup-protocol-config.cmake in ${CMAKE_CURRENT_LIST_FILE}")
+message(STATUS "SUP_PROTOCOL_LIBRARIES ${SUP_PROTOCOL_LIBRARIES}")
