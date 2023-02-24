@@ -26,8 +26,6 @@
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol.h>
 
-#include <memory>
-
 namespace sup
 {
 namespace protocol
