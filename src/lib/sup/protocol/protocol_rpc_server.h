@@ -45,13 +45,13 @@ namespace protocol
 class ProtocolRPCServer : public dto::AnyFunctor
 {
 public:
-  ProtocolRPCServer(std::unique_ptr<Protocol>&& protocol);
+  ProtocolRPCServer(Protocol& protocol);
   ~ProtocolRPCServer();
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& request) override;
 private:
   sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request);
-  std::unique_ptr<Protocol> m_protocol;
+  Protocol& m_protocol;
 };
 
 }  // namespace protocol

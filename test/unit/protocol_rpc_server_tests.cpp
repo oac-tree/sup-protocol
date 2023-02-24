@@ -38,15 +38,13 @@ protected:
   ProtocolRPCServerTest();
   virtual ~ProtocolRPCServerTest();
 
-  std::unique_ptr<Protocol> GetTestProtocol();
+  Protocol& GetTestProtocol();
 
-  test::TestProtocol* m_test_protocol;
+  test::TestProtocol m_test_protocol;
 };
 
 TEST_F(ProtocolRPCServerTest, Construction)
 {
-  EXPECT_THROW(ProtocolRPCServer null_server{std::unique_ptr<Protocol>{}},
-               NullDependencyException);
   EXPECT_NO_THROW(ProtocolRPCServer server{GetTestProtocol()});
 }
 
@@ -110,7 +108,7 @@ TEST_F(ProtocolRPCServerTest, ScalarPayload)
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(), Success.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
-  auto last_input = m_test_protocol->GetLastInput();
+  auto last_input = m_test_protocol.GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), sup::dto::UnsignedInteger8Type);
   EXPECT_EQ(last_input.As<sup::dto::uint8>(), 1);
@@ -131,7 +129,7 @@ TEST_F(ProtocolRPCServerTest, ExtraFieldInRequest)
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(), Success.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
-  auto last_input = m_test_protocol->GetLastInput();
+  auto last_input = m_test_protocol.GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), sup::dto::UnsignedInteger8Type);
   EXPECT_EQ(last_input.As<sup::dto::uint8>(), 1);
@@ -154,7 +152,7 @@ TEST_F(ProtocolRPCServerTest, ProtocolThrows)
             ServerTransportEncodingError.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
-  auto last_input = m_test_protocol->GetLastInput();
+  auto last_input = m_test_protocol.GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), payload.GetType());
   EXPECT_EQ(last_input, payload);
@@ -176,7 +174,7 @@ TEST_F(ProtocolRPCServerTest, RequestProtocolResult)
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(), 42u);
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
-  auto last_input = m_test_protocol->GetLastInput();
+  auto last_input = m_test_protocol.GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), payload.GetType());
   EXPECT_EQ(last_input, payload);
@@ -198,7 +196,7 @@ TEST_F(ProtocolRPCServerTest, EchoPayload)
   EXPECT_TRUE(utils::CheckReplyFormat(reply));
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(), 65u);
 
-  auto last_input = m_test_protocol->GetLastInput();
+  auto last_input = m_test_protocol.GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), payload.GetType());
   EXPECT_EQ(last_input, payload);
@@ -212,7 +210,7 @@ TEST_F(ProtocolRPCServerTest, EchoPayload)
 TEST_F(ProtocolRPCServerTest, ServiceThrows)
 {
   ProtocolRPCServer server{GetTestProtocol()};
-  m_test_protocol->SetThrowForServiceRequest(true);
+  m_test_protocol.SetThrowForServiceRequest(true);
 
   sup::dto::AnyValue payload{ sup::dto::StringType, "does_not_matter"};
   sup::dto::AnyValue request = utils::CreateServiceRequest(payload);
@@ -224,13 +222,12 @@ TEST_F(ProtocolRPCServerTest, ServiceThrows)
 }
 
 ProtocolRPCServerTest::ProtocolRPCServerTest()
-  : m_test_protocol{nullptr}
+  : m_test_protocol{}
 {}
 
 ProtocolRPCServerTest::~ProtocolRPCServerTest() = default;
 
-std::unique_ptr<Protocol> ProtocolRPCServerTest::GetTestProtocol()
+Protocol& ProtocolRPCServerTest::GetTestProtocol()
 {
-  m_test_protocol = new test::TestProtocol{};
-  return std::unique_ptr<Protocol>(m_test_protocol);
+  return m_test_protocol;
 }

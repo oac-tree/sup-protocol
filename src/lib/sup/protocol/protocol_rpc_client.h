@@ -44,7 +44,7 @@ namespace protocol
 class ProtocolRPCClient : public Protocol
 {
 public:
-  ProtocolRPCClient(std::unique_ptr<dto::AnyFunctor>&& any_functor);
+  ProtocolRPCClient(dto::AnyFunctor& any_functor);
   ~ProtocolRPCClient();
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
@@ -52,7 +52,7 @@ public:
   ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
 private:
-  std::unique_ptr<dto::AnyFunctor> m_any_functor;
+  dto::AnyFunctor& m_any_functor;
 };
 
 }  // namespace protocol

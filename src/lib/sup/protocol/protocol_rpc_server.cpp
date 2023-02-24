@@ -30,14 +30,9 @@ namespace sup
 namespace protocol
 {
 
-ProtocolRPCServer::ProtocolRPCServer(std::unique_ptr<Protocol>&& protocol)
-  : m_protocol{std::move(protocol)}
-{
-  if (!m_protocol)
-  {
-    throw NullDependencyException("ProtocolRPCServer constructed with empty protocol");
-  }
-}
+ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol)
+  : m_protocol{protocol}
+{}
 
 ProtocolRPCServer::~ProtocolRPCServer() = default;
 
@@ -55,7 +50,7 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   ProtocolResult result = Success;
   try
   {
-    result = m_protocol->Invoke(request[constants::REQUEST_PAYLOAD], output);
+    result = m_protocol.Invoke(request[constants::REQUEST_PAYLOAD], output);
   }
   catch(...)
   {
@@ -71,7 +66,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyVa
   ProtocolResult result = Success;
   try
   {
-    result = m_protocol->Service(payload, output);
+    result = m_protocol.Service(payload, output);
   }
   catch(...)
   {

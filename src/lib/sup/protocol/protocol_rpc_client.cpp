@@ -30,14 +30,9 @@ namespace sup
 namespace protocol
 {
 
-ProtocolRPCClient::ProtocolRPCClient(std::unique_ptr<dto::AnyFunctor>&& any_functor)
-  : m_any_functor{std::move(any_functor)}
-{
-  if (!m_any_functor)
-  {
-    throw NullDependencyException("ProtocolRPCClient constructed with empty functor");
-  }
-}
+ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor)
+  : m_any_functor{any_functor}
+{}
 
 ProtocolRPCClient::~ProtocolRPCClient() = default;
 
@@ -52,7 +47,7 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   sup::dto::AnyValue reply;
   try
   {
-    reply = (*m_any_functor)(request);
+    reply = m_any_functor(request);
   }
   catch(...)
   {
@@ -83,7 +78,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   sup::dto::AnyValue reply;
   try
   {
-    reply = (*m_any_functor)(request);
+    reply = m_any_functor(request);
   }
   catch(...)
   {

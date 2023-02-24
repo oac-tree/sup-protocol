@@ -56,17 +56,16 @@ protected:
   ProtocolRPCClientTest();
   virtual ~ProtocolRPCClientTest();
 
-  std::unique_ptr<sup::dto::AnyFunctor> GetTestFunctor();
-  std::unique_ptr<sup::dto::AnyFunctor> GetServerFunctor();
+  sup::dto::AnyFunctor& GetTestFunctor();
+  sup::dto::AnyFunctor& GetServerFunctor();
 
-  TestFunctor* m_test_functor;
-  test::TestProtocol* m_test_protocol;
+  TestFunctor m_test_functor;
+  test::TestProtocol m_test_protocol;
+  ProtocolRPCServer m_protocol_server;
 };
 
 TEST_F(ProtocolRPCClientTest, Construction)
 {
-  EXPECT_THROW(ProtocolRPCClient null_client{std::unique_ptr<sup::dto::AnyFunctor>{}},
-               NullDependencyException);
   EXPECT_NO_THROW(ProtocolRPCClient client{GetTestFunctor()});
 }
 
@@ -76,7 +75,7 @@ TEST_F(ProtocolRPCClientTest, InvokeEmptyInput)
   sup::dto::AnyValue output;
   EXPECT_EQ(client.Invoke(sup::dto::AnyValue{}, output), ClientTransportEncodingError);
   EXPECT_TRUE(sup::dto::IsEmptyValue(output));
-  EXPECT_TRUE(sup::dto::IsEmptyValue(m_test_functor->GetLastRequest()));
+  EXPECT_TRUE(sup::dto::IsEmptyValue(m_test_functor.GetLastRequest()));
 }
 
 TEST_F(ProtocolRPCClientTest, InvokeScalarInput)
@@ -87,7 +86,7 @@ TEST_F(ProtocolRPCClientTest, InvokeScalarInput)
   EXPECT_EQ(client.Invoke(input, output), Success);
   EXPECT_FALSE(sup::dto::IsEmptyValue(output));
   EXPECT_EQ(input, output);
-  auto last_request = m_test_functor->GetLastRequest();
+  auto last_request = m_test_functor.GetLastRequest();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
@@ -108,7 +107,7 @@ TEST_F(ProtocolRPCClientTest, InvokeBadReply)
   EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
   EXPECT_TRUE(sup::dto::IsEmptyValue(output));
 
-  auto last_request = m_test_functor->GetLastRequest();
+  auto last_request = m_test_functor.GetLastRequest();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
@@ -140,7 +139,7 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
   EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
   EXPECT_TRUE(sup::dto::IsEmptyValue(output));
 
-  auto last_request = m_test_functor->GetLastRequest();
+  auto last_request = m_test_functor.GetLastRequest();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
@@ -188,12 +187,12 @@ TEST_F(ProtocolRPCClientTest, ApplicationProtocolInfo)
 {
   ProtocolRPCClient client{GetServerFunctor()};
   // Successful retrieval of application protocol information
-  m_test_protocol->SetFailForServiceRequest(false);
+  m_test_protocol.SetFailForServiceRequest(false);
   auto protocol_info = utils::GetApplicationProtocolInfo(client);
   EXPECT_EQ(protocol_info.m_application_type, test::TEST_PROTOCOL_TYPE);
   EXPECT_EQ(protocol_info.m_application_version, test::TEST_PROTOCOL_VERSION);
   // Failing retrieval of application protocol information
-  m_test_protocol->SetFailForServiceRequest(true);
+  m_test_protocol.SetFailForServiceRequest(true);
   protocol_info = utils::GetApplicationProtocolInfo(client);
   EXPECT_TRUE(protocol_info.m_application_type.empty());
   EXPECT_TRUE(protocol_info.m_application_version.empty());
@@ -234,21 +233,19 @@ sup::dto::AnyValue TestFunctor::GetLastRequest() const
 }
 
 ProtocolRPCClientTest::ProtocolRPCClientTest()
-  : m_test_functor{nullptr}
-  , m_test_protocol{nullptr}
+  : m_test_functor{}
+  , m_test_protocol{}
+  , m_protocol_server{m_test_protocol}
 {}
 
 ProtocolRPCClientTest::~ProtocolRPCClientTest() = default;
 
-std::unique_ptr<sup::dto::AnyFunctor> ProtocolRPCClientTest::GetTestFunctor()
+sup::dto::AnyFunctor& ProtocolRPCClientTest::GetTestFunctor()
 {
-  m_test_functor = new TestFunctor{};
-  return std::unique_ptr<sup::dto::AnyFunctor>{m_test_functor};
+  return m_test_functor;
 }
 
-std::unique_ptr<sup::dto::AnyFunctor> ProtocolRPCClientTest::GetServerFunctor()
+sup::dto::AnyFunctor& ProtocolRPCClientTest::GetServerFunctor()
 {
-  m_test_protocol = new test::TestProtocol;
-  std::unique_ptr<Protocol> protocol{m_test_protocol};
-  return std::unique_ptr<sup::dto::AnyFunctor>{new ProtocolRPCServer{std::move(protocol)}};
+  return m_protocol_server;
 }
