@@ -68,6 +68,12 @@ TEST_F(FunctionProtocolPackTest, String)
   EXPECT_NO_THROW(FunctionProtocolPack(m_empty, "new_field", str));
   ASSERT_TRUE(m_empty.HasField("new_field"));
   EXPECT_EQ(m_empty["new_field"], str);
+
+  // Raw c strings should use the same underlying implementation (not the bool overload!)
+  EXPECT_NO_THROW(FunctionProtocolPack(m_empty, "raw", "c string"));
+  ASSERT_TRUE(m_empty.HasField("raw"));
+  EXPECT_EQ(m_empty["raw"].GetType(), sup::dto::StringType);
+  EXPECT_EQ(m_empty["raw"], std::string("c string"));
 }
 
 TEST_F(FunctionProtocolPackTest, StringList)

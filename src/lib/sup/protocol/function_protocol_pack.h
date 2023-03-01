@@ -39,6 +39,9 @@ void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_n
                           const std::string& str);
 
 void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name,
+                          const char* str);
+
+void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name,
                           const std::vector<std::string>& string_list);
 
 void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name,
