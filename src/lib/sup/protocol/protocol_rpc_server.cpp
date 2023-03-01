@@ -56,7 +56,7 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   {
     return utils::CreateRPCReply(ServerTransportEncodingError);
   }
-  return utils::CreateRPCReply(result, "", output);
+  return utils::CreateRPCReply(result, output);
 }
 
 sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& request)

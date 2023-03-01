@@ -35,8 +35,9 @@ namespace constants
 {
 /**
  * An RPC request is a structured AnyValue with two fields:
- * - timestamp: a 64bit unsigned integer
+ * - timestamp: a 64bit unsigned integer (obsolete)
  * - query: a generic AnyValue that contains the payload of the request
+ * Obsolete fields need to have the correct type when present.
 */
 static const std::string REQUEST_TYPE_NAME = "sup::protocolRequest/v1.0";
 static const std::string REQUEST_TIMESTAMP = "timestamp";
@@ -45,10 +46,11 @@ static const std::string REQUEST_PAYLOAD = "query";
 /**
  * An RPC reply is a structured AnyValue with the following fields:
  * - result: a 32bit unsigned integer denoting success or failure status
- * - timestamp: a 64bit unsigned integer
- * - reason: a string describing the failure (often left empty when the 'result' field is sufficient)
+ * - timestamp: a 64bit unsigned integer (obsolete)
+ * - reason: string (obsolete)
  * - reply (optional): a field that contains the payload of the RPC reply (may be omitted if not
  *                     required)
+ * Obsolete fields need to have the correct type when present.
 */
 static const std::string REPLY_TYPE_NAME = "sup::protocolReply/v1.0";
 static const std::string REPLY_RESULT = "result";
@@ -108,7 +110,6 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply);
 sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload);
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
-                                  const std::string& reason = "",
                                   const sup::dto::AnyValue& payload = {});
 
 bool IsServiceRequest(const sup::dto::AnyValue& request);

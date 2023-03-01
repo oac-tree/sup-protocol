@@ -30,8 +30,6 @@
 
 namespace
 {
-sup::dto::uint64 GetTimestamp();
-
 sup::dto::AnyValue CreateApplicationProtocolRequestPayload();
 
 sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& application_type,
@@ -46,8 +44,9 @@ namespace utils
 {
 bool CheckRequestFormat(const sup::dto::AnyValue& request)
 {
-  if (!request.HasField(constants::REQUEST_TIMESTAMP)
-      || request[constants::REQUEST_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  // Only check type of timestamp field when present
+  if (request.HasField(constants::REQUEST_TIMESTAMP)
+      && request[constants::REQUEST_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
   {
     return false;
   }
@@ -65,13 +64,15 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
   {
     return false;
   }
-  if (!reply.HasField(constants::REPLY_TIMESTAMP)
-      || reply[constants::REPLY_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  // Only check type of timestamp field when present
+  if (reply.HasField(constants::REPLY_TIMESTAMP)
+      && reply[constants::REPLY_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
   {
     return false;
   }
-  if (!reply.HasField(constants::REPLY_REASON)
-      || reply[constants::REPLY_REASON].GetType() != sup::dto::StringType)
+  // Only check type of reason field when present
+  if (reply.HasField(constants::REPLY_REASON)
+      && reply[constants::REPLY_REASON].GetType() != sup::dto::StringType)
   {
     return false;
   }
@@ -80,24 +81,22 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
 
 sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload)
 {
-  sup::dto::AnyValue request = {{
-    { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, GetTimestamp()} }
-  }, constants::REQUEST_TYPE_NAME};
-  if (!sup::dto::IsEmptyValue(payload))
+  if (sup::dto::IsEmptyValue(payload))
   {
-    request.AddMember(constants::REQUEST_PAYLOAD, payload);
+    std::string error_message = "CreateRPCRequest(): empty payload is not allowed";
+    throw InvalidOperationException(error_message);
   }
+  sup::dto::AnyValue request = {{
+    { constants::REQUEST_PAYLOAD, payload }
+  }, constants::REQUEST_TYPE_NAME};
   return request;
 }
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
-                                  const std::string& reason,
                                   const sup::dto::AnyValue& payload)
 {
   sup::dto::AnyValue reply = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, result.GetValue()} },
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, GetTimestamp()} },
-    { constants::REPLY_REASON, {sup::dto::StringType, reason} }
+    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, result.GetValue()} }
   }, constants::REPLY_TYPE_NAME};
   if (!sup::dto::IsEmptyValue(payload))
   {
@@ -202,14 +201,6 @@ sup::protocol::ProtocolResult HandleApplicationProtocolInfo(sup::dto::AnyValue& 
 namespace
 {
 using namespace sup::protocol;
-
-sup::dto::uint64 GetTimestamp()
-{
-  auto now = std::chrono::system_clock::now();
-  auto ns = std::chrono::duration_cast<std::chrono::duration<sup::dto::uint64, std::nano>>(
-    now.time_since_epoch());
-  return ns.count();
-}
 
 sup::dto::AnyValue CreateApplicationProtocolRequestPayload()
 {

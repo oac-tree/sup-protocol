@@ -90,8 +90,6 @@ TEST_F(ProtocolRPCClientTest, InvokeScalarInput)
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
-  EXPECT_TRUE(last_request.HasField(constants::REQUEST_TIMESTAMP));
-  EXPECT_EQ(last_request[constants::REQUEST_TIMESTAMP].GetType(), sup::dto::UnsignedInteger64Type);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), sup::dto::SignedInteger32Type);
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
@@ -111,8 +109,6 @@ TEST_F(ProtocolRPCClientTest, InvokeBadReply)
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
-  EXPECT_TRUE(last_request.HasField(constants::REQUEST_TIMESTAMP));
-  EXPECT_EQ(last_request[constants::REQUEST_TIMESTAMP].GetType(), sup::dto::UnsignedInteger64Type);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), input.GetType());
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
@@ -143,8 +139,6 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
-  EXPECT_TRUE(last_request.HasField(constants::REQUEST_TIMESTAMP));
-  EXPECT_EQ(last_request[constants::REQUEST_TIMESTAMP].GetType(), sup::dto::UnsignedInteger64Type);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), input.GetType());
   EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
@@ -218,7 +212,7 @@ sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
   {
     throw std::runtime_error("Throwing on demand");
   }
-  return normal_request ? utils::CreateRPCReply(Success, "", query)
+  return normal_request ? utils::CreateRPCReply(Success, query)
                         : utils::CreateServiceReply(Success, query);
 }
 
