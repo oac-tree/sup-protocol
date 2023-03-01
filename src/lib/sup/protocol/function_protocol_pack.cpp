@@ -21,7 +21,7 @@
 
 #include "function_protocol_pack.h"
 
-#include <sup/protocol/rpc_exceptions.h>
+#include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anytype_helper.h>
 #include <sup/dto/anyvalue_helper.h>

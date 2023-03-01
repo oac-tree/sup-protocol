@@ -19,21 +19,26 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "rpc_exceptions.h"
+#include <gtest/gtest.h>
 
-namespace sup
+#include <sup/protocol/exceptions.h>
+
+using namespace sup::protocol;
+
+class ExceptionsTest : public ::testing::Test
 {
-namespace protocol
+protected:
+  ExceptionsTest();
+  virtual ~ExceptionsTest();
+};
+
+TEST_F(ExceptionsTest, InvalidOperationException)
 {
+  const std::string error_message = "Somthing went wrong";
+  InvalidOperationException e{error_message};
+  EXPECT_EQ(e.what(), error_message);
+}
 
-NullDependencyException::NullDependencyException(const std::string& message)
-  : MessageException{message}
-{}
+ExceptionsTest::ExceptionsTest() = default;
 
-InvalidOperationException::InvalidOperationException(const std::string& message)
-  : MessageException{message}
-{}
-
-}  // namespace protocol
-
-}  // namespace sup
+ExceptionsTest::~ExceptionsTest() = default;

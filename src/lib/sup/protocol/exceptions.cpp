@@ -19,35 +19,22 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_PROTOCOL_RPC_EXCEPTIONS_H_
-#define SUP_PROTOCOL_RPC_EXCEPTIONS_H_
-
-#include <sup/dto/anyvalue_exceptions.h>
+#include "exceptions.h"
 
 namespace sup
 {
 namespace protocol
 {
-/**
- * @brief Exception thrown when injecting a null dependency.
- */
-class NullDependencyException : public sup::dto::MessageException
-{
-public:
-  NullDependencyException(const std::string& message);
-};
 
-/**
- * @brief Exception thrown when injecting a null dependency.
- */
-class InvalidOperationException : public sup::dto::MessageException
+InvalidOperationException::InvalidOperationException(const std::string& message)
+  : m_message{message}
+{}
+
+const char* InvalidOperationException::what() const noexcept
 {
-public:
-  InvalidOperationException(const std::string& message);
-};
+  return m_message.c_str();
+}
 
 }  // namespace protocol
 
 }  // namespace sup
-
-#endif  // SUP_PROTOCOL_RPC_EXCEPTIONS_H_

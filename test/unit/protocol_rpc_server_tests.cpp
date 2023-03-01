@@ -24,7 +24,7 @@
 #include <sup/protocol/protocol_rpc_server.h>
 
 #include <sup/protocol/protocol_rpc.h>
-#include <sup/protocol/rpc_exceptions.h>
+#include <sup/protocol/exceptions.h>
 #include <sup/dto/anyvalue.h>
 #include <sup/dto/anyvalue_helper.h>
 

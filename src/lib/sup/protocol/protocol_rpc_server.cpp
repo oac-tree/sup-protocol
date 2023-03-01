@@ -22,7 +22,7 @@
 #include "protocol_rpc_server.h"
 
 #include <sup/dto/anyvalue_helper.h>
-#include <sup/protocol/rpc_exceptions.h>
+#include <sup/protocol/exceptions.h>
 #include <sup/protocol/protocol_rpc.h>
 
 namespace sup

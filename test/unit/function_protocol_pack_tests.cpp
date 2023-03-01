@@ -22,7 +22,7 @@
 #include <gtest/gtest.h>
 
 #include <sup/dto/anytype_helper.h>
-#include <sup/protocol/rpc_exceptions.h>
+#include <sup/protocol/exceptions.h>
 #include <sup/protocol/function_protocol_pack.h>
 
 using namespace sup::protocol;

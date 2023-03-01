@@ -22,7 +22,7 @@
 #include "test_protocol.h"
 
 #include <sup/protocol/protocol_rpc.h>
-#include <sup/protocol/rpc_exceptions.h>
+#include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anyvalue.h>
 
