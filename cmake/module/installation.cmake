@@ -14,7 +14,7 @@ install(EXPORT sup-protocol-targets FILE sup-protocol-targets.cmake NAMESPACE su
 # -----------------------------------------------------------------------------
 
 # Add all targets to the build-tree export set
-export(TARGETS sup-protocol NAMESPACE sup-protocol:: FILE "${PROJECT_BINARY_DIR}/sup-protocol-targets.cmake")
+export(TARGETS sup-protocol sup-protocol-di NAMESPACE sup-protocol:: FILE "${PROJECT_BINARY_DIR}/sup-protocol-targets.cmake")
 
 # Export the package for use from the build-tree (goes to $HOME/.cmake)
 if(COA_EXPORT_BUILD_TREE)

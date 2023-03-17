@@ -6,15 +6,15 @@
 #   CODAC_CMAKE_PREFIXES: list of prefixes to help cmake find CODAC packages
 #   CODAC_CICD: operating in a CODAC CICD system if true
 #   CODAC_FOUND: required variable for find_package, helps check if we are in a CODAC Enviorenment
-# 
+#
 # Additional optional components:
 #
 #   site-packages:
 #     CODAC_PYTHONXY_SITE_PACKAGES: python vX.Y CODAC site-packages directory
 #     CODAC_site-packages_FOUND: TRUE if any site-packages dirs were found
-#     
+#
 #   Python:
-#     CODAC_PYTHON_EXECUTABLE: CODAC system python executable, 
+#     CODAC_PYTHON_EXECUTABLE: CODAC system python executable,
 #       when paired with site-packages this executable is aliased with the corresponding site-packages
 #     CODAC_Python_VERSION_MAJOR: CODAC system python major version
 #     CODAC_Python_VERSION_MINOR: CODAC system python minor version
@@ -89,7 +89,7 @@ macro(_CODAC_find_python)
 export PYTHONPATH=${CODAC_PYTHON${CODAC_Python_VERSION_MAJOR}${CODAC_Python_VERSION_MINOR}_SITE_PACKAGES}
 ${CODAC_PYTHON_EXECUTABLE} \"$@\"")
       configure_file(${_file} ${_file} FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
-    
+
       set(CODAC_PYTHON_EXECUTABLE ${_file})
   endif()
 
@@ -111,7 +111,7 @@ if(DEFINED ENV{CODAC_ROOT})
     endif()
 
     # Prefixes to help cmake find config files for CODAC packages
-    set(CODAC_CMAKE_PREFIXES ${CODAC_DIR} ${CODAC_DIR}/common)
+    set(CODAC_CMAKE_PREFIXES ${CODAC_DIR})
 
     set(_codac_ci_env $ENV{CI})
     if(_codac_ci_env STREQUAL "true")

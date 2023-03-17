@@ -127,9 +127,9 @@ bool CheckApplicationProtocolReplyPayload(const sup::dto::AnyValue& payload);
 
 ApplicationProtocolInfo GetApplicationProtocolInfo(Protocol& protocol);
 
-sup::protocol::ProtocolResult HandleApplicationProtocolInfo(sup::dto::AnyValue& output,
-                                                       const std::string& application_type,
-                                                       const std::string& application_version);
+sup::protocol::ProtocolResult HandleApplicationProtocolInfo(
+  sup::dto::AnyValue& output, const std::string& application_type,
+  const std::string& application_version);
 
 }  // namespace utils
 
