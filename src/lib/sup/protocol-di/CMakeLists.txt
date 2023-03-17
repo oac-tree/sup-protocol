@@ -1,5 +1,5 @@
 add_library(sup-protocol-di SHARED)
-add_library(sup-protocol::sup-protocol-di ALIAS sup-protocol) # alias for build-tree usage
+add_library(sup-protocol::sup-protocol-di ALIAS sup-protocol-di) # alias for build-tree usage
 
 target_compile_features(sup-protocol-di PRIVATE cxx_std_11)
 
@@ -19,6 +19,7 @@ find_package(sup-di REQUIRED)
 target_link_libraries(sup-protocol-di
   PRIVATE
     sup-protocol::sup-protocol
+  PUBLIC
     sup-di::sup-di
 )
 
