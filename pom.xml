@@ -92,6 +92,8 @@
                             <!-- Package dependencies -->
                             <requires version="current" buildOnly="true">cmake</requires>
                             <requires version="current" buildOnly="true">gtest-devel</requires>
+                            <requires codac="true">sup-dto</requires>
+                            <requires codac="true">sup-di</requires>
                         </package>
                         <package name="devel">
                             <!-- CMAKE -->
@@ -105,6 +107,9 @@
                             </include>
                             <!--  Public API headers  -->
                             <include type="file" source="include/sup/protocol" target="include/sup/protocol">
+                                <include>*.h</include>
+                            </include>
+                            <include type="file" source="include/sup/protocol-di" target="include/sup/protocol-di">
                                 <include>*.h</include>
                             </include>
                             <!-- Package dependencies -->
