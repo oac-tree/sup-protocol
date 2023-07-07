@@ -137,7 +137,7 @@ bool FunctionProtocolExtract(sup::dto::AnyValue& anyvalue, const sup::dto::AnyVa
   {
     return false;
   }
-  if (!sup::dto::TryConvert(anyvalue, input[field_name]))
+  if (!sup::dto::TryAssign(anyvalue, input[field_name]))
   {
     return false;
   }

@@ -1,3 +1,7 @@
+Changes for 1.1.0:
+
+- Adapt to more relaxed assignment constrains of sup-dto's AnyValue
+
 Changes for 1.0.0:
 
 - First release version

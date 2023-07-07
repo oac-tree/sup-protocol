@@ -436,10 +436,10 @@ TEST_F(ProtocolRPCTest, HandleApplicationProtocolInfo)
   }
   {
     // Wrong output type gives error status
-    sup::dto::AnyValue output{ sup::dto::StringType, "does_not_matter"};
+    sup::dto::AnyValue output = sup::dto::ArrayValue({true, false});
     EXPECT_EQ(utils::HandleApplicationProtocolInfo(
-      output, APPLICATION_TYPE, APPLICATION_VERSION), sup::protocol::ServerProtocolEncodingError);
-    EXPECT_FALSE(utils::CheckApplicationProtocolReplyPayload(output));
+      output[0], APPLICATION_TYPE, APPLICATION_VERSION), sup::protocol::ServerProtocolEncodingError);
+    EXPECT_FALSE(utils::CheckApplicationProtocolReplyPayload(output[0]));
   }
 }
 
