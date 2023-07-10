@@ -118,9 +118,9 @@ TEST_F(ProtocolRPCClientTest, InvokeBadOutput)
 {
   ProtocolRPCClient client{GetTestFunctor()};
   sup::dto::AnyValue input{sup::dto::SignedInteger32Type, 42};
-  sup::dto::AnyValue output_start = sup::dto::ArrayValue({"one", "two"});
+  sup::dto::AnyValue output_start{sup::dto::StringType, "start_value"};
   sup::dto::AnyValue output{output_start};
-  EXPECT_EQ(client.Invoke(input, output[0]), ClientTransportDecodingError);
+  EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
   EXPECT_FALSE(sup::dto::IsEmptyValue(output));
   EXPECT_EQ(output, output_start);
 }
@@ -172,8 +172,8 @@ TEST_F(ProtocolRPCClientTest, ServiceMethod)
     // wrong output type provided
     const std::string SERVICE_REQUEST_VALUE = "service_request_value";
     sup::dto::AnyValue input{ sup::dto::StringType, SERVICE_REQUEST_VALUE };
-    sup::dto::AnyValue output = sup::dto::ArrayValue({true, false});
-    EXPECT_EQ(client.Service(input, output[0]), sup::protocol::ClientTransportDecodingError);
+    sup::dto::AnyValue output{ sup::dto::BooleanType };
+    EXPECT_EQ(client.Service(input, output), sup::protocol::ClientTransportDecodingError);
   }
 }
 

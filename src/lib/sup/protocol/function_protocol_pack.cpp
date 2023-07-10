@@ -79,7 +79,7 @@ void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_n
   if (sup::dto::IsEmptyValue(anyvalue))
   {
     throw InvalidOperationException("FunctionProtocolPack(): trying to pack an empty "
-                                              "value in a structure");
+                                    "value in a structure");
   }
   FunctionProtocolPrepareOutput(output, field_name);
   output.AddMember(field_name, anyvalue);

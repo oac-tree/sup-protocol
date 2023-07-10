@@ -185,7 +185,7 @@ sup::protocol::ProtocolResult HandleApplicationProtocolInfo(sup::dto::AnyValue& 
                                                        const std::string& application_version)
 {
   auto payload = CreateApplicationProtocolReplyPayload(application_type, application_version);
-  if (!sup::dto::TryAssign(output, payload))
+  if (!sup::dto::TryAssignIfEmptyOrConvert(output, payload))
   {
     return sup::protocol::ServerProtocolEncodingError;
   }

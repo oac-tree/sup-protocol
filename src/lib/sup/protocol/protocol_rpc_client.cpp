@@ -59,7 +59,7 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::REPLY_PAYLOAD))
   {
-    if (!sup::dto::TryAssign(output, reply[constants::REPLY_PAYLOAD]))
+    if (!sup::dto::TryAssignIfEmptyOrConvert(output, reply[constants::REPLY_PAYLOAD]))
     {
       return ClientTransportDecodingError;
     }
@@ -90,7 +90,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::SERVICE_REPLY_PAYLOAD))
   {
-    if (!sup::dto::TryAssign(output, reply[constants::SERVICE_REPLY_PAYLOAD]))
+    if (!sup::dto::TryAssignIfEmptyOrConvert(output, reply[constants::SERVICE_REPLY_PAYLOAD]))
     {
       return ClientTransportDecodingError;
     }

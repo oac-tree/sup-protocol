@@ -47,7 +47,7 @@ ProtocolResult TestProtocol::Invoke(const sup::dto::AnyValue& input, sup::dto::A
   m_last_input.reset(new sup::dto::AnyValue(input));
   if (input.HasField(ECHO_FIELD) && input[ECHO_FIELD].As<bool>())
   {
-    sup::dto::TryAssign(output, input);
+    sup::dto::TryAssignIfEmptyOrConvert(output, input);
   }
   if (input.HasField(THROW_FIELD) && input[THROW_FIELD].As<bool>())
   {
