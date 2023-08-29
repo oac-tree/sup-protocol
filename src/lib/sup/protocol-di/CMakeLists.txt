@@ -18,18 +18,17 @@ find_package(sup-di REQUIRED)
 
 target_link_libraries(sup-protocol-di
   PRIVATE
-    sup-protocol::sup-protocol
+  sup-protocol::sup-protocol
   PUBLIC
-    sup-di::sup-di
+  sup-di::sup-di
 )
 
 target_sources(sup-protocol-di
   PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc.cpp
+  protocol_rpc.cpp
 )
 
 # -- Installation --
-
 install(TARGETS sup-protocol-di EXPORT sup-protocol-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES

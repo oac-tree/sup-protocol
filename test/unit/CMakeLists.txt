@@ -4,16 +4,16 @@ target_compile_features(unit-tests PRIVATE cxx_std_11)
 
 target_sources(unit-tests
   PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/exceptions_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol_extract_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol_pack_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_result_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc_client_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc_server_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sup_protocol_di_tests.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/test_protocol.cpp
+  exceptions_tests.cpp
+  function_protocol_extract_tests.cpp
+  function_protocol_pack_tests.cpp
+  function_protocol_tests.cpp
+  protocol_result_tests.cpp
+  protocol_rpc_client_tests.cpp
+  protocol_rpc_server_tests.cpp
+  protocol_rpc_tests.cpp
+  sup_protocol_di_tests.cpp
+  test_protocol.cpp
 )
 
 target_include_directories(unit-tests
@@ -26,10 +26,10 @@ include(GoogleTest)
 
 target_link_libraries(unit-tests
   PRIVATE
-    GTest::GTest
-    GTest::Main
-    sup-protocol::sup-protocol
-    sup-protocol::sup-protocol-di
+  GTest::GTest
+  GTest::Main
+  sup-protocol::sup-protocol
+  sup-protocol::sup-protocol-di
 )
 
 set_target_properties(unit-tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})

@@ -19,19 +19,18 @@ target_link_libraries(sup-protocol PUBLIC sup-dto::sup-dto)
 
 target_sources(sup-protocol
   PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/exceptions.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol_extract.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol_pack.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/function_protocol.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_result.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc_client.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc_server.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol_rpc.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/protocol.cpp
+  exceptions.cpp
+  function_protocol_extract.cpp
+  function_protocol_pack.cpp
+  function_protocol.cpp
+  protocol_result.cpp
+  protocol_rpc_client.cpp
+  protocol_rpc_server.cpp
+  protocol_rpc.cpp
+  protocol.cpp
 )
 
 # -- Installation --
-
 install(TARGETS sup-protocol EXPORT sup-protocol-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
