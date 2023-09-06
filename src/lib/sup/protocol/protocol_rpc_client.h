@@ -43,7 +43,8 @@ namespace protocol
 class ProtocolRPCClient : public Protocol
 {
 public:
-  ProtocolRPCClient(dto::AnyFunctor& any_functor);
+  ProtocolRPCClient(dto::AnyFunctor& any_functor,
+                    PayloadEncoding encoding = PayloadEncoding::kBase64);
   ~ProtocolRPCClient();
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;

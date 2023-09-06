@@ -30,9 +30,9 @@ namespace sup
 namespace protocol
 {
 
-ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor)
+ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor, PayloadEncoding encoding)
   : m_any_functor{any_functor}
-  , m_encoding{PayloadEncoding::kBase64}
+  , m_encoding{encoding}
 {}
 
 ProtocolRPCClient::~ProtocolRPCClient() = default;
