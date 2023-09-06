@@ -8,7 +8,7 @@
  *
  * Author        : Kevin Meyer
  *
- * Copyright (c) : 2010-2022 ITER Organization,
+ * Copyright (c) : 2010-2023 ITER Organization,
  *                 CS 90 046
  *                 13067 St. Paul-lez-Durance Cedex
  *                 France
