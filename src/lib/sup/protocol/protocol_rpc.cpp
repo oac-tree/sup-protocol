@@ -79,7 +79,8 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
   return true;
 }
 
-sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload)
+sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
+                                    PayloadEncoding encoding)
 {
   if (sup::dto::IsEmptyValue(payload))
   {
@@ -93,7 +94,8 @@ sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload)
 }
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
-                                  const sup::dto::AnyValue& payload)
+                                  const sup::dto::AnyValue& payload,
+                                  PayloadEncoding encoding)
 {
   sup::dto::AnyValue reply = {{
     { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, result.GetValue()} }
@@ -120,7 +122,8 @@ bool CheckServiceReplyFormat(const sup::dto::AnyValue& reply)
   return true;
 }
 
-sup::dto::AnyValue CreateServiceRequest(const sup::dto::AnyValue& payload)
+sup::dto::AnyValue CreateServiceRequest(const sup::dto::AnyValue& payload,
+                                        PayloadEncoding encoding)
 {
   if (sup::dto::IsEmptyValue(payload))
   {
@@ -134,7 +137,8 @@ sup::dto::AnyValue CreateServiceRequest(const sup::dto::AnyValue& payload)
 }
 
 sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& result,
-                                      const sup::dto::AnyValue& payload)
+                                      const sup::dto::AnyValue& payload,
+                                      PayloadEncoding encoding)
 {
   sup::dto::AnyValue service_reply = {{
     { constants::SERVICE_REPLY_RESULT, {sup::dto::UnsignedInteger32Type, result.GetValue()} }
