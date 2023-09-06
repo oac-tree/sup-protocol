@@ -44,7 +44,8 @@ enum ProtocolStatus
   CLIENT_PROTOCOL_ENCODING,
   SERVER_PROTOCOL_ENCODING,
   CLIENT_PROTOCOL_DECODING,
-  SERVER_PROTOCOL_DECODING
+  SERVER_PROTOCOL_DECODING,
+  SERVER_UNSUPPORTED_PAYLOAD_ENCODING
 };
 }  // namespace status
 
@@ -99,7 +100,8 @@ std::string ProtocolResultToString(const ProtocolResult& result)
       {status::CLIENT_PROTOCOL_ENCODING, "ClientProtocolEncodingError"},
       {status::SERVER_PROTOCOL_ENCODING, "ServerProtocolEncodingError"},
       {status::CLIENT_PROTOCOL_DECODING, "ClientProtocolDecodingError"},
-      {status::SERVER_PROTOCOL_DECODING, "ServerProtocolDecodingError"}};
+      {status::SERVER_PROTOCOL_DECODING, "ServerProtocolDecodingError"},
+      {status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING, "ServerUnsupportedPayloadEncodingError"}};
   auto it = results.find(result.GetValue());
   if (it != results.end())
   {
@@ -122,6 +124,8 @@ const ProtocolResult ClientProtocolEncodingError{status::CLIENT_PROTOCOL_ENCODIN
 const ProtocolResult ServerProtocolEncodingError{status::SERVER_PROTOCOL_ENCODING};
 const ProtocolResult ClientProtocolDecodingError{status::CLIENT_PROTOCOL_DECODING};
 const ProtocolResult ServerProtocolDecodingError{status::SERVER_PROTOCOL_DECODING};
+const ProtocolResult ServerUnsupportedPayloadEncodingError{
+  status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING};
 
 }  // namespace protocol
 

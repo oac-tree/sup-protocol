@@ -27,6 +27,7 @@
 
 #include <sup/dto/anyvalue_helper.h>
 
+#include <algorithm>
 #include <chrono>
 
 namespace
@@ -36,9 +37,6 @@ sup::dto::AnyValue CreateApplicationProtocolRequestPayload();
 
 sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& application_type,
                                                          const std::string& application_version);
-
-PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet);
-
 }  // unnamed namespace
 
 namespace sup
@@ -57,11 +55,27 @@ PayloadEncoding EncodingFromInteger(sup::dto::int32 val)
   return static_cast<PayloadEncoding>(val);
 }
 
+bool IsSupportedPayloadEncoding(PayloadEncoding encoding)
+{
+  static const std::vector<PayloadEncoding> supported_encodings = {
+    PayloadEncoding::kNone,
+    PayloadEncoding::kBase64
+  };
+  auto it = std::find(supported_encodings.begin(), supported_encodings.end(), encoding);
+  return it != supported_encodings.end();
+}
+
 bool CheckRequestFormat(const sup::dto::AnyValue& request)
 {
   // Only check type of timestamp field when present
   if (request.HasField(constants::REQUEST_TIMESTAMP)
       && request[constants::REQUEST_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  {
+    return false;
+  }
+  // Only check type of encoding field when present
+  if (request.HasField(constants::ENCODING_FIELD_NAME)
+      && request[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
   {
     return false;
   }
@@ -82,6 +96,12 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
   // Only check type of timestamp field when present
   if (reply.HasField(constants::REPLY_TIMESTAMP)
       && reply[constants::REPLY_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  {
+    return false;
+  }
+  // Only check type of encoding field when present
+  if (reply.HasField(constants::ENCODING_FIELD_NAME)
+      && reply[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
   {
     return false;
   }
@@ -123,6 +143,12 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
 
 bool IsServiceRequest(const sup::dto::AnyValue& request)
 {
+  // Only check type of encoding field when present
+  if (request.HasField(constants::ENCODING_FIELD_NAME)
+      && request[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
+  {
+    return false;
+  }
   return request.HasField(constants::SERVICE_REQUEST_PAYLOAD);
 }
 
@@ -130,6 +156,12 @@ bool CheckServiceReplyFormat(const sup::dto::AnyValue& reply)
 {
   if (!reply.HasField(constants::SERVICE_REPLY_RESULT) ||
       reply[constants::SERVICE_REPLY_RESULT].GetType() != sup::dto::UnsignedInteger32Type)
+  {
+    return false;
+  }
+  // Only check type of encoding field when present
+  if (reply.HasField(constants::ENCODING_FIELD_NAME)
+      && reply[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
   {
     return false;
   }
@@ -240,6 +272,21 @@ sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
   return encoding::Decode(packet[member_name], encoding);
 }
 
+PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet)
+{
+  if (!packet.HasField(constants::ENCODING_FIELD_NAME))
+  {
+    return PayloadEncoding::kNone;
+  }
+  auto encoding_field = packet[constants::ENCODING_FIELD_NAME];
+  if (encoding_field.GetType() != sup::dto::SignedInteger32Type)
+  {
+    std::string error = "GetPacketEncoding(): encoding field is not of the correct (int32) type";
+    throw InvalidOperationException(error);
+  }
+  return utils::EncodingFromInteger(encoding_field.As<sup::dto::int32>());
+}
+
 }  // namespace utils
 
 }  // namespace protocol
@@ -264,21 +311,5 @@ sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& appl
   };
   return payload;
 }
-
-PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet)
-{
-  if (!packet.HasField(constants::ENCODING_FIELD_NAME))
-  {
-    return PayloadEncoding::kNone;
-  }
-  auto encoding_field = packet[constants::ENCODING_FIELD_NAME];
-  if (encoding_field.GetType() != sup::dto::SignedInteger32Type)
-  {
-    std::string error = "GetPacketEncoding(): encoding field is not of the correct (int32) type";
-    throw InvalidOperationException(error);
-  }
-  return utils::EncodingFromInteger(encoding_field.As<sup::dto::int32>());
-}
-
 
 }  // unnamed namespace

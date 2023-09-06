@@ -114,6 +114,8 @@ sup::dto::int32 EncodingToInteger(PayloadEncoding encoding);
 
 PayloadEncoding EncodingFromInteger(sup::dto::int32 val);
 
+bool IsSupportedPayloadEncoding(PayloadEncoding encoding);
+
 /**
  * Structure that identifies a specific application protocol with its version.
 */
@@ -160,6 +162,8 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
 
 sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
                                      const std::string& member_name);
+
+PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet);
 
 }  // namespace utils
 

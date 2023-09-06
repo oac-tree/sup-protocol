@@ -218,7 +218,12 @@ extern const ProtocolResult ClientProtocolDecodingError;
  * @note This signals a malformed Protocol message (request or reply).
 */
 extern const ProtocolResult ServerProtocolDecodingError;
-
+/**
+ * @brief Error when the Protocol server cannot decode the payload from the transport packet.
+ *
+ * @note This signals an unsupported encoding type.
+*/
+extern const ProtocolResult ServerUnsupportedPayloadEncodingError;
 
 }  // namespace protocol
 

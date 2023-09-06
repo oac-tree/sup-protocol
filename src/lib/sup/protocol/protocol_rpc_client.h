@@ -25,6 +25,7 @@
 #include <sup/dto/any_functor.h>
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol.h>
+#include <sup/protocol/protocol_rpc.h>
 
 namespace sup
 {
@@ -51,6 +52,7 @@ public:
 
 private:
   dto::AnyFunctor& m_any_functor;
+  PayloadEncoding m_encoding;
 };
 
 }  // namespace protocol

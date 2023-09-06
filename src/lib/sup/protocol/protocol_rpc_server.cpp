@@ -46,22 +46,33 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
   }
+  PayloadEncoding encoding = utils::GetPacketEncoding(request);
+  if (!utils::IsSupportedPayloadEncoding(encoding))
+  {
+    return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
+  }
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try
   {
-    result = m_protocol.Invoke(request[constants::REQUEST_PAYLOAD], output);
+    auto payload = utils::ExtractRPCPayload(request, constants::REQUEST_PAYLOAD);
+    result = m_protocol.Invoke(payload, output);
   }
   catch(...)
   {
     return utils::CreateRPCReply(ServerTransportEncodingError);
   }
-  return utils::CreateRPCReply(result, output);
+  return utils::CreateRPCReply(result, output, encoding);
 }
 
 sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& request)
 {
-  auto payload = request[constants::SERVICE_REQUEST_PAYLOAD];
+  PayloadEncoding encoding = utils::GetPacketEncoding(request);
+  if (!utils::IsSupportedPayloadEncoding(encoding))
+  {
+    return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
+  }
+  auto payload = utils::ExtractRPCPayload(request, constants::SERVICE_REQUEST_PAYLOAD);
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try
@@ -72,7 +83,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyVa
   {
     return utils::CreateServiceReply(ServerTransportEncodingError);
   }
-  return utils::CreateServiceReply(result, output);
+  return utils::CreateServiceReply(result, output, encoding);
 }
 
 }  // namespace protocol

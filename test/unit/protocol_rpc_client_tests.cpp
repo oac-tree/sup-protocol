@@ -91,8 +91,9 @@ TEST_F(ProtocolRPCClientTest, InvokeScalarInput)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), sup::dto::SignedInteger32Type);
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
+  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD);
+  EXPECT_EQ(payload.GetType(), sup::dto::SignedInteger32Type);
+  EXPECT_EQ(payload, input);
 }
 
 TEST_F(ProtocolRPCClientTest, InvokeBadReply)
@@ -110,8 +111,9 @@ TEST_F(ProtocolRPCClientTest, InvokeBadReply)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), input.GetType());
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
+  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD);
+  EXPECT_EQ(payload.GetType(), input.GetType());
+  EXPECT_EQ(payload, input);
 }
 
 TEST_F(ProtocolRPCClientTest, InvokeBadOutput)
@@ -140,8 +142,9 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD].GetType(), input.GetType());
-  EXPECT_EQ(last_request[constants::REQUEST_PAYLOAD], input);
+  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD);
+  EXPECT_EQ(payload.GetType(), input.GetType());
+  EXPECT_EQ(payload, input);
 }
 
 TEST_F(ProtocolRPCClientTest, ServiceMethod)
@@ -201,9 +204,10 @@ TestFunctor::~TestFunctor() = default;
 sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
 {
   m_last_request.reset(new sup::dto::AnyValue(input));
+  auto encoding = utils::GetPacketEncoding(input);
   bool normal_request = input.HasField(constants::REQUEST_PAYLOAD);
-  auto query = normal_request ? input[constants::REQUEST_PAYLOAD]
-                              : input[constants::SERVICE_REQUEST_PAYLOAD];
+  auto query = normal_request ? utils::ExtractRPCPayload(input, constants::REQUEST_PAYLOAD)
+                              : utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD);
   if (query.HasField(BAD_REPLY_FIELD) && query[BAD_REPLY_FIELD].As<bool>())
   {
     return sup::dto::AnyValue{{{"BadReplyFormat", {sup::dto::BooleanType, true}}}};
@@ -212,8 +216,8 @@ sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
   {
     throw std::runtime_error("Throwing on demand");
   }
-  return normal_request ? utils::CreateRPCReply(Success, query)
-                        : utils::CreateServiceReply(Success, query);
+  return normal_request ? utils::CreateRPCReply(Success, query, encoding)
+                        : utils::CreateServiceReply(Success, query, encoding);
 }
 
 sup::dto::AnyValue TestFunctor::GetLastRequest() const

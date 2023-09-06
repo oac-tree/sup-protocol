@@ -32,6 +32,7 @@ namespace protocol
 
 ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor)
   : m_any_functor{any_functor}
+  , m_encoding{PayloadEncoding::kBase64}
 {}
 
 ProtocolRPCClient::~ProtocolRPCClient() = default;
@@ -43,7 +44,7 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   {
     return ClientTransportEncodingError;
   }
-  auto request = utils::CreateRPCRequest(input);
+  auto request = utils::CreateRPCRequest(input, m_encoding);
   sup::dto::AnyValue reply;
   try
   {
@@ -59,7 +60,8 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::REPLY_PAYLOAD))
   {
-    if (!sup::dto::TryAssignIfEmptyOrConvert(output, reply[constants::REPLY_PAYLOAD]))
+    auto payload = utils::ExtractRPCPayload(reply, constants::REPLY_PAYLOAD);
+    if (!sup::dto::TryAssignIfEmptyOrConvert(output, payload))
     {
       return ClientTransportDecodingError;
     }
@@ -74,7 +76,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   {
     return ClientTransportEncodingError;
   }
-  auto request = utils::CreateServiceRequest(input);
+  auto request = utils::CreateServiceRequest(input, m_encoding);
   sup::dto::AnyValue reply;
   try
   {
@@ -90,7 +92,8 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::SERVICE_REPLY_PAYLOAD))
   {
-    if (!sup::dto::TryAssignIfEmptyOrConvert(output, reply[constants::SERVICE_REPLY_PAYLOAD]))
+    auto payload = utils::ExtractRPCPayload(reply, constants::SERVICE_REPLY_PAYLOAD);
+    if (!sup::dto::TryAssignIfEmptyOrConvert(output, payload))
     {
       return ClientTransportDecodingError;
     }

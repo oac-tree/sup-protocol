@@ -160,18 +160,36 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
   // Request without payload is not allowed and throws
   EXPECT_THROW(utils::CreateRPCRequest({}), InvalidOperationException);
 
-  // Request with payload
-  sup::dto::AnyValue payload = {{
-    { "enabled", true },
-    { "value", 2.0f }
-  }};
-  auto request_payload = utils::CreateRPCRequest(payload);
-  EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
-  ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
-  auto payload_from_request = request_payload[constants::REQUEST_PAYLOAD];
-  EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
-  EXPECT_EQ(payload_from_request, payload);
-  EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
+  {
+    // Request with payload and no encoding
+    sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    auto request_payload = utils::CreateRPCRequest(payload, PayloadEncoding::kNone);
+    EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
+    ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
+    auto payload_from_request = utils::ExtractRPCPayload(request_payload,
+                                                         constants::REQUEST_PAYLOAD);
+    EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
+    EXPECT_EQ(payload_from_request, payload);
+    EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
+  }
+  {
+    // Request with payload and base64 encoding
+    sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    auto request_payload = utils::CreateRPCRequest(payload, PayloadEncoding::kBase64);
+    EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
+    ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
+    auto payload_from_request = utils::ExtractRPCPayload(request_payload,
+                                                         constants::REQUEST_PAYLOAD);
+    EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
+    EXPECT_EQ(payload_from_request, payload);
+    EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
+  }
 }
 
 TEST_F(ProtocolRPCTest, CreateRPCReply)
