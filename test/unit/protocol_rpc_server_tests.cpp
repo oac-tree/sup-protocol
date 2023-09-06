@@ -158,6 +158,20 @@ TEST_F(ProtocolRPCServerTest, ProtocolThrows)
   EXPECT_EQ(last_input, payload);
 }
 
+TEST_F(ProtocolRPCServerTest, Protocol_UnsupportedPayloadEncoding)
+{
+  ProtocolRPCServer server{GetTestProtocol()};
+
+  sup::dto::AnyValue payload{ sup::dto::StringType, "does_not_matter"};
+  sup::dto::AnyValue request = utils::CreateRPCRequest(payload, PayloadEncoding::kBase64);
+  request[constants::ENCODING_FIELD_NAME].ConvertFrom(42);
+  auto reply = server(request);
+  EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  EXPECT_EQ(reply[constants::SERVICE_REPLY_RESULT].As<unsigned int>(),
+            ServerUnsupportedPayloadEncodingError.GetValue());
+  EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
+}
+
 TEST_F(ProtocolRPCServerTest, RequestProtocolResult)
 {
   ProtocolRPCServer server{GetTestProtocol()};
@@ -213,11 +227,25 @@ TEST_F(ProtocolRPCServerTest, ServiceThrows)
   m_test_protocol.SetThrowForServiceRequest(true);
 
   sup::dto::AnyValue payload{ sup::dto::StringType, "does_not_matter"};
-  sup::dto::AnyValue request = utils::CreateServiceRequest(payload);
+  sup::dto::AnyValue request = utils::CreateServiceRequest(payload, PayloadEncoding::kBase64);
   auto reply = server(request);
   EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
   EXPECT_EQ(reply[constants::SERVICE_REPLY_RESULT].As<unsigned int>(),
             ServerTransportEncodingError.GetValue());
+  EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
+}
+
+TEST_F(ProtocolRPCServerTest, Service_UnsupportedPayloadEncoding)
+{
+  ProtocolRPCServer server{GetTestProtocol()};
+
+  sup::dto::AnyValue payload{ sup::dto::StringType, "does_not_matter"};
+  sup::dto::AnyValue request = utils::CreateServiceRequest(payload, PayloadEncoding::kBase64);
+  request[constants::ENCODING_FIELD_NAME].ConvertFrom(42);
+  auto reply = server(request);
+  EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
+  EXPECT_EQ(reply[constants::SERVICE_REPLY_RESULT].As<unsigned int>(),
+            ServerUnsupportedPayloadEncodingError.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 }
 

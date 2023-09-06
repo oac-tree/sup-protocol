@@ -141,6 +141,12 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
   return reply;
 }
 
+sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result)
+{
+  // With empty payload, the encoding has no effect, so we pass kNone
+  return CreateRPCReply(result, {}, PayloadEncoding::kNone);
+}
+
 bool IsServiceRequest(const sup::dto::AnyValue& request)
 {
   // Only check type of encoding field when present
@@ -193,6 +199,12 @@ sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& resul
     AddRPCPayload(service_reply, payload, constants::SERVICE_REPLY_PAYLOAD, encoding);
   }
   return service_reply;
+}
+
+sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& result)
+{
+  // With empty payload, the encoding has no effect, so we pass kNone
+  return CreateServiceReply(result, {}, PayloadEncoding::kNone);
 }
 
 bool IsApplicationProtocolRequestPayload(const sup::dto::AnyValue& payload)

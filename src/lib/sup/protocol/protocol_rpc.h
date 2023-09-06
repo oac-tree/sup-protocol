@@ -130,22 +130,26 @@ bool CheckRequestFormat(const sup::dto::AnyValue& request);
 bool CheckReplyFormat(const sup::dto::AnyValue& reply);
 
 sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
-                                    PayloadEncoding encoding = PayloadEncoding::kNone);
+                                    PayloadEncoding encoding);
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
-                                  const sup::dto::AnyValue& payload = {},
-                                  PayloadEncoding encoding = PayloadEncoding::kNone);
+                                  const sup::dto::AnyValue& payload,
+                                  PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result);
 
 bool IsServiceRequest(const sup::dto::AnyValue& request);
 
 bool CheckServiceReplyFormat(const sup::dto::AnyValue& reply);
 
 sup::dto::AnyValue CreateServiceRequest(const sup::dto::AnyValue& payload,
-                                        PayloadEncoding encoding = PayloadEncoding::kNone);
+                                        PayloadEncoding encoding);
 
 sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& result,
-                                      const sup::dto::AnyValue& payload = {},
-                                      PayloadEncoding encoding = PayloadEncoding::kNone);
+                                      const sup::dto::AnyValue& payload,
+                                      PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& result);
 
 bool IsApplicationProtocolRequestPayload(const sup::dto::AnyValue& payload);
 

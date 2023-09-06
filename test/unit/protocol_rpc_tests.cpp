@@ -158,7 +158,7 @@ TEST_F(ProtocolRPCTest, CheckReplyFormat)
 TEST_F(ProtocolRPCTest, CreateRPCRequest)
 {
   // Request without payload is not allowed and throws
-  EXPECT_THROW(utils::CreateRPCRequest({}), InvalidOperationException);
+  EXPECT_THROW(utils::CreateRPCRequest({}, PayloadEncoding::kNone), InvalidOperationException);
 
   {
     // Request with payload and no encoding
@@ -220,7 +220,8 @@ TEST_F(ProtocolRPCTest, CreateRPCReply)
     { "enabled", true },
     { "value", 2.0f }
   }};
-  auto reply_payload = utils::CreateRPCReply(ServerNetworkEncodingError, payload);
+  auto reply_payload =
+    utils::CreateRPCReply(ServerNetworkEncodingError, payload, PayloadEncoding::kNone);
   EXPECT_EQ(reply_payload.GetTypeName(), constants::REPLY_TYPE_NAME);
   ASSERT_TRUE(reply_payload.HasField(constants::REPLY_RESULT));
   EXPECT_EQ(reply_payload[constants::REPLY_RESULT].GetType(),
@@ -261,8 +262,9 @@ TEST_F(ProtocolRPCTest, IsServiceRequest)
   }
   {
     // Value created by CreateServiceRequest is a valid service request
-    sup::dto::AnyValue request = utils::CreateServiceRequest({sup::dto::StringType,
-                                                              "does_not_matter"});
+    sup::dto::AnyValue request =
+      utils::CreateServiceRequest({sup::dto::StringType, "does_not_matter"},
+                                  PayloadEncoding::kBase64 );
     EXPECT_TRUE(utils::IsServiceRequest(request));
   }
 }
@@ -277,7 +279,8 @@ TEST_F(ProtocolRPCTest, CheckServiceReplyFormat)
   {
     // Correctly formatted server status reply with payload
     sup::dto::AnyValue payload = {sup::dto::BooleanType, true};
-    sup::dto::AnyValue reply = utils::CreateServiceReply(sup::protocol::Success, payload);
+    sup::dto::AnyValue reply =
+      utils::CreateServiceReply(sup::protocol::Success, payload, PayloadEncoding::kBase64);
     EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
   }
   {
@@ -311,12 +314,13 @@ TEST_F(ProtocolRPCTest, CreateServiceRequest)
   {
     // Empty payload throws
     sup::dto::AnyValue payload;
-    EXPECT_THROW(utils::CreateServiceRequest(payload), InvalidOperationException);
+    EXPECT_THROW(utils::CreateServiceRequest(payload, PayloadEncoding::kNone),
+                 InvalidOperationException);
   }
   {
     // Empty payload throws
     sup::dto::AnyValue payload{ sup::dto::StringType, "service_payload" };
-    auto service_request = utils::CreateServiceRequest(payload);
+    auto service_request = utils::CreateServiceRequest(payload, PayloadEncoding::kNone);
     EXPECT_TRUE(utils::IsServiceRequest(service_request));
   }
 }
@@ -333,7 +337,8 @@ TEST_F(ProtocolRPCTest, CreateServiceReply)
   {
     // Reply without payload by providing empty payload
     sup::dto::AnyValue payload;
-    auto service_reply = utils::CreateServiceReply(sup::protocol::Success, payload);
+    auto service_reply =
+      utils::CreateServiceReply(sup::protocol::Success, payload, PayloadEncoding::kBase64);
     EXPECT_TRUE(utils::CheckServiceReplyFormat(service_reply));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_RESULT));
     EXPECT_FALSE(service_reply.HasField(constants::SERVICE_REPLY_PAYLOAD));
@@ -341,7 +346,8 @@ TEST_F(ProtocolRPCTest, CreateServiceReply)
   {
     // Reply with payload
     sup::dto::AnyValue payload{ sup::dto::Float64Type, 3.14 };
-    auto service_reply = utils::CreateServiceReply(sup::protocol::Success, payload);
+    auto service_reply =
+      utils::CreateServiceReply(sup::protocol::Success, payload, PayloadEncoding::kBase64);
     EXPECT_TRUE(utils::CheckServiceReplyFormat(service_reply));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_RESULT));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_PAYLOAD));
