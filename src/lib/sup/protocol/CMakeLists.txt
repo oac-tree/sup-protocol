@@ -15,7 +15,12 @@ target_include_directories(sup-protocol PUBLIC
 )
 
 find_package(sup-dto REQUIRED)
-target_link_libraries(sup-protocol PUBLIC sup-dto::sup-dto)
+find_package(sup-utils REQUIRED)
+target_link_libraries(sup-protocol
+  PUBLIC
+    sup-dto::sup-dto
+  PRIVATE
+    sup-utils::sup-codec)
 
 target_sources(sup-protocol
   PRIVATE
@@ -23,6 +28,7 @@ target_sources(sup-protocol
   function_protocol_extract.cpp
   function_protocol_pack.cpp
   function_protocol.cpp
+  protocol_encodings.cpp
   protocol_result.cpp
   protocol_rpc_client.cpp
   protocol_rpc_server.cpp

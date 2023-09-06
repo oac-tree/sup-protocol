@@ -22,6 +22,7 @@
 #include "protocol_rpc.h"
 
 #include <sup/protocol/protocol.h>
+#include <sup/protocol/protocol_encodings.h>
 #include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anyvalue_helper.h>
@@ -30,10 +31,14 @@
 
 namespace
 {
+using namespace sup::protocol;
 sup::dto::AnyValue CreateApplicationProtocolRequestPayload();
 
 sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& application_type,
                                                          const std::string& application_version);
+
+PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet);
+
 }  // unnamed namespace
 
 namespace sup
@@ -42,6 +47,16 @@ namespace protocol
 {
 namespace utils
 {
+sup::dto::int32 EncodingToInteger(PayloadEncoding encoding)
+{
+  return static_cast<sup::dto::int32>(encoding);
+}
+
+PayloadEncoding EncodingFromInteger(sup::dto::int32 val)
+{
+  return static_cast<PayloadEncoding>(val);
+}
+
 bool CheckRequestFormat(const sup::dto::AnyValue& request)
 {
   // Only check type of timestamp field when present
@@ -87,9 +102,8 @@ sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
     std::string error_message = "CreateRPCRequest(): empty payload is not allowed";
     throw InvalidOperationException(error_message);
   }
-  sup::dto::AnyValue request = {{
-    { constants::REQUEST_PAYLOAD, payload }
-  }, constants::REQUEST_TYPE_NAME};
+  sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
+  AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
   return request;
 }
 
@@ -102,7 +116,7 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
   }, constants::REPLY_TYPE_NAME};
   if (!sup::dto::IsEmptyValue(payload))
   {
-    reply.AddMember(constants::REPLY_PAYLOAD, payload);
+    AddRPCPayload(reply, payload, constants::REPLY_PAYLOAD, encoding);
   }
   return reply;
 }
@@ -130,9 +144,8 @@ sup::dto::AnyValue CreateServiceRequest(const sup::dto::AnyValue& payload,
     std::string error_message = "CreateServiceRequest(): empty payload is not allowed";
     throw InvalidOperationException(error_message);
   }
-  sup::dto::AnyValue service_request = {{
-    { constants::SERVICE_REQUEST_PAYLOAD, payload }
-  }, constants::SERVICE_REQUEST_TYPE_NAME};
+  sup::dto::AnyValue service_request = sup::dto::EmptyStruct(constants::SERVICE_REQUEST_TYPE_NAME);
+  AddRPCPayload(service_request, payload, constants::SERVICE_REQUEST_PAYLOAD, encoding);
   return service_request;
 }
 
@@ -145,7 +158,7 @@ sup::dto::AnyValue CreateServiceReply(const sup::protocol::ProtocolResult& resul
   }, constants::SERVICE_REPLY_TYPE_NAME};
   if (!sup::dto::IsEmptyValue(payload))
   {
-    service_reply.AddMember(constants::SERVICE_REPLY_PAYLOAD, payload);
+    AddRPCPayload(service_reply, payload, constants::SERVICE_REPLY_PAYLOAD, encoding);
   }
   return service_reply;
 }
@@ -196,6 +209,37 @@ sup::protocol::ProtocolResult HandleApplicationProtocolInfo(sup::dto::AnyValue& 
   return sup::protocol::Success;
 }
 
+void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload,
+                   const std::string& member_name, PayloadEncoding encoding)
+{
+  if (encoding == PayloadEncoding::kNone)
+  {
+    packet.AddMember(member_name, payload);
+    return;
+  }
+  auto encoded_payload = encoding::Encode(payload, encoding);
+  sup::dto::AnyValue encoding_field = EncodingToInteger(encoding);
+  packet.AddMember(constants::ENCODING_FIELD_NAME, encoding_field);
+  packet.AddMember(member_name, encoded_payload);
+}
+
+sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
+                                     const std::string& member_name)
+{
+  if (!packet.HasField(member_name))
+  {
+    std::string error = "ExtractRPCPayload(): trying to extract payload with fieldname that is "
+                        " not present: " + member_name;
+    throw InvalidOperationException(error);
+  }
+  auto encoding = GetPacketEncoding(packet);
+  if (encoding == PayloadEncoding::kNone)
+  {
+    return packet[member_name];
+  }
+  return encoding::Decode(packet[member_name], encoding);
+}
+
 }  // namespace utils
 
 }  // namespace protocol
@@ -220,4 +264,21 @@ sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& appl
   };
   return payload;
 }
+
+PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet)
+{
+  if (!packet.HasField(constants::ENCODING_FIELD_NAME))
+  {
+    return PayloadEncoding::kNone;
+  }
+  auto encoding_field = packet[constants::ENCODING_FIELD_NAME];
+  if (encoding_field.GetType() != sup::dto::SignedInteger32Type)
+  {
+    std::string error = "GetPacketEncoding(): encoding field is not of the correct (int32) type";
+    throw InvalidOperationException(error);
+  }
+  return utils::EncodingFromInteger(encoding_field.As<sup::dto::int32>());
+}
+
+
 }  // unnamed namespace
