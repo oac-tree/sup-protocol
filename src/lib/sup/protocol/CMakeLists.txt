@@ -14,8 +14,6 @@ target_include_directories(sup-protocol PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>
 )
 
-find_package(sup-dto REQUIRED)
-find_package(sup-utils REQUIRED)
 target_link_libraries(sup-protocol
   PUBLIC
     sup-dto::sup-dto

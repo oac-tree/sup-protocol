@@ -25,6 +25,7 @@ cmake_minimum_required(VERSION 3.13)
 project(sup-protocol-project VERSION 2.0.0)
 
 option(COA_COVERAGE "Generate unit test coverage information" OFF)
+option(COA_PARASOFT_INTEGRATION "Parasoft integration" OFF)
 option(COA_EXPORT_BUILD_TREE "Export build tree in /home/user/.cmake registry" OFF)
 option(COA_BUILD_TESTS "Build unit tests" ON)
 option(COA_BUILD_DOCUMENTATION "Build documentation" OFF)
