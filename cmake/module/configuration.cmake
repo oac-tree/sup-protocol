@@ -24,10 +24,8 @@ else()
   message(STATUS "Compiling without CODAC")
 endif()
 
-# Build settings
-if(COVERAGE)
-  # On coverage builds  alsways skip building docs and build tests
-  set(COA_BUILD_DOCUMENTATION OFF)
+# On coverage builds always build tests
+if(COA_COVERAGE)
   set(COA_BUILD_TESTS ON)
 endif()
 
