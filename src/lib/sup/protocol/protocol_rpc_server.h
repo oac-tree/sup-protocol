@@ -30,7 +30,6 @@ namespace sup
 {
 namespace protocol
 {
-// Function declaration
 /**
  * @brief The ProtocolRPCServer is an AnyFunctor implementation that forwards to a Protocol.
  *

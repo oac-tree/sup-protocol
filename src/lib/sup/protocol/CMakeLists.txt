@@ -27,6 +27,7 @@ target_sources(sup-protocol
   function_protocol_pack.cpp
   function_protocol.cpp
   protocol_encodings.cpp
+  protocol_factory.cpp
   protocol_result.cpp
   protocol_rpc_client.cpp
   protocol_rpc_server.cpp
@@ -42,6 +43,7 @@ install(FILES
   function_protocol_extract.h
   function_protocol_pack.h
   function_protocol.h
+  protocol_factory.h
   protocol_result.h
   protocol_rpc_client.h
   protocol_rpc_server.h
