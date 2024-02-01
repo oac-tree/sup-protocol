@@ -20,21 +20,8 @@ target_link_libraries(sup-protocol
   PRIVATE
     sup-utils::sup-codec)
 
-target_sources(sup-protocol
-  PRIVATE
-  exceptions.cpp
-  function_protocol_extract.cpp
-  function_protocol_pack.cpp
-  function_protocol.cpp
-  protocol_encodings.cpp
-  protocol_factory_utils.cpp
-  protocol_factory.cpp
-  protocol_result.cpp
-  protocol_rpc_client.cpp
-  protocol_rpc_server.cpp
-  protocol_rpc.cpp
-  protocol.cpp
-)
+add_subdirectory(base)
+add_subdirectory(factory)
 
 # -- Installation --
 install(TARGETS sup-protocol EXPORT sup-protocol-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

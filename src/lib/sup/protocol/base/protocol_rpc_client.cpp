@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol_rpc_client.h"
+#include <sup/protocol/protocol_rpc_client.h>
 
 #include <sup/dto/anyvalue_helper.h>
 #include <sup/protocol/exceptions.h>

@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol_factory_utils.h"
+#include <sup/protocol/protocol_factory_utils.h>
 
 namespace sup
 {

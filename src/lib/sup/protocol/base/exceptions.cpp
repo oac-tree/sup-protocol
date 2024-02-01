@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "exceptions.h"
+#include <sup/protocol/exceptions.h>
 
 namespace sup
 {

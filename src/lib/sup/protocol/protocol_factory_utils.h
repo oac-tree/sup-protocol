@@ -27,8 +27,6 @@
 #include <sup/protocol/protocol_rpc_client.h>
 #include <sup/protocol/protocol_rpc_server.h>
 
-#include <sup/dto/anyvalue.h>
-
 #include <functional>
 #include <memory>
 

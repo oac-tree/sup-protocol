@@ -19,10 +19,10 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol_rpc.h"
+#include <sup/protocol/protocol_rpc.h>
 
+#include <sup/protocol/base/protocol_encodings.h>
 #include <sup/protocol/protocol.h>
-#include <sup/protocol/protocol_encodings.h>
 #include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anyvalue_helper.h>

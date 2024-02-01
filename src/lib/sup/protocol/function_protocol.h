@@ -22,8 +22,9 @@
 #ifndef SUP_PROTOCOL_FUNCTION_PROTOCOL_H_
 #define SUP_PROTOCOL_FUNCTION_PROTOCOL_H_
 
-#include <sup/dto/anyvalue.h>
 #include <sup/protocol/protocol_result.h>
+
+#include <sup/dto/anyvalue.h>
 
 #include <map>
 #include <string>

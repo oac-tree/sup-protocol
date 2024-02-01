@@ -24,8 +24,6 @@
 
 #include <sup/protocol/protocol.h>
 
-#include <sup/dto/anyvalue.h>
-
 #include <memory>
 
 namespace sup

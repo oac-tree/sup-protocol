@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "function_protocol_pack.h"
+#include <sup/protocol/function_protocol_pack.h>
 
 #include <sup/protocol/exceptions.h>
 

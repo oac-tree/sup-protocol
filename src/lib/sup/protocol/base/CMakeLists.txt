@@ -1,0 +1,13 @@
+target_sources(sup-protocol
+  PRIVATE
+  exceptions.cpp
+  function_protocol_extract.cpp
+  function_protocol_pack.cpp
+  function_protocol.cpp
+  protocol_encodings.cpp
+  protocol_result.cpp
+  protocol_rpc_client.cpp
+  protocol_rpc_server.cpp
+  protocol_rpc.cpp
+  protocol.cpp
+)

@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol_result.h"
+#include <sup/protocol/protocol_result.h>
 
 #include <map>
 

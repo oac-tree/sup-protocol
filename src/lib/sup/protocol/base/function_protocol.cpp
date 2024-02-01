@@ -19,15 +19,19 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol_factory.h"
+#include <sup/protocol/function_protocol.h>
 
 namespace sup
 {
 namespace protocol
 {
-RPCServerInterface::~RPCServerInterface() = default;
 
-ProtocolFactory::~ProtocolFactory() = default;
+sup::dto::AnyValue FunctionProtocolInput(const std::string& func_name)
+{
+  sup::dto::AnyValue result = sup::dto::EmptyStruct();
+  result.AddMember(FUNCTION_FIELD_NAME, func_name);
+  return result;
+}
 
 }  // namespace protocol
 

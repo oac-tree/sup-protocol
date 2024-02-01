@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "protocol.h"
+#include <sup/protocol/protocol.h>
 
 namespace sup
 {
