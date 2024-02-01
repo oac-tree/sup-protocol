@@ -63,8 +63,7 @@ public:
    * @param output An output AnyValue structure, which may be empty.
    * @return ProtocolResult Success if the call was successfully made, else an error code.
    */
-  virtual ProtocolResult Invoke(const sup::dto::AnyValue& input,
-                                sup::dto::AnyValue& output) = 0;
+  virtual ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) = 0;
 
   /**
    * @brief A service RPC call. This call will not be forwarded to the encapsulated application
@@ -74,8 +73,7 @@ public:
    * @param output An output AnyValue structure.
    * @return ProtocolResult Success if the call was successfully made, else an error code.
    */
-  virtual ProtocolResult Service(const sup::dto::AnyValue& input,
-                                 sup::dto::AnyValue& output) = 0;
+  virtual ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) = 0;
 };
 
 }  // namespace protocol
