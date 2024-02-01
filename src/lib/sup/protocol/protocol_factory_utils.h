@@ -44,6 +44,10 @@ namespace protocol
  * and a network server (created by the provided function and requiring the injection of a
  * ProtocolRPCServer with an injected Protocol).
  *
+ * @details This function facilitates the creation of an RPC server, since it is typically
+ * required to create the RPC server by injecting a ProtocolRPCServer, which in its turn requires
+ * the injection of a Protocol implementation.
+ *
  * @param factory_func Factory function for the network server taking a sup::dto::AnyFunctor.
  * @param protocol Protocol to be injected into the encapsulated ProtocolRPCServer.
  *
@@ -54,14 +58,16 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   Protocol& protocol);
 
 /**
- * @brief Factory function that creates a server stack consisting of a network server (created
- * by the provided function and requiring the injection of a ProtocolRPCServer with an injected
- * Protocol).
+ * @brief Factory function that creates a client stack consisting of a ProtocolRPCClient with an
+ * injected network client (created by the provided function).
  *
- * @param factory_func Factory function for the network server taking a sup::dto::AnyFunctor.
- * @param protocol Protocol to be injected into the encapsulated ProtocolRPCServer.
+ * @details This function facilitates the creation of an RPC client, since it is typically
+ * required to create a ProtocolRPCClient from a network client implementation.
  *
- * @return A RPCServerInterface implementation.
+ * @param factory_func Factory function for the network client.
+ * @param encoding PayloadEncoding to be used for the ProtocolRPCClient.
+ *
+ * @return A Protocol implementation, which will be a ProtocolRPCClient.
  */
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding);
