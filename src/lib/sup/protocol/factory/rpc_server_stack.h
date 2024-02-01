@@ -19,29 +19,40 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/protocol_factory_utils.h>
+#ifndef SUP_PROTOCOL_RPC_SERVER_STACK_H_
+#define SUP_PROTOCOL_RPC_SERVER_STACK_H_
 
-#include <sup/protocol/factory/rpc_client_stack.h>
-#include <sup/protocol/factory/rpc_server_stack.h>
+#include <sup/protocol/protocol.h>
+#include <sup/protocol/protocol_factory.h>
+#include <sup/protocol/protocol_rpc_server.h>
+
+#include <functional>
+#include <memory>
 
 namespace sup
 {
 namespace protocol
 {
 
-std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
-  std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  Protocol& protocol)
+/**
+ * @brief RPCServerStack is an RPCServerInterface that encapsulates both the server's
+ * implementation, which requires injecting a ProtocolRPCServer, and the ProtocolRPCServer.
+ */
+class RPCServerStack : public RPCServerInterface
 {
-  return std::unique_ptr<RPCServerInterface>(new RPCServerStack(factory_func, protocol));
-}
+public:
+  RPCServerStack(std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+                 Protocol& protocol);
 
-std::unique_ptr<Protocol> CreateRPCClientStack(
-  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
-{
-  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
-}
+  ~RPCServerStack();
+
+private:
+  ProtocolRPCServer m_protocol_server;
+  std::unique_ptr<RPCServerInterface> m_rpc_server;
+};
 
 }  // namespace protocol
 
 }  // namespace sup
+
+#endif  // SUP_PROTOCOL_RPC_SERVER_STACK_H_

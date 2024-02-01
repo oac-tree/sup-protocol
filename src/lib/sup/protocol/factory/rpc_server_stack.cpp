@@ -19,9 +19,6 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/protocol_factory_utils.h>
-
-#include <sup/protocol/factory/rpc_client_stack.h>
 #include <sup/protocol/factory/rpc_server_stack.h>
 
 namespace sup
@@ -29,18 +26,14 @@ namespace sup
 namespace protocol
 {
 
-std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
+RPCServerStack::RPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
   Protocol& protocol)
-{
-  return std::unique_ptr<RPCServerInterface>(new RPCServerStack(factory_func, protocol));
-}
+  : m_protocol_server{protocol}
+  , m_rpc_server{factory_func(m_protocol_server)}
+{}
 
-std::unique_ptr<Protocol> CreateRPCClientStack(
-  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
-{
-  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
-}
+RPCServerStack::~RPCServerStack() = default;
 
 }  // namespace protocol
 

@@ -19,27 +19,29 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/protocol_factory_utils.h>
-
 #include <sup/protocol/factory/rpc_client_stack.h>
-#include <sup/protocol/factory/rpc_server_stack.h>
 
 namespace sup
 {
 namespace protocol
 {
 
-std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
-  std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  Protocol& protocol)
+RPCClientStack::RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+                               PayloadEncoding encoding)
+  : m_rpc_client{factory_func()}
+  , m_protocol_client{*m_rpc_client, encoding}
+{}
+
+RPCClientStack::~RPCClientStack() = default;
+
+ProtocolResult RPCClientStack::Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
 {
-  return std::unique_ptr<RPCServerInterface>(new RPCServerStack(factory_func, protocol));
+  return m_protocol_client.Invoke(input, output);
 }
 
-std::unique_ptr<Protocol> CreateRPCClientStack(
-  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
+ProtocolResult RPCClientStack::Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
 {
-  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
+  return m_protocol_client.Service(input, output);
 }
 
 }  // namespace protocol
