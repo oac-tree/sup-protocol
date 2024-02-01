@@ -1,5 +1,6 @@
 target_sources(sup-protocol
   PRIVATE
+  process_variable.cpp
   protocol_factory_utils.cpp
   protocol_factory.cpp
   rpc_client_stack.cpp

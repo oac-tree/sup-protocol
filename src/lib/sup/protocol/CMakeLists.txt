@@ -31,6 +31,7 @@ install(FILES
   function_protocol_extract.h
   function_protocol_pack.h
   function_protocol.h
+  process_variable.h
   protocol_factory_utils.h
   protocol_factory.h
   protocol_result.h
