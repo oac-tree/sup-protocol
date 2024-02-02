@@ -8,6 +8,7 @@ target_sources(unit-tests
   function_protocol_extract_tests.cpp
   function_protocol_pack_tests.cpp
   function_protocol_tests.cpp
+  process_variable_tests.cpp
   protocol_result_tests.cpp
   protocol_rpc_client_tests.cpp
   protocol_rpc_server_tests.cpp
