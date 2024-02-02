@@ -1,3 +1,7 @@
+Changes for 2.1.0:
+
+- Provide interfaces for a protocol factory, responsible for creating RPC clients/servers and process variables
+
 Changes for 2.0.0:
 
 - Support different encodings of RPC payloads
