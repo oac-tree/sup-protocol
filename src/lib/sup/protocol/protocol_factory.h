@@ -22,6 +22,7 @@
 #ifndef SUP_PROTOCOL_PROTOCOL_FACTORY_H_
 #define SUP_PROTOCOL_PROTOCOL_FACTORY_H_
 
+#include <sup/protocol/process_variable.h>
 #include <sup/protocol/protocol.h>
 
 #include <memory>
@@ -52,6 +53,19 @@ class ProtocolFactory
 {
 public:
   virtual ~ProtocolFactory();
+
+  /**
+   * @brief Creates a ProcessVariable.
+   *
+   * @param var_definition Definition of the ProcessVariable: may include the used network protocol,
+   * the name to connect to the variable on the network, etc.
+   *
+   * @return ProcessVariable.
+   * @throws InvalidOperationException when the factory cannot create a ProcessVariable with the
+   * given definition.
+   */
+  virtual std::unique_ptr<ProcessVariable> CreateProcessVariable(
+    const sup::dto::AnyValue& var_definition) const = 0;
 
   /**
    * @brief Creates an RPC server for the given Protocol and with the given server definition.
