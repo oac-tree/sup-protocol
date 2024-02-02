@@ -23,6 +23,8 @@
 
 #include <sup/protocol/protocol_rpc.h>
 
+#include <stdexcept>
+
 namespace sup
 {
 namespace protocol
