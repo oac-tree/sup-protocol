@@ -21,12 +21,24 @@
 
 #include <sup/protocol/process_variable.h>
 
+#include <sup/dto/anyvalue.h>
+
 namespace sup
 {
 namespace protocol
 {
 
 ProcessVariable::~ProcessVariable() = default;
+
+sup::dto::AnyValue GetVariableValue(const ProcessVariable& var)
+{
+  return var.GetValue(0.0);
+}
+
+bool SetVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value)
+{
+  return var.SetValue(value, 0.0);
+}
 
 }  // namespace protocol
 

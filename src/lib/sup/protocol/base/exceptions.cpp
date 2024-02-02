@@ -26,14 +26,22 @@ namespace sup
 namespace protocol
 {
 
-InvalidOperationException::InvalidOperationException(const std::string& message)
-  : m_message{message}
+MessageException::MessageException(std::string message)
+  : m_message{std::move(message)}
 {}
 
-const char* InvalidOperationException::what() const noexcept
+const char* MessageException::what() const noexcept
 {
   return m_message.c_str();
 }
+
+InvalidOperationException::InvalidOperationException(const std::string& message)
+  : MessageException{message}
+{}
+
+VariableUnavailableException::VariableUnavailableException(const std::string& message)
+  : MessageException{message}
+{}
 
 }  // namespace protocol
 

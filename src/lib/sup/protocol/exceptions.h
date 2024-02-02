@@ -30,16 +30,34 @@ namespace sup
 namespace protocol
 {
 
-/**
- * @brief Exception thrown when performing an operation that is not allowed
+  /**
+ * @brief Base Exception class with message.
  */
-class InvalidOperationException : public std::exception
+class MessageException : public std::exception
 {
 public:
-  InvalidOperationException(const std::string& message);
+  explicit MessageException(std::string message);
   const char* what() const noexcept override;
 private:
   std::string m_message;
+};
+
+/**
+ * @brief Exception thrown when performing an operation that is not allowed.
+ */
+class InvalidOperationException : public MessageException
+{
+public:
+  explicit InvalidOperationException(const std::string& message);
+};
+
+/**
+ * @brief Exception thrown when trying to access a ProcessVariable's value when it's not available.
+ */
+class VariableUnavailableException : public MessageException
+{
+public:
+  explicit VariableUnavailableException(const std::string& message);
 };
 
 }  // namespace protocol
