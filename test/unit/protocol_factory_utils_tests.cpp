@@ -19,6 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
+#include "test_functor.h"
 #include "test_protocol.h"
 
 #include <sup/protocol/protocol_factory_utils.h>
@@ -30,15 +31,15 @@
 
 using namespace sup::protocol;
 
-class TestServerFunctor : public RPCServerInterface
+class TestRPCServer : public RPCServerInterface
 {
 public:
-  TestServerFunctor(sup::dto::AnyFunctor& protocol_server, TestServerFunctor*& handle)
+  TestRPCServer(sup::dto::AnyFunctor& protocol_server, TestRPCServer*& handle)
     : m_protocol_server{protocol_server}
   {
     handle = this;
   }
-  ~TestServerFunctor() = default;
+  ~TestRPCServer() = default;
 
   sup::dto::AnyValue Call(const sup::dto::AnyValue& input) {
     return m_protocol_server(input);
@@ -53,18 +54,24 @@ protected:
   ProtocolFactoryUtilsTest() = default;
   virtual ~ProtocolFactoryUtilsTest() = default;
 
-  std::unique_ptr<RPCServerInterface> CreateTestServerFunctor(
-    sup::dto::AnyFunctor& protocol_server, TestServerFunctor*& handle) {
-      return std::unique_ptr<RPCServerInterface>(new TestServerFunctor(protocol_server, handle));
-    }
+  std::unique_ptr<RPCServerInterface> CreateTestRPCServer(
+    sup::dto::AnyFunctor& protocol_server, TestRPCServer*& handle)
+  {
+    return std::unique_ptr<RPCServerInterface>(new TestRPCServer(protocol_server, handle));
+  }
+
+  std::unique_ptr<sup::dto::AnyFunctor> CreateTestFunctor(test::TestFunctor*& handle)
+  {
+    return std::unique_ptr<sup::dto::AnyFunctor>{new test::TestFunctor(handle)};
+  }
 };
 
-TEST_F(ProtocolFactoryUtilsTest, CreateRPCServerStack)
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStack)
 {
   test::TestProtocol test_protocol{};
-  TestServerFunctor* server_handle = nullptr;
+  TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
-    return CreateTestServerFunctor(protocol_server, server_handle);
+    return CreateTestRPCServer(protocol_server, server_handle);
   };
   auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
   ASSERT_NE(server_handle, nullptr);
@@ -78,9 +85,9 @@ TEST_F(ProtocolFactoryUtilsTest, CreateRPCServerStack)
 TEST_F(ProtocolFactoryUtilsTest, ServerStackEmptyRequest)
 {
   test::TestProtocol test_protocol{};
-  TestServerFunctor* server_handle = nullptr;
+  TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
-    return CreateTestServerFunctor(protocol_server, server_handle);
+    return CreateTestRPCServer(protocol_server, server_handle);
   };
   auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
   ASSERT_NE(server_handle, nullptr);
@@ -95,9 +102,9 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackEmptyRequest)
 TEST_F(ProtocolFactoryUtilsTest, ServerStackScalarPayload)
 {
   test::TestProtocol test_protocol{};
-  TestServerFunctor* server_handle = nullptr;
+  TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
-    return CreateTestServerFunctor(protocol_server, server_handle);
+    return CreateTestRPCServer(protocol_server, server_handle);
   };
   auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
   ASSERT_NE(server_handle, nullptr);
@@ -119,9 +126,9 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackScalarPayload)
 TEST_F(ProtocolFactoryUtilsTest, ServerStackServiceRequest)
 {
   test::TestProtocol test_protocol{};
-  TestServerFunctor* server_handle = nullptr;
+  TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
-    return CreateTestServerFunctor(protocol_server, server_handle);
+    return CreateTestRPCServer(protocol_server, server_handle);
   };
   auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
   ASSERT_NE(server_handle, nullptr);
@@ -136,5 +143,82 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackServiceRequest)
     { constants::APPLICATION_PROTOCOL_VERSION, {sup::dto::StringType, test::TEST_PROTOCOL_VERSION} }
   };
   EXPECT_EQ(reply[constants::SERVICE_REPLY_PAYLOAD], expected_payload);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateClientStack)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kNone);
+  ASSERT_NE(functor_handle, nullptr);
+  sup::dto::AnyValue input = {{
+    {"flag", {sup::dto::BooleanType, true}}
+  }};
+  sup::dto::AnyValue output{};
+  EXPECT_NO_THROW(client_stack->Invoke(input, output));
+  EXPECT_TRUE(utils::CheckRequestFormat(functor_handle->GetLastRequest()));
+}
+
+TEST_F(ProtocolFactoryUtilsTest, ClientStackEmptyPayload)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kNone);
+  ASSERT_NE(functor_handle, nullptr);
+  sup::dto::AnyValue input;
+  sup::dto::AnyValue output{};
+  EXPECT_EQ(client_stack->Invoke(input, output), ClientTransportEncodingError);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
+  EXPECT_TRUE(sup::dto::IsEmptyValue(functor_handle->GetLastRequest()));
+}
+
+TEST_F(ProtocolFactoryUtilsTest, ClientStackScalarPayload)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kBase64);
+  ASSERT_NE(functor_handle, nullptr);
+  sup::dto::AnyValue input{sup::dto::SignedInteger32Type, 42};
+  sup::dto::AnyValue output{};
+  EXPECT_EQ(client_stack->Invoke(input, output), Success);
+  EXPECT_FALSE(sup::dto::IsEmptyValue(output));
+  EXPECT_EQ(input, output);
+  auto last_request = functor_handle->GetLastRequest();
+  EXPECT_FALSE(sup::dto::IsEmptyValue(last_request));
+  EXPECT_TRUE(utils::CheckRequestFormat(last_request));
+  EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
+  EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
+  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD);
+  EXPECT_EQ(payload.GetType(), sup::dto::SignedInteger32Type);
+  EXPECT_EQ(payload, input);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, ClientStackServiceRequest)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kBase64);
+  ASSERT_NE(functor_handle, nullptr);
+  {
+    // successful service call
+    const std::string SERVICE_REQUEST_VALUE = "service_request_value";
+    sup::dto::AnyValue input{ sup::dto::StringType, SERVICE_REQUEST_VALUE };
+    sup::dto::AnyValue output;
+    EXPECT_EQ(client_stack->Service(input, output), sup::protocol::Success);
+  }
+  {
+    // service call with empty payload fails
+    sup::dto::AnyValue input;
+    sup::dto::AnyValue output;
+    EXPECT_EQ(client_stack->Service(input, output), sup::protocol::ClientTransportEncodingError);
+  }
 }
 

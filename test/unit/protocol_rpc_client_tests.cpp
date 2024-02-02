@@ -19,6 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
+#include "test_functor.h"
 #include "test_protocol.h"
 
 #include <sup/protocol/protocol_rpc_client.h>
@@ -33,23 +34,6 @@
 
 using namespace sup::protocol;
 
-static const std::string BAD_REPLY_FIELD = "bad_reply";
-static const std::string THROW_FIELD = "throw";
-
-class TestFunctor : public sup::dto::AnyFunctor
-{
-public:
-  TestFunctor();
-  ~TestFunctor();
-
-  sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
-
-  sup::dto::AnyValue GetLastRequest() const;
-
-private:
-  std::unique_ptr<sup::dto::AnyValue> m_last_request;
-};
-
 class ProtocolRPCClientTest : public ::testing::Test
 {
 protected:
@@ -59,7 +43,7 @@ protected:
   sup::dto::AnyFunctor& GetTestFunctor();
   sup::dto::AnyFunctor& GetServerFunctor();
 
-  TestFunctor m_test_functor;
+  test::TestFunctor m_test_functor;
   test::TestProtocol m_test_protocol;
   ProtocolRPCServer m_protocol_server;
 };
@@ -100,7 +84,7 @@ TEST_F(ProtocolRPCClientTest, InvokeBadReply)
 {
   ProtocolRPCClient client{GetTestFunctor()};
   sup::dto::AnyValue input = {{
-    {BAD_REPLY_FIELD, {sup::dto::BooleanType, true}}
+    {test::BAD_REPLY_FIELD, {sup::dto::BooleanType, true}}
   }};
   sup::dto::AnyValue output{};
   EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
@@ -131,7 +115,7 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
 {
   ProtocolRPCClient client{GetTestFunctor()};
   sup::dto::AnyValue input = {{
-    {THROW_FIELD, {sup::dto::BooleanType, true}}
+    {test::FUNCTOR_THROW_FIELD, {sup::dto::BooleanType, true}}
   }};
   sup::dto::AnyValue output{};
   EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
@@ -166,7 +150,7 @@ TEST_F(ProtocolRPCClientTest, ServiceMethod)
   {
     // underlying functor throws
     sup::dto::AnyValue input = {
-      { THROW_FIELD, {sup::dto::BooleanType, true}}
+      { test::FUNCTOR_THROW_FIELD, {sup::dto::BooleanType, true}}
     };
     sup::dto::AnyValue output;
     EXPECT_EQ(client.Service(input, output), sup::protocol::ClientTransportDecodingError);
@@ -193,41 +177,6 @@ TEST_F(ProtocolRPCClientTest, ApplicationProtocolInfo)
   protocol_info = utils::GetApplicationProtocolInfo(client);
   EXPECT_TRUE(protocol_info.m_application_type.empty());
   EXPECT_TRUE(protocol_info.m_application_version.empty());
-}
-
-TestFunctor::TestFunctor()
-  : m_last_request{}
-{}
-
-TestFunctor::~TestFunctor() = default;
-
-sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
-{
-  m_last_request.reset(new sup::dto::AnyValue(input));
-  auto encoding = utils::GetPacketEncoding(input);
-  bool normal_request = input.HasField(constants::REQUEST_PAYLOAD);
-  auto query = normal_request ? utils::ExtractRPCPayload(input, constants::REQUEST_PAYLOAD)
-                              : utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD);
-  if (query.HasField(BAD_REPLY_FIELD) && query[BAD_REPLY_FIELD].As<bool>())
-  {
-    return sup::dto::AnyValue{{{"BadReplyFormat", {sup::dto::BooleanType, true}}}};
-  }
-  if (query.HasField(THROW_FIELD) && query[THROW_FIELD].As<bool>())
-  {
-    throw std::runtime_error("Throwing on demand");
-  }
-  return normal_request ? utils::CreateRPCReply(Success, query, encoding)
-                        : utils::CreateServiceReply(Success, query, encoding);
-}
-
-sup::dto::AnyValue TestFunctor::GetLastRequest() const
-{
-  if (!m_last_request)
-  {
-    return {};
-  }
-  sup::dto::AnyValue result{*m_last_request};
-  return result;
 }
 
 ProtocolRPCClientTest::ProtocolRPCClientTest()
