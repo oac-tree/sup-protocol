@@ -267,3 +267,23 @@ TEST_F(ProtocolFactoryUtilsTest, ParseEncoding)
     EXPECT_THROW(ParsePayloadEncoding(config), InvalidOperationException);
   }
 }
+
+TEST_F(ProtocolFactoryUtilsTest, ValidateConfig)
+{
+  // Expected config field present and of correct type
+  sup::dto::AnyValue config = {{
+    { "some_name", { sup::dto::UnsignedInteger64Type, 42 } },
+    { "flag", false }
+  }, "MyConfig"};
+  EXPECT_NO_THROW(ValidateConfigurationField(config, "some_name",
+                                             sup::dto::UnsignedInteger64Type));
+  EXPECT_NO_THROW(ValidateConfigurationField(config, "flag", sup::dto::BooleanType));
+  // Expected field missing
+  EXPECT_THROW(ValidateConfigurationField(config, "not_present", sup::dto::StringType),
+               InvalidOperationException);
+  // Expected field with wrong type
+  EXPECT_THROW(ValidateConfigurationField(config, "some_name", sup::dto::StringType),
+               InvalidOperationException);
+  EXPECT_THROW(ValidateConfigurationField(config, "flag", sup::dto::StringType),
+               InvalidOperationException);
+}

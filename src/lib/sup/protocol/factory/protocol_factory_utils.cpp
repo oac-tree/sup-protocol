@@ -52,11 +52,7 @@ PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)
   {
     return PayloadEncoding::kBase64;
   }
-  if (config[kEncoding].GetType() != sup::dto::StringType)
-  {
-    const std::string error = "Could not parse encoding field: wrong type";
-    throw InvalidOperationException(error);
-  }
+  ValidateConfigurationField(config, kEncoding, sup::dto::StringType);
   auto encoding_str = config[kEncoding].As<std::string>();
   static const std::map<std::string, PayloadEncoding> encoding_map = {
     { kEncoding_None, PayloadEncoding::kNone },
@@ -69,6 +65,21 @@ PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)
     throw InvalidOperationException(error);
   }
   return iter->second;
+}
+
+void ValidateConfigurationField(const sup::dto::AnyValue& config, const std::string& field_name,
+                                const sup::dto::AnyType& anytype)
+{
+  if (!config.HasField(field_name))
+  {
+    const std::string error = "Configuration is missing the required field [" + field_name + "]";
+    throw InvalidOperationException(error);
+  }
+  if (config[field_name].GetType() != anytype)
+  {
+    const std::string error = "Configuration with field [" + field_name + "] has wrong type";
+    throw InvalidOperationException(error);
+  }
 }
 
 }  // namespace protocol

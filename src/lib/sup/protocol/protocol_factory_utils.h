@@ -86,6 +86,19 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
  */
 PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config);
 
+/**
+ * @brief Validate the presence of the given field with the given type in the provided
+ * configuration AnyValue.
+ *
+ * @param config configuration AnyValue.
+ * @param field_name field name to check.
+ * @param anytype expected type of the field.
+ *
+ * @throws InvalidOperationException when the provided field was not present or of the wrong type.
+ */
+void ValidateConfigurationField(const sup::dto::AnyValue& config, const std::string& field_name,
+                                const sup::dto::AnyType& anytype);
+
 }  // namespace protocol
 
 }  // namespace sup
