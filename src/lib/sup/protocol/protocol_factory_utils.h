@@ -38,6 +38,9 @@ class AnyFunctor;
 
 namespace protocol
 {
+const std::string kEncoding = "Encoding";
+const std::string kEncoding_None = "None";
+const std::string kEncoding_Base64 = "Base64";
 
 /**
  * @brief Factory function that creates a server stack consisting of a ProtocolRPCServer
@@ -71,6 +74,17 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
  */
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding);
+
+/**
+ * @brief Parse the encoding field of a configuration AnyValue.
+ *
+ * @param config configuration AnyValue.
+ *
+ * @return Parsed encoding or PayloadEncoding::kBase64 if no encoding field was present.
+ * @throws InvalidOperationException when an encoding field was found but could not be parsed
+ * because of wrong type or unknown encoding.
+ */
+PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config);
 
 }  // namespace protocol
 

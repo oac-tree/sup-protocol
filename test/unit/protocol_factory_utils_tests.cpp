@@ -22,6 +22,7 @@
 #include "test_functor.h"
 #include "test_protocol.h"
 
+#include <sup/protocol/exceptions.h>
 #include <sup/protocol/protocol_factory_utils.h>
 #include <sup/protocol/protocol_rpc.h>
 
@@ -222,3 +223,47 @@ TEST_F(ProtocolFactoryUtilsTest, ClientStackServiceRequest)
   }
 }
 
+TEST_F(ProtocolFactoryUtilsTest, ParseEncoding)
+{
+  {
+    // Default encoding
+    sup::dto::AnyValue config = sup::dto::EmptyStruct("MyConfig");
+    EXPECT_EQ(ParsePayloadEncoding(config), PayloadEncoding::kBase64);
+  }
+  {
+    // Base64 encoding
+    sup::dto::AnyValue config = {{
+      { kEncoding, kEncoding_Base64 }
+    }, "MyConfig"};
+    EXPECT_EQ(ParsePayloadEncoding(config), PayloadEncoding::kBase64);
+  }
+  {
+    // No encoding
+    sup::dto::AnyValue config = {{
+      { kEncoding, kEncoding_None }
+    }, "MyConfig"};
+    EXPECT_EQ(ParsePayloadEncoding(config), PayloadEncoding::kNone);
+  }
+  {
+    // Extra field
+    sup::dto::AnyValue config = {{
+      { "flag", { sup::dto::BooleanType, false }},
+      { kEncoding, kEncoding_None }
+    }, "MyConfig"};
+    EXPECT_EQ(ParsePayloadEncoding(config), PayloadEncoding::kNone);
+  }
+  {
+    // Wrong encoding type
+    sup::dto::AnyValue config = {{
+      { kEncoding, { sup::dto::BooleanType, false }}
+    }, "MyConfig"};
+    EXPECT_THROW(ParsePayloadEncoding(config), InvalidOperationException);
+  }
+  {
+    // Unknown encoding
+    sup::dto::AnyValue config = {{
+      { kEncoding, "UnknownEncoding" }
+    }, "MyConfig"};
+    EXPECT_THROW(ParsePayloadEncoding(config), InvalidOperationException);
+  }
+}

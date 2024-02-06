@@ -21,8 +21,12 @@
 
 #include <sup/protocol/protocol_factory_utils.h>
 
+#include <sup/protocol/exceptions.h>
+
 #include <sup/protocol/factory/rpc_client_stack.h>
 #include <sup/protocol/factory/rpc_server_stack.h>
+
+#include <map>
 
 namespace sup
 {
@@ -40,6 +44,31 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
 {
   return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
+}
+
+PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)
+{
+  if (!config.HasField(kEncoding))
+  {
+    return PayloadEncoding::kBase64;
+  }
+  if (config[kEncoding].GetType() != sup::dto::StringType)
+  {
+    const std::string error = "Could not parse encoding field: wrong type";
+    throw InvalidOperationException(error);
+  }
+  auto encoding_str = config[kEncoding].As<std::string>();
+  static const std::map<std::string, PayloadEncoding> encoding_map = {
+    { kEncoding_None, PayloadEncoding::kNone },
+    { kEncoding_Base64, PayloadEncoding::kBase64 }
+  };
+  auto iter = encoding_map.find(encoding_str);
+  if (iter == encoding_map.end())
+  {
+    const std::string error = "Could not parse encoding field: unknow encoding";
+    throw InvalidOperationException(error);
+  }
+  return iter->second;
 }
 
 }  // namespace protocol
