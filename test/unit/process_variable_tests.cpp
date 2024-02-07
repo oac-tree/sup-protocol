@@ -37,13 +37,9 @@ public:
 
   bool IsAvailable() const override { return m_available; }
 
-  sup::dto::AnyValue GetValue(double timeout_sec) const override {
+  std::pair<bool, sup::dto::AnyValue> GetValue(double timeout_sec) const override {
     m_received_timeout = timeout_sec;
-    if (m_available)
-    {
-      return m_value;
-    }
-    throw VariableUnavailableException("Variable is not available");
+    return { m_available, m_value };
   }
 
   bool SetValue(const sup::dto::AnyValue& value, double timeout_sec) override {
@@ -80,15 +76,19 @@ protected:
 TEST_F(ProcessVariableTest, Available)
 {
   TestPV pv{{}, true};
-  EXPECT_TRUE(pv.IsAvailable());
-  auto readback = pv.GetValue(2.0);
-  EXPECT_TRUE(sup::dto::IsEmptyValue(readback));
-  EXPECT_EQ(pv.m_received_timeout, 2.0);
   sup::dto::AnyValue val = {{
     {"flag", {sup::dto::BooleanType, true}}
   }};
+  EXPECT_TRUE(pv.IsAvailable());
+  EXPECT_FALSE(WaitForVariableValue(pv, val, 0.1));
+  auto info = pv.GetValue(2.0);
+  EXPECT_TRUE(info.first);
+  auto readback = info.second;
+  EXPECT_TRUE(sup::dto::IsEmptyValue(readback));
+  EXPECT_EQ(pv.m_received_timeout, 2.0);
   EXPECT_TRUE(pv.SetValue(val, 2.0));
   EXPECT_EQ(pv.m_received_timeout, 2.0);
+  EXPECT_TRUE(WaitForVariableValue(pv, val, 1.0));
   readback = GetVariableValue(pv);
   EXPECT_EQ(pv.m_received_timeout, 0.0);
   EXPECT_EQ(readback, val);
@@ -102,7 +102,8 @@ TEST_F(ProcessVariableTest, NotAvailable)
 {
   TestPV pv{{}, false};
   EXPECT_FALSE(pv.IsAvailable());
-  EXPECT_THROW(pv.GetValue(2.0), VariableUnavailableException);
+  auto info = pv.GetValue(2.0);
+  EXPECT_FALSE(info.first);
   EXPECT_EQ(pv.m_received_timeout, 2.0);
   EXPECT_THROW(GetVariableValue(pv), VariableUnavailableException);
   EXPECT_EQ(pv.m_received_timeout, 0.0);

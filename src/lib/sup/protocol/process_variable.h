@@ -26,6 +26,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace sup
 {
@@ -59,10 +60,10 @@ public:
    * @param timeout_sec Maximum timeout in seconds to retrieve the value, i.e. to wait for the
    * variable to become available.
    *
-   * @return Variable's value.
-   * @throws VariableUnavailableException when the variable is not available within the timeout.
+   * @return Boolean indicating possible success and variable's value, which is only meaningful
+   * if successful.
    */
-  virtual sup::dto::AnyValue GetValue(double timeout_sec) const = 0;
+  virtual std::pair<bool, sup::dto::AnyValue> GetValue(double timeout_sec) const = 0;
 
   /**
    * @brief Write a value to the variable.
@@ -116,6 +117,23 @@ sup::dto::AnyValue GetVariableValue(const ProcessVariable& var);
  * @return True if successful, false otherwise.
  */
 bool SetVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value);
+
+/**
+ * @brief Wait for a ProcessVariable's value to have a given value within a specified timeout.
+ *
+ * @details This function should not be used with an expected empty value, as in that case the
+ * function may return true even when it could not fetch the ProcessVariable's value.
+ * When the ProcessVariable supports callbacks, they will be used. Otherwise, the wait will be a
+ * busy wait.
+ *
+ * @param var ProcessVariable to monitor.
+ * @param value Value to wait for.
+ * @param timeout_sec Timeout in seconds to wait for.
+ *
+ * @return True if the ProcessVariable gets the specified value within the given timeout.
+ */
+bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
+                          double timeout_sec);
 
 }  // namespace protocol
 
