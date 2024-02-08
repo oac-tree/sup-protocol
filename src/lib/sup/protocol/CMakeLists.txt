@@ -39,5 +39,6 @@ install(FILES
   protocol_rpc_server.h
   protocol_rpc.h
   protocol.h
+  variable_callback_guard.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sup/protocol
 )
