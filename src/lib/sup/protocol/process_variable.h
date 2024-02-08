@@ -124,7 +124,7 @@ bool SetVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value);
  * @details This function should not be used with an expected empty value, as in that case the
  * function may return true even when it could not fetch the ProcessVariable's value.
  * When the ProcessVariable supports callbacks, they will be used. Otherwise, the wait will be a
- * busy wait. Note also that this function will overwrite any existing callbacks defined previously.
+ * busy wait. Note also that this function will remove any existing callbacks defined previously.
  *
  * @param var ProcessVariable to monitor.
  * @param value Value to wait for.

@@ -37,6 +37,33 @@ using namespace sup::protocol;
 void TryFetchVariable(const ProcessVariable& var, sup::dto::AnyValue& output);
 bool BusyWaitForValue(const ProcessVariable& var, const sup::dto::AnyValue& expected_value,
                       double timeout_sec);
+class VariableCallbackGuard
+{
+public:
+  VariableCallbackGuard(ProcessVariable& var, ProcessVariable::Callback cb)
+    : m_var{var}, m_cb_supported{}
+  {
+    m_cb_supported = m_var.SetMonitorCallback(cb);
+  }
+  ~VariableCallbackGuard()
+  {
+    if (m_cb_supported)
+    {
+      m_var.SetMonitorCallback({});
+    }
+  }
+
+  bool CallbackSupported() const { return m_cb_supported; }
+
+  VariableCallbackGuard(const VariableCallbackGuard&) = delete;
+  VariableCallbackGuard(VariableCallbackGuard&&) = delete;
+  VariableCallbackGuard& operator=(const VariableCallbackGuard&) = delete;
+  VariableCallbackGuard& operator=(VariableCallbackGuard&&) = delete;
+
+private:
+  ProcessVariable& m_var;
+  bool m_cb_supported;
+};
 }  // unnamed namespace
 
 namespace sup
@@ -76,7 +103,8 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
     }
     cv.notify_one();
   };
-  if (!var.SetMonitorCallback(callback))
+  VariableCallbackGuard cb_guard(var, callback);
+  if (!cb_guard.CallbackSupported())
   {
     return BusyWaitForValue(var, value, timeout_sec);
   }
