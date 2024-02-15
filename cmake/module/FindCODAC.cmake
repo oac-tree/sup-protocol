@@ -81,12 +81,12 @@ macro(_CODAC_find_python)
     if(CODAC_PYTHON${CODAC_Python_VERSION_MAJOR}${CODAC_Python_VERSION_MINOR}_SITE_PACKAGES)
       message(STATUS "CODAC_PYTHON_EXECUTABLE using site-packages: CODAC_PYTHON${CODAC_Python_VERSION_MAJOR}${CODAC_Python_VERSION_MINOR}_SITE_PACKAGES")
 
-      # Create bash file to alias Python executable with site-packages
+      # Create a wrapper script with site-packages as PYTHONPATH
       # we do this because cmake doesn't like non monlithic executable names in package_EXECUTABLE macros
       set(_file ${CMAKE_CURRENT_BINARY_DIR}/CODAC_PYTHON_EXECUTABLE.sh)
       file(WRITE ${_file}
 "#!/bin/bash
-export PYTHONPATH=${CODAC_PYTHON${CODAC_Python_VERSION_MAJOR}${CODAC_Python_VERSION_MINOR}_SITE_PACKAGES}
+export PYTHONPATH=${CODAC_PYTHON${CODAC_Python_VERSION_MAJOR}${CODAC_Python_VERSION_MINOR}_SITE_PACKAGES}:\$PYTHONPATH
 ${CODAC_PYTHON_EXECUTABLE} \"$@\"")
       configure_file(${_file} ${_file} FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
 
@@ -106,12 +106,12 @@ if(DEFINED ENV{CODAC_ROOT})
       set(CODAC_VERSION $ENV{CODAC_VERSION})
     elseif(${CODAC_DIR} MATCHES ".*codac-([0-9]+\\.[0-9]+)$")
       # This is unlikely to be needed in full CODAC systems
-      # convenient for local systesms with CODAC packages
+      # convenient for local systems with CODAC packages
       set(CODAC_VERSION ${CMAKE_MATCH_1})
     endif()
 
     # Prefixes to help cmake find config files for CODAC packages
-    set(CODAC_CMAKE_PREFIXES ${CODAC_DIR})
+    set(CODAC_CMAKE_PREFIXES ${CODAC_DIR} ${CODAC_DIR}/common)
 
     set(_codac_ci_env $ENV{CI})
     if(_codac_ci_env STREQUAL "true")
