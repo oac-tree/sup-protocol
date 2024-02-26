@@ -1,5 +1,6 @@
 target_sources(sup-protocol
   PRIVATE
+  base64_variable_codec.cpp
   process_variable.cpp
   protocol_factory_utils.cpp
   protocol_factory.cpp
