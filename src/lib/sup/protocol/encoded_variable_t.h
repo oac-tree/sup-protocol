@@ -134,7 +134,7 @@ bool EncodedProcessVariable<Codec>::SetMonitorCallback(Callback func)
   {
     auto decoded = Codec::Decode(value);
     func(decoded.second, connected && decoded.first);
-  }
+  };
   return m_variable->SetMonitorCallback(wrapped_cb);
 }
 

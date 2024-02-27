@@ -1,0 +1,83 @@
+/******************************************************************************
+ * $HeadURL: $
+ * $Id: $
+ *
+ * Project       : SUP RPC protocol stack
+ *
+ * Description   : The definition and implementation for the RPC protocol stack in SUP
+ *
+ * Author        : Walter Van Herck (IO)
+ *
+ * Copyright (c) : 2010-2024 ITER Organization,
+ *                 CS 90 046
+ *                 13067 St. Paul-lez-Durance Cedex
+ *                 France
+ *
+ * This file is part of ITER CODAC software.
+ * For the terms and conditions of redistribution or use of this software
+ * refer to the file ITER-LICENSE.TXT located in the top level directory
+ * of the distribution package.
+ ******************************************************************************/
+
+#include "test_process_variable.h"
+
+#include <sup/dto/anyvalue_helper.h>
+
+namespace sup
+{
+namespace protocol
+{
+namespace test
+{
+
+TestProcessVariable::TestProcessVariable(const sup::dto::AnyValue& val, bool available)
+  : m_value{val}
+  , m_available{available}
+  , m_received_timeout{}
+  , m_cb{}
+{}
+
+TestProcessVariable::~TestProcessVariable() = default;
+
+bool TestProcessVariable::IsAvailable() const
+{
+  return m_available;
+}
+
+std::pair<bool, sup::dto::AnyValue> TestProcessVariable::GetValue(double timeout_sec) const
+{
+  m_received_timeout = timeout_sec;
+  return { m_available, m_value };
+}
+
+bool TestProcessVariable::SetValue(const sup::dto::AnyValue& value, double timeout_sec)
+{
+  m_received_timeout = timeout_sec;
+  if (!m_available)
+  {
+    return false;
+  }
+  auto result = sup::dto::TryAssignIfEmptyOrConvert(m_value, value);
+  if (result && m_cb)
+  {
+    m_cb(value, true);
+  }
+  return result;
+}
+
+bool TestProcessVariable::WaitForAvailable(double timeout_sec) const
+{
+  return m_available;
+}
+
+bool TestProcessVariable::SetMonitorCallback(Callback func)
+{
+  m_cb = func;
+  return true;
+}
+
+}  // namespace test
+
+}  // namespace protocol
+
+}  // namespace sup

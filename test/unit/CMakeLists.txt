@@ -16,6 +16,7 @@ target_sources(unit-tests
   protocol_rpc_tests.cpp
   sup_protocol_di_tests.cpp
   test_functor.cpp
+  test_process_variable.cpp
   test_protocol.cpp
 )
 

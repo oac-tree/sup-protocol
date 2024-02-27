@@ -24,11 +24,6 @@
 #include <sup/dto/anyvalue_helper.h>
 #include <sup/codec/base64.h>
 
-namespace
-{
-bool ValidateBase64AnyValue(const sup::dto::AnyValue& val);
-}  // unnamed namespace
-
 namespace sup
 {
 namespace protocol
@@ -61,13 +56,6 @@ std::pair<bool, sup::dto::AnyValue> Base64VariableCodec::Decode(const sup::dto::
   return { false, {} };
 }
 
-}  // namespace protocol
-
-}  // namespace sup
-
-namespace
-{
-using namespace sup::protocol;
 bool ValidateBase64AnyValue(const sup::dto::AnyValue& val)
 {
   if (!val.HasField(kEncodingField))
@@ -85,5 +73,7 @@ bool ValidateBase64AnyValue(const sup::dto::AnyValue& val)
   }
   return true;
 }
-}  // unnamed namespace
 
+}  // namespace protocol
+
+}  // namespace sup

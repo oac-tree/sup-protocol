@@ -50,6 +50,14 @@ public:
   static std::pair<bool, sup::dto::AnyValue> Decode(const sup::dto::AnyValue& val);
 };
 
+/**
+ * @brief Check if the provided AnyValue has the correct format for a base64 encoded AnyValue.
+ *
+ * @param val AnyValue to check.
+ * @return true when format is correct, false otherwise.
+ */
+bool ValidateBase64AnyValue(const sup::dto::AnyValue& val);
+
 }  // namespace protocol
 
 }  // namespace sup

@@ -19,63 +19,37 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <gtest/gtest.h>
+#include "test_process_variable.h"
 
+#include <sup/protocol/encoded_variables.h>
 #include <sup/protocol/exceptions.h>
 #include <sup/protocol/process_variable.h>
 
 #include <sup/dto/anyvalue.h>
+#include <sup/dto/anyvalue_helper.h>
+
+#include <gtest/gtest.h>
+
+#include <iostream>
 
 using namespace sup::protocol;
-
-class TestPV : public ProcessVariable
-{
-public:
-  TestPV(const sup::dto::AnyValue& value, bool available)
-    : m_value{value}, m_available{available} {}
-  ~TestPV() = default;
-
-  bool IsAvailable() const override { return m_available; }
-
-  std::pair<bool, sup::dto::AnyValue> GetValue(double timeout_sec) const override {
-    m_received_timeout = timeout_sec;
-    return { m_available, m_value };
-  }
-
-  bool SetValue(const sup::dto::AnyValue& value, double timeout_sec) override {
-    m_received_timeout = timeout_sec;
-    if (m_available)
-    {
-      m_value = value;
-      return true;
-    }
-    return false;
-  }
-
-  bool WaitForAvailable(double timeout_sec) const override {
-    m_received_timeout = timeout_sec;
-    return false;
-  }
-
-  bool SetMonitorCallback(Callback func) override {
-    return false;
-  }
-
-  sup::dto::AnyValue m_value;
-  bool m_available;
-  mutable double m_received_timeout;
-};
 
 class ProcessVariableTest : public ::testing::Test
 {
 protected:
   ProcessVariableTest() = default;
   virtual ~ProcessVariableTest() = default;
+
+  std::unique_ptr<ProcessVariable> GetTestProcessVariable(const sup::dto::AnyValue& val,
+                                                          bool available = true)
+  {
+    return std::unique_ptr<ProcessVariable>{new test::TestProcessVariable{val, available}};
+  }
 };
 
 TEST_F(ProcessVariableTest, Available)
 {
-  TestPV pv{{}, true};
+  test::TestProcessVariable pv{{}, true};
   sup::dto::AnyValue val = {{
     {"flag", {sup::dto::BooleanType, true}}
   }};
@@ -100,7 +74,7 @@ TEST_F(ProcessVariableTest, Available)
 
 TEST_F(ProcessVariableTest, NotAvailable)
 {
-  TestPV pv{{}, false};
+  test::TestProcessVariable pv{{}, false};
   EXPECT_FALSE(pv.IsAvailable());
   auto info = pv.GetValue(2.0);
   EXPECT_FALSE(info.first);
@@ -114,4 +88,49 @@ TEST_F(ProcessVariableTest, NotAvailable)
   EXPECT_EQ(pv.m_received_timeout, 2.0);
   EXPECT_FALSE(SetVariableValue(pv, val));
   EXPECT_EQ(pv.m_received_timeout, 0.0);
+}
+
+TEST_F(ProcessVariableTest, Base64PVGetSet)
+{
+  sup::dto::AnyValue empty_val{};
+  auto test_pv = GetTestProcessVariable(empty_val);
+  ASSERT_TRUE(test_pv);
+  auto pv_impl = test_pv.get();
+  Base64ProcessVariable base64_pv{std::move(test_pv)};
+  EXPECT_TRUE(base64_pv.IsAvailable());
+  EXPECT_TRUE(base64_pv.WaitForAvailable(0.1));
+
+  // Set empty value
+  EXPECT_TRUE(base64_pv.SetValue(empty_val, 0.1));
+  auto encoded = pv_impl->GetValue(0.1);
+  EXPECT_TRUE(encoded.first);
+  EXPECT_TRUE(ValidateBase64AnyValue(encoded.second));
+  auto decoded = base64_pv.GetValue(0.1);
+  EXPECT_TRUE(decoded.first);
+  EXPECT_EQ(decoded.second, empty_val);
+  std::cout << sup::dto::PrintAnyValue(encoded.second) << std::endl;
+
+  // Set structured value
+  sup::dto::AnyValue new_value = {{
+    {"flag", {sup::dto::BooleanType, true}},
+    {"setpoint", {sup::dto::Float64Type, 42.0}}
+  }};
+  EXPECT_TRUE(base64_pv.SetValue(new_value, 0.1));
+  encoded = pv_impl->GetValue(0.1);
+  EXPECT_TRUE(encoded.first);
+  EXPECT_TRUE(ValidateBase64AnyValue(encoded.second));
+  decoded = base64_pv.GetValue(0.1);
+  EXPECT_TRUE(decoded.first);
+  EXPECT_EQ(decoded.second, new_value);
+  std::cout << sup::dto::PrintAnyValue(encoded.second) << std::endl;
+
+  // Back to empty value
+  EXPECT_TRUE(base64_pv.SetValue(empty_val, 0.1));
+  encoded = pv_impl->GetValue(0.1);
+  EXPECT_TRUE(encoded.first);
+  EXPECT_TRUE(ValidateBase64AnyValue(encoded.second));
+  decoded = base64_pv.GetValue(0.1);
+  EXPECT_TRUE(decoded.first);
+  EXPECT_EQ(decoded.second, empty_val);
+  std::cout << sup::dto::PrintAnyValue(encoded.second) << std::endl;
 }
