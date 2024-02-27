@@ -96,7 +96,7 @@ EncodedProcessVariable<Codec>::EncodedProcessVariable(std::unique_ptr<ProcessVar
 template <typename Codec>
 bool EncodedProcessVariable<Codec>::IsAvailable() const
 {
-  return m_variable->IsAvailable();
+  return WaitForAvailable(0.0);
 }
 
 template <typename Codec>
@@ -124,16 +124,22 @@ bool EncodedProcessVariable<Codec>::SetValue(const sup::dto::AnyValue& value, do
 template <typename Codec>
 bool EncodedProcessVariable<Codec>::WaitForAvailable(double timeout_sec) const
 {
-  return m_variable->WaitForAvailable(timeout_sec);
+  auto encoded = m_variable->GetValue(timeout_sec);
+  if (!encoded.first)
+  {
+    return false;
+  }
+  auto decoded = Codec::Decode(encoded.second);
+  return decoded.first;
 }
 
 template <typename Codec>
 bool EncodedProcessVariable<Codec>::SetMonitorCallback(Callback func)
 {
-  auto wrapped_cb = [func](const sup::dto::AnyValue& value, bool connected)
+  auto wrapped_cb = [func](const sup::dto::AnyValue& value, bool available)
   {
     auto decoded = Codec::Decode(value);
-    func(decoded.second, connected && decoded.first);
+    func(decoded.second, available && decoded.first);
   };
   return m_variable->SetMonitorCallback(wrapped_cb);
 }
