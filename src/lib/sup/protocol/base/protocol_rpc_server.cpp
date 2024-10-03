@@ -65,14 +65,14 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   return utils::CreateRPCReply(result, output, encoding);
 }
 
-sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& request)
+sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& input)
 {
-  PayloadEncoding encoding = utils::GetPacketEncoding(request);
+  PayloadEncoding encoding = utils::GetPacketEncoding(input);
   if (!utils::IsSupportedPayloadEncoding(encoding))
   {
     return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
   }
-  auto payload = utils::ExtractRPCPayload(request, constants::SERVICE_REQUEST_PAYLOAD);
+  auto payload = utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD);
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try

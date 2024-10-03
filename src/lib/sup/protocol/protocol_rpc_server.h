@@ -49,7 +49,7 @@ public:
   ProtocolRPCServer(Protocol& protocol);
   ~ProtocolRPCServer();
 
-  sup::dto::AnyValue operator()(const sup::dto::AnyValue& request) override;
+  sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 private:
   sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request);
   Protocol& m_protocol;
