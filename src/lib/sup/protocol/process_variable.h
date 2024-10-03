@@ -25,7 +25,6 @@
 #include <sup/protocol/protocol.h>
 
 #include <functional>
-#include <memory>
 #include <utility>
 
 namespace sup
@@ -39,6 +38,11 @@ namespace protocol
 class ProcessVariable
 {
 public:
+  ProcessVariable() = default;
+  ProcessVariable(const ProcessVariable&) = delete;
+  ProcessVariable(ProcessVariable&&) = delete;
+  ProcessVariable& operator=(const ProcessVariable&) = delete;
+  ProcessVariable& operator=(ProcessVariable&&) = delete;
   /**
    * @brief Callback type for updates in value or availability.
    */

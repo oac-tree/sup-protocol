@@ -38,6 +38,11 @@ namespace protocol
 class RPCServerInterface
 {
 public:
+  RPCServerInterface() = default;
+  RPCServerInterface(const RPCServerInterface&) = delete;
+  RPCServerInterface(RPCServerInterface&&) = delete;
+  RPCServerInterface& operator=(const RPCServerInterface&) = delete;
+  RPCServerInterface& operator=(RPCServerInterface&&) = delete;
   virtual ~RPCServerInterface();
 };
 
@@ -52,6 +57,10 @@ public:
 class ProtocolFactory
 {
 public:
+  ProtocolFactory(const ProtocolFactory&) = delete;
+  ProtocolFactory(ProtocolFactory&&) = delete;
+  ProtocolFactory& operator=(const ProtocolFactory&) = delete;
+  ProtocolFactory& operator=(ProtocolFactory&&) = delete;
   virtual ~ProtocolFactory();
 
   /**

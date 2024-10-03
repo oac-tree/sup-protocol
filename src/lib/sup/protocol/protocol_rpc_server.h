@@ -42,6 +42,10 @@ namespace protocol
 class ProtocolRPCServer : public dto::AnyFunctor
 {
 public:
+  ProtocolRPCServer(const ProtocolRPCServer&) = default;
+  ProtocolRPCServer(ProtocolRPCServer&&) = delete;
+  ProtocolRPCServer& operator=(const ProtocolRPCServer&) = delete;
+  ProtocolRPCServer& operator=(ProtocolRPCServer&&) = delete;
   ProtocolRPCServer(Protocol& protocol);
   ~ProtocolRPCServer();
 

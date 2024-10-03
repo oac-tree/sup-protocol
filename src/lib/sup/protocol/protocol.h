@@ -54,6 +54,11 @@ namespace protocol
 class Protocol
 {
 public:
+  Protocol() = default;
+  Protocol(const Protocol&) = delete;
+  Protocol(Protocol&&) = delete;
+  Protocol& operator=(const Protocol&) = delete;
+  Protocol& operator=(Protocol&&) = delete;
   virtual ~Protocol();
 
   /**
