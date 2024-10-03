@@ -55,7 +55,7 @@ ProtocolResult::ProtocolResult()
 
 ProtocolResult::~ProtocolResult() = default;
 
-ProtocolResult::ProtocolResult(unsigned int value)
+ProtocolResult::ProtocolResult(unsigned int value) noexcept
   : m_value{value}
 {}
 
