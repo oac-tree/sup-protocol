@@ -86,7 +86,7 @@ bool ProtocolResult::operator!=(const ProtocolResult& other) const
 
 std::string ProtocolResultToString(const ProtocolResult& result)
 {
-  static std::map<int, std::string> results = {
+  static const std::map<int, std::string> results = {
       {status::SUCCESS, "Success"},
       {status::NOT_CONNECTED, "NotConnected"},
       {status::CLIENT_NETWORK_ENCODING, "ClientNetworkEncodingError"},
