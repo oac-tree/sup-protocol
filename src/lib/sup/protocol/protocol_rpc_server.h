@@ -46,7 +46,7 @@ public:
   ProtocolRPCServer(ProtocolRPCServer&&) = delete;
   ProtocolRPCServer& operator=(const ProtocolRPCServer&) = delete;
   ProtocolRPCServer& operator=(ProtocolRPCServer&&) = delete;
-  ProtocolRPCServer(Protocol& protocol);
+  explicit ProtocolRPCServer(Protocol& protocol);
   ~ProtocolRPCServer();
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;

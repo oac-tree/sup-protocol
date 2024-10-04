@@ -47,7 +47,7 @@ public:
   ProtocolRPCClient(ProtocolRPCClient&&) = delete;
   ProtocolRPCClient& operator=(const ProtocolRPCClient&) = delete;
   ProtocolRPCClient& operator=(ProtocolRPCClient&&) = delete;
-  ProtocolRPCClient(dto::AnyFunctor& any_functor,
+  explicit ProtocolRPCClient(dto::AnyFunctor& any_functor,
                     PayloadEncoding encoding = PayloadEncoding::kBase64);
   ~ProtocolRPCClient() override;
 

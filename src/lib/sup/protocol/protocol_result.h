@@ -96,7 +96,7 @@ public:
   /**
    * @brief Construct a new ProtocolResult object for ApplicationSpecific results.
    */
-  ProtocolResult(unsigned int value) noexcept;
+  explicit ProtocolResult(unsigned int value) noexcept;
 
   /**
    * @brief Copy construction and assigment.
