@@ -43,7 +43,7 @@ public:
   RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
                  PayloadEncoding encoding);
 
-  ~RPCClientStack();
+  ~RPCClientStack() override;
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 

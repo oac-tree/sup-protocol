@@ -44,7 +44,7 @@ public:
   RPCServerStack(std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
                  Protocol& protocol);
 
-  ~RPCServerStack();
+  ~RPCServerStack() override;
 
 private:
   ProtocolRPCServer m_protocol_server;
