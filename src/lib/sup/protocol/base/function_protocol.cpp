@@ -29,7 +29,7 @@ namespace protocol
 sup::dto::AnyValue FunctionProtocolInput(const std::string& func_name)
 {
   sup::dto::AnyValue result = sup::dto::EmptyStruct();
-  result.AddMember(FUNCTION_FIELD_NAME, func_name);
+  (void)result.AddMember(FUNCTION_FIELD_NAME, func_name);
   return result;
 }
 

@@ -34,7 +34,7 @@ std::pair<bool, sup::dto::AnyValue> Base64VariableCodec::Encode(const sup::dto::
     { kEncodingField, { sup::dto::StringType, kBase64Encoding }}
   }};
   auto binary = sup::dto::AnyValueToBinary(val);
-  encoded.AddMember(kValueField, sup::codec::Base64Encode(binary));
+  (void)encoded.AddMember(kValueField, sup::codec::Base64Encode(binary));
   return { true, encoded };
 }
 

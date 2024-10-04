@@ -41,7 +41,7 @@ template <typename T>
 void FunctionProtocolPackT(sup::dto::AnyValue& output, const std::string& field_name, const T& val)
 {
   FunctionProtocolPrepareOutput(output, field_name);
-  output.AddMember(field_name, sup::dto::AnyValue(val));
+  (void)output.AddMember(field_name, sup::dto::AnyValue(val));
 }
 
 void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name, bool b)
@@ -68,9 +68,9 @@ void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_n
   sup::dto::AnyValue any_list{STRING_ARRAY_TYPE};
   for (const auto& str : string_list)
   {
-    any_list.AddElement(sup::dto::AnyValue(str));
+    (void)any_list.AddElement(sup::dto::AnyValue(str));
   }
-  output.AddMember(field_name, any_list);
+  (void)output.AddMember(field_name, any_list);
 }
 
 void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name,
@@ -82,7 +82,7 @@ void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_n
                                     "value in a structure");
   }
   FunctionProtocolPrepareOutput(output, field_name);
-  output.AddMember(field_name, anyvalue);
+  (void)output.AddMember(field_name, anyvalue);
 }
 
 void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_name,
@@ -90,7 +90,7 @@ void FunctionProtocolPack(sup::dto::AnyValue& output, const std::string& field_n
 {
   FunctionProtocolPrepareOutput(output, field_name);
   auto json_type = sup::dto::AnyTypeToJSONString(anytype);
-  output.AddMember(field_name, json_type);
+  (void)output.AddMember(field_name, json_type);
 }
 
 }  // namespace protocol

@@ -35,7 +35,7 @@ VariableCallbackGuard::~VariableCallbackGuard()
 {
   if (m_cb_supported)
   {
-    m_var.SetMonitorCallback({});
+    (void)m_var.SetMonitorCallback({});
   }
 }
 

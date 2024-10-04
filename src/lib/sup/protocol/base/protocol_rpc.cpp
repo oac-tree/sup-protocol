@@ -258,13 +258,13 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
 {
   if (encoding == PayloadEncoding::kNone)
   {
-    packet.AddMember(member_name, payload);
+    (void)packet.AddMember(member_name, payload);
     return;
   }
   auto encoded_payload = encoding::Encode(payload, encoding);
   sup::dto::AnyValue encoding_field = EncodingToInteger(encoding);
-  packet.AddMember(constants::ENCODING_FIELD_NAME, encoding_field);
-  packet.AddMember(member_name, encoded_payload);
+  (void)packet.AddMember(constants::ENCODING_FIELD_NAME, encoding_field);
+  (void)packet.AddMember(member_name, encoded_payload);
 }
 
 sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
