@@ -102,7 +102,7 @@ static const std::string APPLICATION_PROTOCOL_VERSION = "application_version";
 
 }  // namespace constants
 
-enum class PayloadEncoding
+enum class PayloadEncoding : sup::dto::int32
 {
   kNone = 0,
   kBase64

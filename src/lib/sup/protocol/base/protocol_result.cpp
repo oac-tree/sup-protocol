@@ -19,6 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
+#include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol_result.h>
 
 #include <map>
@@ -29,7 +30,7 @@ namespace protocol
 {
 namespace status
 {
-enum ProtocolStatus
+enum ProtocolStatus : sup::dto::uint32
 {
   SUCCESS = 0,
   NOT_CONNECTED,
@@ -89,7 +90,7 @@ bool ProtocolResult::operator!=(const ProtocolResult& other) const
 
 std::string ProtocolResultToString(const ProtocolResult& result)
 {
-  static const std::map<int, std::string> results = {
+  static const std::map<unsigned int, std::string> results = {
       {status::SUCCESS, "Success"},
       {status::NOT_CONNECTED, "NotConnected"},
       {status::CLIENT_NETWORK_ENCODING, "ClientNetworkEncodingError"},
