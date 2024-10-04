@@ -84,9 +84,8 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   }
   std::unique_lock<std::mutex> lk(mtx);
   TryFetchVariable(var, current);
-  return cv.wait_for(lk, std::chrono::nanoseconds(std::lround(timeout_sec * 1e9)), [&](){
-    return current == value;
-  });
+  return cv.wait_for(lk, std::chrono::nanoseconds(std::lround(timeout_sec * 1e9)),
+                     [current, value]() { return current == value; });
 }
 
 }  // namespace protocol
