@@ -102,7 +102,7 @@ public:
    * @brief Copy construction and assigment.
    */
   ProtocolResult(const ProtocolResult& other);
-  ProtocolResult& operator=(const ProtocolResult& other);
+  ProtocolResult& operator=(const ProtocolResult& other) &;
 
   /**
    * @brief Get status as integer.

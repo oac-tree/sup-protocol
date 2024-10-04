@@ -64,7 +64,7 @@ ProtocolResult::ProtocolResult(const ProtocolResult& other)
   : m_value{other.m_value}
 {}
 
-ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other)
+ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other) &
 {
   if (&other != this)
   {
