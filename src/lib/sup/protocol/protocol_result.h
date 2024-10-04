@@ -82,7 +82,7 @@ static const unsigned int SPECIFIC_APPLICATION_ERROR_START = 1000u;
  */
 class ProtocolResult
 {
-protected:
+private:
   unsigned int m_value;
 
 public:
