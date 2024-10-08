@@ -66,10 +66,7 @@ ProtocolResult::ProtocolResult(const ProtocolResult& other)
 
 ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other) &
 {
-  if (&other != this)
-  {
-    m_value = other.m_value;
-  }
+  m_value = other.m_value;
   return *this;
 }
 

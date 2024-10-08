@@ -21,6 +21,7 @@
 
 #include "protocol_encodings.h"
 
+#include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anyvalue_helper.h>
@@ -55,7 +56,7 @@ sup::dto::AnyValue Encode(const sup::dto::AnyValue& val, PayloadEncoding encodin
   if (it == encoder_map.end())
   {
     std::string error = "encoding::Encode(): unknown encoding type: " +
-                        std::to_string(static_cast<int>(encoding));
+      std::to_string(static_cast<sup::dto::int32>(encoding));
     throw InvalidOperationException(error);
   }
   return it->second(val);
@@ -72,7 +73,7 @@ sup::dto::AnyValue Decode(const sup::dto::AnyValue& val, PayloadEncoding encodin
   if (it == decoder_map.end())
   {
     std::string error = "encoding::Decode(): unknown encoding type: " +
-                        std::to_string(static_cast<int>(encoding));
+                        std::to_string(static_cast<sup::dto::int32>(encoding));
     throw InvalidOperationException(error);
   }
   return it->second(val);

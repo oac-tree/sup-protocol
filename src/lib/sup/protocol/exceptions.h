@@ -38,7 +38,6 @@ class MessageException : public std::exception
 public:
   explicit MessageException(std::string message);
   const char* what() const noexcept override;
-protected:
   ~MessageException() = default;
 private:
   std::string m_message;

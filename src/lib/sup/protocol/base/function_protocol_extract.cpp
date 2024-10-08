@@ -86,10 +86,6 @@ bool ValidateFunctionProtocolInput(const sup::dto::AnyValue& input, const std::s
   {
     return false;
   }
-  else
-  {
-    return true;
-  }
   return true;
 }
 

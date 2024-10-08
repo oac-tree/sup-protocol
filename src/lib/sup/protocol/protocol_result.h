@@ -82,9 +82,6 @@ static const unsigned int SPECIFIC_APPLICATION_ERROR_START = 1000u;
  */
 class ProtocolResult
 {
-private:
-  unsigned int m_value;
-
 public:
   /**
    * @brief Default constructor implies success.
@@ -116,6 +113,9 @@ public:
    */
   bool operator==(const ProtocolResult& other) const;
   bool operator!=(const ProtocolResult& other) const;
+
+private:
+  unsigned int m_value;
 };
 
 /**
