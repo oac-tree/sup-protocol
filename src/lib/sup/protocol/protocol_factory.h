@@ -57,6 +57,7 @@ public:
 class ProtocolFactory
 {
 public:
+  ProtocolFactory() = default;
   ProtocolFactory(const ProtocolFactory&) = delete;
   ProtocolFactory(ProtocolFactory&&) = delete;
   ProtocolFactory& operator=(const ProtocolFactory&) = delete;
