@@ -34,7 +34,7 @@ namespace sup
 namespace protocol
 {
 
-static const std::string FUNCTION_FIELD_NAME = "function";
+const std::string FUNCTION_FIELD_NAME = "function";
 
 sup::dto::AnyValue FunctionProtocolInput(const std::string& func_name);
 

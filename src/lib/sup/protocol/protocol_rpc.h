@@ -37,7 +37,7 @@ namespace constants
  * Generic fields in transport packets:
  * - encoding: specifies how the payload is encoded
 */
-static const std::string ENCODING_FIELD_NAME = "encoding";
+const std::string ENCODING_FIELD_NAME = "encoding";
 
 /**
  * An RPC request is a structured AnyValue with two fields:
@@ -46,9 +46,9 @@ static const std::string ENCODING_FIELD_NAME = "encoding";
  * - query: a generic AnyValue that contains the payload of the request
  * Obsolete fields need to have the correct type when present.
 */
-static const std::string REQUEST_TYPE_NAME = "sup::protocolRequest/v2.0";
-static const std::string REQUEST_TIMESTAMP = "timestamp";
-static const std::string REQUEST_PAYLOAD = "query";
+const std::string REQUEST_TYPE_NAME = "sup::protocolRequest/v2.0";
+const std::string REQUEST_TIMESTAMP = "timestamp";
+const std::string REQUEST_PAYLOAD = "query";
 
 /**
  * An RPC reply is a structured AnyValue with the following fields:
@@ -60,11 +60,11 @@ static const std::string REQUEST_PAYLOAD = "query";
  *                     required)
  * Obsolete fields need to have the correct type when present.
 */
-static const std::string REPLY_TYPE_NAME = "sup::protocolReply/v2.0";
-static const std::string REPLY_RESULT = "result";
-static const std::string REPLY_TIMESTAMP = "timestamp";
-static const std::string REPLY_REASON = "reason";
-static const std::string REPLY_PAYLOAD = "reply";
+const std::string REPLY_TYPE_NAME = "sup::protocolReply/v2.0";
+const std::string REPLY_RESULT = "result";
+const std::string REPLY_TIMESTAMP = "timestamp";
+const std::string REPLY_REASON = "reason";
+const std::string REPLY_PAYLOAD = "reply";
 
 /**
  * A service request is a simple packet, used for querying the application protocol. It will
@@ -75,8 +75,8 @@ static const std::string REPLY_PAYLOAD = "reply";
  * - encoding: specifies how the payload is encoded
  * - service: a payload identifying the service request
 */
-static const std::string SERVICE_REQUEST_TYPE_NAME = "sup::ServiceRequest/v2.0";
-static const std::string SERVICE_REQUEST_PAYLOAD = "service";
+const std::string SERVICE_REQUEST_TYPE_NAME = "sup::ServiceRequest/v2.0";
+const std::string SERVICE_REQUEST_PAYLOAD = "service";
 
 /**
  * A service reply is a structured AnyValue with the following fields:
@@ -84,9 +84,9 @@ static const std::string SERVICE_REQUEST_PAYLOAD = "service";
  * - result: a 32bit unsigned integer denoting success or failure status
  * - reply (optional): the payload of the service reply
 */
-static const std::string SERVICE_REPLY_TYPE_NAME = "sup::ServiceReply/v2.0";
-static const std::string SERVICE_REPLY_RESULT = "result";
-static const std::string SERVICE_REPLY_PAYLOAD = "reply";
+const std::string SERVICE_REPLY_TYPE_NAME = "sup::ServiceReply/v2.0";
+const std::string SERVICE_REPLY_RESULT = "result";
+const std::string SERVICE_REPLY_PAYLOAD = "reply";
 
 /**
  * Currently only one generic service request and reply is defined: the request to receive the
@@ -96,9 +96,9 @@ static const std::string SERVICE_REPLY_PAYLOAD = "reply";
  * - application_type: string identifying the encapsulated application interface
  * - application_version: string identifying the version for the application protocol
 */
-static const std::string APPLICATION_PROTOCOL_INFO_REQUEST = "application_protocol_info";
-static const std::string APPLICATION_PROTOCOL_TYPE = "application_type";
-static const std::string APPLICATION_PROTOCOL_VERSION = "application_version";
+const std::string APPLICATION_PROTOCOL_INFO_REQUEST = "application_protocol_info";
+const std::string APPLICATION_PROTOCOL_TYPE = "application_type";
+const std::string APPLICATION_PROTOCOL_VERSION = "application_version";
 
 }  // namespace constants
 

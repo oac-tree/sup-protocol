@@ -36,14 +36,14 @@ namespace protocol
  * generic interfaces with the Protocol.
  * @sa ProtocolResult
  */
-static const unsigned int GENERIC_APPLICATION_ERROR_START = 100u;
+const unsigned int GENERIC_APPLICATION_ERROR_START = 100u;
 
 /**
  * @brief Start value for application-specific errors.
  *
  * @sa ProtocolResult
  */
-static const unsigned int SPECIFIC_APPLICATION_ERROR_START = 1000u;
+const unsigned int SPECIFIC_APPLICATION_ERROR_START = 1000u;
 
 /**
  * @brief The ProtocolResult class represents the return value from a Protocol operation.
