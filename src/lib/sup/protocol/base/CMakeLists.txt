@@ -1,5 +1,6 @@
 target_sources(sup-protocol
   PRIVATE
+  async_request.cpp
   exceptions.cpp
   function_protocol_extract.cpp
   function_protocol_pack.cpp
