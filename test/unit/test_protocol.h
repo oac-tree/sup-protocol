@@ -24,6 +24,7 @@
 
 #include <sup/protocol/protocol.h>
 
+#include <future>
 #include <memory>
 
 namespace sup
@@ -58,6 +59,24 @@ private:
   std::unique_ptr<sup::dto::AnyValue> m_last_input;
   bool m_service_fail;
   bool m_service_throw;
+};
+
+class AsyncRequestTestProtocol : public Protocol
+{
+public:
+  AsyncRequestTestProtocol(std::future<void> go_future);
+  ~AsyncRequestTestProtocol() = default;
+
+  // No copy/move ctor/assignment:
+  AsyncRequestTestProtocol(const AsyncRequestTestProtocol&) = delete;
+  AsyncRequestTestProtocol(AsyncRequestTestProtocol&&) = delete;
+  AsyncRequestTestProtocol& operator=(const AsyncRequestTestProtocol&) = delete;
+  AsyncRequestTestProtocol& operator=(AsyncRequestTestProtocol&&) = delete;
+
+  ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
+  ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
+private:
+  std::future<void> m_go_future;
 };
 
 }  // namespace test

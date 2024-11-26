@@ -69,11 +69,11 @@ sup::dto::AnyValue AsyncInvokeServer::HandleInvoke(const sup::dto::AnyValue& pay
 sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& payload,
                                                  PayloadEncoding encoding)
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   auto id = GetRequestId();
   sup::dto::AnyValue reply_payload = {{
     { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, id }}
   }};
-  std::lock_guard<std::mutex> lk{m_mtx};
   m_invokes.emplace(std::piecewise_construct, std::forward_as_tuple(id),
                     std::forward_as_tuple(m_protocol, payload));
   return utils::CreateAsyncRPCReply(Success, reply_payload, encoding,
@@ -127,6 +127,10 @@ sup::dto::AnyValue AsyncInvokeServer::Invalidate(sup::dto::uint64 id)
     return utils::CreateAsyncRPCReply(InvalidRequestIdentifierError, AsyncCommand::kInvalidate);
   }
   iter->second.Invalidate();
+  if (iter->second.IsReadyForRemoval())
+  {
+    m_invokes.erase(iter);
+  }
   return utils::CreateAsyncRPCReply(Success, AsyncCommand::kInvalidate);
 }
 

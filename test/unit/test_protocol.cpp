@@ -99,6 +99,25 @@ sup::dto::AnyValue TestProtocol::GetLastInput() const
   return result;
 }
 
+AsyncRequestTestProtocol::AsyncRequestTestProtocol(std::future<void> go_future)
+  : m_go_future{std::move(go_future)}
+{}
+
+ProtocolResult AsyncRequestTestProtocol::Invoke(const sup::dto::AnyValue& input,
+                                                sup::dto::AnyValue& output)
+{
+  output = input;
+  m_go_future.get();
+  return Success;
+}
+
+ProtocolResult AsyncRequestTestProtocol::Service(const sup::dto::AnyValue& input,
+                                                 sup::dto::AnyValue& output)
+{
+  output = input;
+  return Success;
+}
+
 }  // namespace test
 
 }  // namespace protocol

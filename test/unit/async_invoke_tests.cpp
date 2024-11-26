@@ -19,6 +19,8 @@
  * of the distribution package.
  ******************************************************************************/
 
+#include "test_protocol.h"
+
 #include <sup/protocol/base/async_invoke.h>
 
 #include <gtest/gtest.h>
@@ -26,18 +28,6 @@
 #include <future>
 
 using namespace sup::protocol;
-
-class AsyncRequestTestProtocol : public Protocol
-{
-public:
-  AsyncRequestTestProtocol(std::future<void> go_future);
-  ~AsyncRequestTestProtocol() = default;
-
-  ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
-  ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
-private:
-  std::future<void> m_go_future;
-};
 
 class AsyncRequestTest : public ::testing::Test
 {
@@ -51,7 +41,7 @@ TEST_F(AsyncRequestTest, Construction)
   // Check status of AsyncInvoke after construction.
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
-  AsyncRequestTestProtocol protocol{go.get_future()};
+  test::AsyncRequestTestProtocol protocol{go.get_future()};
   AsyncInvoke req{protocol, input};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
@@ -66,7 +56,7 @@ TEST_F(AsyncRequestTest, GetReply)
   // expired.
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
-  AsyncRequestTestProtocol protocol{go.get_future()};
+  test::AsyncRequestTestProtocol protocol{go.get_future()};
   AsyncInvoke req{protocol, input};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
@@ -86,7 +76,7 @@ TEST_F(AsyncRequestTest, Invalidate)
   // Check status when request is invalidated.
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
-  AsyncRequestTestProtocol protocol{go.get_future()};
+  test::AsyncRequestTestProtocol protocol{go.get_future()};
   AsyncInvoke req{protocol, input};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
@@ -103,22 +93,3 @@ TEST_F(AsyncRequestTest, Invalidate)
 AsyncRequestTest::AsyncRequestTest() = default;
 
 AsyncRequestTest::~AsyncRequestTest() = default;
-
-AsyncRequestTestProtocol::AsyncRequestTestProtocol(std::future<void> go_future)
-  : m_go_future{std::move(go_future)}
-{}
-
-ProtocolResult AsyncRequestTestProtocol::Invoke(const sup::dto::AnyValue& input,
-                                                sup::dto::AnyValue& output)
-{
-  output = input;
-  m_go_future.get();
-  return Success;
-}
-
-ProtocolResult AsyncRequestTestProtocol::Service(const sup::dto::AnyValue& input,
-                                                 sup::dto::AnyValue& output)
-{
-  output = input;
-  return Success;
-}

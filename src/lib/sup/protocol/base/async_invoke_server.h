@@ -52,6 +52,15 @@ public:
   AsyncInvokeServer& operator=(const AsyncInvokeServer&) = delete;
   AsyncInvokeServer& operator=(AsyncInvokeServer&&) = delete;
 
+  /**
+   * @brief Handle the Protocol::Invoke for an asynchronous request. The payload is already
+   * assumed to be decoded.
+   *
+   * @param payload (possibly decoded) payload of the request.
+   * @param encoding Encoding to use for the reply.
+   * @param command Asynchronous command.
+   * @return Reply to be send back to the client.
+   */
   sup::dto::AnyValue HandleInvoke(const sup::dto::AnyValue& payload, PayloadEncoding encoding,
                                   AsyncCommand command);
 

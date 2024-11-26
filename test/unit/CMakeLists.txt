@@ -2,6 +2,7 @@ add_executable(unit-tests)
 
 target_sources(unit-tests
   PRIVATE
+  async_invoke_server_tests.cpp
   async_invoke_tests.cpp
   exceptions_tests.cpp
   function_protocol_extract_tests.cpp
