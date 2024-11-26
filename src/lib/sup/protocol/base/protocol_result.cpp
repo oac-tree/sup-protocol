@@ -46,7 +46,9 @@ enum ProtocolStatus : sup::dto::uint32
   SERVER_PROTOCOL_ENCODING,
   CLIENT_PROTOCOL_DECODING,
   SERVER_PROTOCOL_DECODING,
-  SERVER_UNSUPPORTED_PAYLOAD_ENCODING
+  SERVER_UNSUPPORTED_PAYLOAD_ENCODING,
+  INVALID_REQUEST_IDENTIFIER,
+  INVALID_ASYNCHROUNOUS_OPERATION
 };
 }  // namespace status
 
@@ -102,7 +104,9 @@ std::string ProtocolResultToString(const ProtocolResult& result)
       {status::SERVER_PROTOCOL_ENCODING, "ServerProtocolEncodingError"},
       {status::CLIENT_PROTOCOL_DECODING, "ClientProtocolDecodingError"},
       {status::SERVER_PROTOCOL_DECODING, "ServerProtocolDecodingError"},
-      {status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING, "ServerUnsupportedPayloadEncodingError"}};
+      {status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING, "ServerUnsupportedPayloadEncodingError"},
+      {status::INVALID_REQUEST_IDENTIFIER, "InvalidRequestIdentifierError"},
+      {status::INVALID_ASYNCHROUNOUS_OPERATION, "InvalidAsynchronousOperationError"}};
   auto it = results.find(result.GetValue());
   if (it != results.end())
   {
@@ -127,6 +131,8 @@ const ProtocolResult ClientProtocolDecodingError{status::CLIENT_PROTOCOL_DECODIN
 const ProtocolResult ServerProtocolDecodingError{status::SERVER_PROTOCOL_DECODING};
 const ProtocolResult ServerUnsupportedPayloadEncodingError{
   status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING};
+const ProtocolResult InvalidRequestIdentifierError{status::INVALID_REQUEST_IDENTIFIER};
+const ProtocolResult InvalidAsynchronousOperationError{status::INVALID_ASYNCHROUNOUS_OPERATION};
 
 }  // namespace protocol
 

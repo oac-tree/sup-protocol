@@ -224,6 +224,18 @@ extern const ProtocolResult ServerProtocolDecodingError;
  * @note This signals an unsupported encoding type.
 */
 extern const ProtocolResult ServerUnsupportedPayloadEncodingError;
+/**
+ * @brief Error when the Protocol server receives a request about an asynchronous request with an
+ * unknown identifier.
+ *
+ * @note This error is only used in asynchronous RPC calls.
+*/
+extern const ProtocolResult InvalidRequestIdentifierError;
+/**
+ * @brief Error when the Protocol server receives a request for an asynchronous request that is
+ * not valid, e.g. a client tries to get the reply when it was not ready.
+*/
+extern const ProtocolResult InvalidAsynchronousOperationError;
 
 }  // namespace protocol
 

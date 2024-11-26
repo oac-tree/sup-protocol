@@ -45,7 +45,7 @@ public:
 
   bool IsExpired() const;
 
-  Reply GetReply() const;
+  Reply GetReply();
 
   void Invalidate();
 private:

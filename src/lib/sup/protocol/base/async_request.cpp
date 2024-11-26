@@ -39,7 +39,7 @@ public:
 
   bool IsExpired() const;
 
-  AsyncRequest::Reply GetReply() const;
+  AsyncRequest::Reply GetReply();
 
   void Invalidate();
 private:
@@ -63,7 +63,7 @@ bool AsyncRequest::IsExpired() const
   return m_impl->IsExpired();
 }
 
-AsyncRequest::Reply AsyncRequest::GetReply() const
+AsyncRequest::Reply AsyncRequest::GetReply()
 {
   return m_impl->GetReply();
 }
@@ -91,18 +91,34 @@ AsyncRequest::AsyncRequestImpl::~AsyncRequestImpl()
 
 bool AsyncRequest::AsyncRequestImpl::IsReady() const
 {
+  if (!m_future.valid())
+  {
+    return false;
+  }
   return m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
 bool AsyncRequest::AsyncRequestImpl::IsExpired() const
 {
+  if (!m_future.valid())
+  {
+    return true;
+  }
   bool is_ready = m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
   return is_ready && m_invalidated;
 }
 
-AsyncRequest::Reply AsyncRequest::AsyncRequestImpl::GetReply() const
+AsyncRequest::Reply AsyncRequest::AsyncRequestImpl::GetReply()
 {
-  return { Success, {} };
+  const AsyncRequest::Reply failure{ InvalidAsynchronousOperationError, {} };
+  if (!m_future.valid() ||
+      (m_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) ||
+      m_invalidated)
+  {
+    return failure;
+  }
+  m_invalidated = true;
+  return m_future.get();
 }
 
 void AsyncRequest::AsyncRequestImpl::Invalidate()
