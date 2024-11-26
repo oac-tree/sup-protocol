@@ -36,9 +36,14 @@ namespace constants
 /**
  * Generic fields in transport packets:
  * - encoding: specifies how the payload is encoded
+ * - async: specifies a command for asynchronous RPC calls
+ * - id: provides the identification of a specific asynchronous RPC call
+ * - ready: provides the readiness of the reply for a specific asynchronous RPC call
 */
 const std::string ENCODING_FIELD_NAME = "encoding";
 const std::string ASYNC_COMMAND_FIELD_NAME = "async";
+const std::string ASYNC_ID_FIELD_NAME = "id";
+const std::string ASYNC_READY_FIELD_NAME = "ready";
 
 /**
  * An RPC request is a structured AnyValue with two fields:
@@ -112,6 +117,14 @@ enum class PayloadEncoding : sup::dto::int32
   kBase64
 };
 
+enum class AsyncCommand : sup::dto::uint32
+{
+  kInitialRequest = 0u,
+  kPoll,
+  kGetReply,
+  kInvalidate
+};
+
 namespace utils
 {
 sup::dto::int32 EncodingToInteger(PayloadEncoding encoding);
@@ -140,7 +153,15 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
                                   const sup::dto::AnyValue& payload,
                                   PayloadEncoding encoding);
 
+sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
+                                       const sup::dto::AnyValue& payload,
+                                       PayloadEncoding encoding,
+                                       AsyncCommand command);
+
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result);
+
+sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
+                                       AsyncCommand command);
 
 bool IsServiceRequest(const sup::dto::AnyValue& request);
 

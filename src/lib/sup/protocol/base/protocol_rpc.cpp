@@ -141,10 +141,28 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
   return reply;
 }
 
+sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
+                                       const sup::dto::AnyValue& payload,
+                                       PayloadEncoding encoding,
+                                       AsyncCommand command)
+{
+  auto reply = CreateRPCReply(result, payload, encoding);
+  reply.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                  sup::dto::AnyValue{ sup::dto::UnsignedInteger32Type,
+                                      static_cast<sup::dto::uint32>(command) });
+  return reply;
+}
+
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result)
 {
   // With empty payload, the encoding has no effect, so we pass kNone
   return CreateRPCReply(result, {}, PayloadEncoding::kNone);
+}
+
+sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
+                                       AsyncCommand command)
+{
+  return CreateAsyncRPCReply(result, {}, PayloadEncoding::kNone, command);
 }
 
 bool IsServiceRequest(const sup::dto::AnyValue& request)
