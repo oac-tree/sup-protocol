@@ -42,12 +42,13 @@ namespace protocol
 class ProtocolRPCServer : public dto::AnyFunctor
 {
 public:
+  explicit ProtocolRPCServer(Protocol& protocol);
+  ~ProtocolRPCServer() override;
+
   ProtocolRPCServer(const ProtocolRPCServer&) = default;
   ProtocolRPCServer(ProtocolRPCServer&&) = delete;
   ProtocolRPCServer& operator=(const ProtocolRPCServer&) = delete;
   ProtocolRPCServer& operator=(ProtocolRPCServer&&) = delete;
-  explicit ProtocolRPCServer(Protocol& protocol);
-  ~ProtocolRPCServer() override;
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 private:

@@ -38,15 +38,17 @@ namespace constants
  * - encoding: specifies how the payload is encoded
 */
 const std::string ENCODING_FIELD_NAME = "encoding";
+const std::string ASYNC_COMMAND_FIELD_NAME = "async";
 
 /**
  * An RPC request is a structured AnyValue with two fields:
  * - timestamp: a 64bit unsigned integer (obsolete)
- * - encoding: specifies how the payload is encoded
+ * - encoding: specifies how the payload is encoded (optional: default is no encoding)
+ * - async: specifies a command for asynchronous RPC calls
  * - query: a generic AnyValue that contains the payload of the request
  * Obsolete fields need to have the correct type when present.
 */
-const std::string REQUEST_TYPE_NAME = "sup::protocolRequest/v2.0";
+const std::string REQUEST_TYPE_NAME = "sup::protocolRequest/v2.1";
 const std::string REQUEST_TIMESTAMP = "timestamp";
 const std::string REQUEST_PAYLOAD = "query";
 
@@ -55,12 +57,13 @@ const std::string REQUEST_PAYLOAD = "query";
  * - result: a 32bit unsigned integer denoting success or failure status
  * - timestamp: a 64bit unsigned integer (obsolete)
  * - encoding: specifies how the payload is encoded
+ * - async: specifies the reply type for asynchronous RPC calls
  * - reason: string (obsolete)
  * - reply (optional): a field that contains the payload of the RPC reply (may be omitted if not
  *                     required)
  * Obsolete fields need to have the correct type when present.
 */
-const std::string REPLY_TYPE_NAME = "sup::protocolReply/v2.0";
+const std::string REPLY_TYPE_NAME = "sup::protocolReply/v2.1";
 const std::string REPLY_RESULT = "result";
 const std::string REPLY_TIMESTAMP = "timestamp";
 const std::string REPLY_REASON = "reason";
@@ -74,6 +77,7 @@ const std::string REPLY_PAYLOAD = "reply";
  * It contains:
  * - encoding: specifies how the payload is encoded
  * - service: a payload identifying the service request
+ * Note that service requests do not support asynchronous calls, as they are assumed to be fast.
 */
 const std::string SERVICE_REQUEST_TYPE_NAME = "sup::ServiceRequest/v2.0";
 const std::string SERVICE_REQUEST_PAYLOAD = "service";

@@ -46,14 +46,20 @@ public:
   using Reply = std::pair<ProtocolResult, sup::dto::AnyValue>;
 
   /**
-   * @brief Constructor that will immediately launch Protocol::Invoke on the given protocol with
-   * the given input.
+   * @brief Constructor that will immediately launch a thread that calls Protocol::Invoke on the
+   * given protocol with the given input.
    *
    * @param protocol Protocol to invoke.
    * @param input AnyValue to pass as input to Protocol::Invoke.
    */
   AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input);
   ~AsyncInvoke();
+
+  // No copy/move ctor/assignment:
+  AsyncInvoke(const AsyncInvoke&) = delete;
+  AsyncInvoke(AsyncInvoke&&) = delete;
+  AsyncInvoke& operator=(const AsyncInvoke&) = delete;
+  AsyncInvoke& operator=(AsyncInvoke&&) = delete;
 
   /**
    * @brief Check if a reply is ready to be retrieved.
@@ -70,7 +76,7 @@ public:
   bool WaitForReady(double seconds) const;
 
   /**
-   * @brief Check if this AsyncInvoke object is ready for destruction, i.e. the underlying thread
+   * @brief Check if this AsyncInvoke object is ready for destruction, i.e. the encapsulated thread
    * has finished and the reply was already retrieved or no longer needed.
    *
    * @return true if this AsyncInvoke object is ready for destruction.
@@ -78,15 +84,15 @@ public:
   bool IsReadyForRemoval() const;
 
   /**
-   * @brief Retrieve the reply from the underlying thread. This is only possible if IsReady() would
+   * @brief Retrieve the reply from the encapsulated thread. This is only possible if IsReady() would
    * return true.
    *
-   * @return The reply from the underlying thread or a failure reply if it was not ready.
+   * @return The reply from the encapsulated thread or a failure reply if it was not ready.
    */
   Reply GetReply();
 
   /**
-   * @brief Indicate that the reply of the underlying thread is no longer needed.
+   * @brief Indicate that the reply of the encapsulated thread is no longer needed.
    */
   void Invalidate();
 private:

@@ -25,7 +25,6 @@ add_subdirectory(factory)
 install(TARGETS sup-protocol EXPORT sup-protocol-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
-  async_invoke.h
   base64_variable_codec.h
   encoded_variable_t.h
   encoded_variables.h

@@ -19,7 +19,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/async_invoke.h>
+#include <sup/protocol/base/async_invoke.h>
 
 #include <gtest/gtest.h>
 
