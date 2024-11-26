@@ -64,6 +64,15 @@ public:
   sup::dto::AnyValue HandleInvoke(const sup::dto::AnyValue& payload, PayloadEncoding encoding,
                                   AsyncCommand command);
 
+  /**
+   * @brief Wait for a reply to become ready (mainly used to facilitate testing).
+   *
+   * @param id Identifier of the request.
+   * @param seconds Timeout to wait.
+   * @return true If the reply was ready within the timeout.
+   */
+  bool WaitForReady(sup::dto::uint64 id, double seconds);
+
 private:
   sup::dto::AnyValue NewRequest(const sup::dto::AnyValue& payload, PayloadEncoding encoding);
   sup::dto::AnyValue Poll(sup::dto::uint64 id, PayloadEncoding encoding);

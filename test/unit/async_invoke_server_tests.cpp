@@ -107,9 +107,42 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
     { constants::ASYNC_ID_FIELD_NAME, id }
   }};
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractProtocolResult(reply), Success);
   auto is_ready = ExtractReadyStatus(reply);
   EXPECT_EQ(is_ready, 0);
+
+  // GetReply returns an error ProtocolResult since the reply is not ready
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidAsynchronousOperationError);
+
+  // Make result ready
   go.set_value();
+  EXPECT_TRUE(async_server.WaitForReady(id, 1.0));
+
+  // Poll indicates readiness
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractProtocolResult(reply), Success);
+  is_ready = ExtractReadyStatus(reply);
+  EXPECT_EQ(is_ready, 1);
+
+  // GetReply returns the expected reply
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractProtocolResult(reply), Success);
+  EXPECT_EQ(reply[constants::REPLY_PAYLOAD], input);
+
+  // Poll no longer knows about that identifier
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
+
+  // Same for GetReply
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
 }
 
 AsyncRequestServerTest::AsyncRequestServerTest() = default;

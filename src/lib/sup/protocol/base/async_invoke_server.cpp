@@ -66,6 +66,17 @@ sup::dto::AnyValue AsyncInvokeServer::HandleInvoke(const sup::dto::AnyValue& pay
   return utils::CreateAsyncRPCReply(InvalidAsynchronousOperationError, command);
 }
 
+bool AsyncInvokeServer::WaitForReady(sup::dto::uint64 id, double seconds)
+{
+  std::lock_guard<std::mutex> lk{m_mtx};
+  auto iter = m_invokes.find(id);
+  if (iter == m_invokes.end())
+  {
+    return false;
+  }
+  return iter->second.WaitForReady(seconds);
+}
+
 sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& payload,
                                                  PayloadEncoding encoding)
 {
