@@ -19,9 +19,10 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/async_request.h>
+#include <sup/protocol/async_invoke.h>
 
 #include <chrono>
+#include <cmath>
 #include <future>
 
 namespace sup
@@ -29,56 +30,61 @@ namespace sup
 namespace protocol
 {
 
-class AsyncRequest::AsyncRequestImpl
+class AsyncInvoke::AsyncInvokeImpl
 {
 public:
-  AsyncRequestImpl(Protocol& protocol, const sup::dto::AnyValue& input);
-  ~AsyncRequestImpl();
+  AsyncInvokeImpl(Protocol& protocol, const sup::dto::AnyValue& input);
+  ~AsyncInvokeImpl();
 
-  bool IsReady() const;
+  bool WaitForReady(double seconds) const;
 
-  bool IsExpired() const;
+  bool IsReadyForRemoval() const;
 
-  AsyncRequest::Reply GetReply();
+  AsyncInvoke::Reply GetReply();
 
   void Invalidate();
 private:
-  std::future<AsyncRequest::Reply> m_future;
+  std::future<AsyncInvoke::Reply> m_future;
   bool m_invalidated;
 };
 
-AsyncRequest::AsyncRequest(Protocol& protocol, const sup::dto::AnyValue& input)
-  : m_impl{new AsyncRequestImpl(protocol, input)}
+AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input)
+  : m_impl{new AsyncInvokeImpl(protocol, input)}
 {}
 
-AsyncRequest::~AsyncRequest() = default;
+AsyncInvoke::~AsyncInvoke() = default;
 
-bool AsyncRequest::IsReady() const
+bool AsyncInvoke::IsReady() const
 {
-  return m_impl->IsReady();
+  return m_impl->WaitForReady(0.0);
 }
 
-bool AsyncRequest::IsExpired() const
+bool AsyncInvoke::WaitForReady(double seconds) const
 {
-  return m_impl->IsExpired();
+  return m_impl->WaitForReady(seconds);
 }
 
-AsyncRequest::Reply AsyncRequest::GetReply()
+bool AsyncInvoke::IsReadyForRemoval() const
+{
+  return m_impl->IsReadyForRemoval();
+}
+
+AsyncInvoke::Reply AsyncInvoke::GetReply()
 {
   return m_impl->GetReply();
 }
 
-void AsyncRequest::Invalidate()
+void AsyncInvoke::Invalidate()
 {
   m_impl->Invalidate();
 }
 
-AsyncRequest::AsyncRequestImpl::AsyncRequestImpl(Protocol& protocol,
+AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
                                                  const sup::dto::AnyValue& input)
   : m_future{}
   , m_invalidated{false}
 {
-  auto func = [&protocol, &input]() -> AsyncRequest::Reply {
+  auto func = [&protocol, &input]() -> AsyncInvoke::Reply {
     sup::dto::AnyValue output{};
     auto result = protocol.Invoke(input, output);
     return { result, output };
@@ -86,19 +92,20 @@ AsyncRequest::AsyncRequestImpl::AsyncRequestImpl(Protocol& protocol,
   m_future = std::async(std::launch::async, func);
 }
 
-AsyncRequest::AsyncRequestImpl::~AsyncRequestImpl()
+AsyncInvoke::AsyncInvokeImpl::~AsyncInvokeImpl()
 {}
 
-bool AsyncRequest::AsyncRequestImpl::IsReady() const
+bool AsyncInvoke::AsyncInvokeImpl::WaitForReady(double seconds) const
 {
-  if (!m_future.valid())
+  if (!m_future.valid() || m_invalidated)
   {
     return false;
   }
-  return m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+  auto duration = std::chrono::nanoseconds(std::lround(seconds * 1e9));
+  return m_future.wait_for(duration) == std::future_status::ready;
 }
 
-bool AsyncRequest::AsyncRequestImpl::IsExpired() const
+bool AsyncInvoke::AsyncInvokeImpl::IsReadyForRemoval() const
 {
   if (!m_future.valid())
   {
@@ -108,20 +115,19 @@ bool AsyncRequest::AsyncRequestImpl::IsExpired() const
   return is_ready && m_invalidated;
 }
 
-AsyncRequest::Reply AsyncRequest::AsyncRequestImpl::GetReply()
+AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
 {
-  const AsyncRequest::Reply failure{ InvalidAsynchronousOperationError, {} };
+  const AsyncInvoke::Reply failure{ InvalidAsynchronousOperationError, {} };
   if (!m_future.valid() ||
       (m_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) ||
       m_invalidated)
   {
     return failure;
   }
-  m_invalidated = true;
   return m_future.get();
 }
 
-void AsyncRequest::AsyncRequestImpl::Invalidate()
+void AsyncInvoke::AsyncInvokeImpl::Invalidate()
 {
   m_invalidated = true;
 }
