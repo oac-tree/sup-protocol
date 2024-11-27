@@ -145,6 +145,55 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
 }
 
+TEST_F(AsyncRequestServerTest, Invalidate)
+{
+  // Check status of AsyncInvokeServer after launching a single request
+  sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
+  std::promise<void> go;
+  test::AsyncRequestTestProtocol protocol{go.get_future()};
+  AsyncInvokeServer async_server{protocol};
+
+  // Launch new request (first id should be 1)
+  auto reply = async_server.HandleInvoke(input, PayloadEncoding::kNone,
+                                         AsyncCommand::kInitialRequest);
+  auto id = ExtractRequestId(reply);
+  EXPECT_EQ(id, 1u);
+
+  // Request should not be ready
+  sup::dto::AnyValue id_payload = {{
+    { constants::ASYNC_ID_FIELD_NAME, id }
+  }};
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractProtocolResult(reply), Success);
+  auto is_ready = ExtractReadyStatus(reply);
+  EXPECT_EQ(is_ready, 0);
+
+  // GetReply returns an error ProtocolResult since the reply is not ready
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidAsynchronousOperationError);
+
+  // Make result ready and then invalidate
+  go.set_value();
+  EXPECT_TRUE(async_server.WaitForReady(id, 1.0));
+
+  // Invalidate the request
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kInvalidate);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kInvalidate);
+  EXPECT_EQ(ExtractProtocolResult(reply), Success);
+
+  // Poll no longer knows about that identifier
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
+
+  // Same for GetReply
+  reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kGetReply);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
+}
+
 AsyncRequestServerTest::AsyncRequestServerTest() = default;
 
 AsyncRequestServerTest::~AsyncRequestServerTest() = default;
