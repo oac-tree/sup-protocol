@@ -79,7 +79,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyVal
   }
   catch(...)
   {
-    return utils::CreateRPCReply(ServerTransportEncodingError);
+    return utils::CreateRPCReply(ServerProtocolException);
   }
   return utils::CreateRPCReply(result, output, encoding);
 }
@@ -102,7 +102,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyVa
   }
   catch(...)
   {
-    return utils::CreateServiceReply(ServerTransportEncodingError);
+    return utils::CreateServiceReply(ServerProtocolException);
   }
   return utils::CreateServiceReply(result, output, encoding);
 }

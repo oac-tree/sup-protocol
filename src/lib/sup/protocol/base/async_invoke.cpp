@@ -131,7 +131,7 @@ AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
   }
   catch(...)
   {
-    return failure;
+    return { ServerProtocolException, {} };
   }
   return reply;
 }

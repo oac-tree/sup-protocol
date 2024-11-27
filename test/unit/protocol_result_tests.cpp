@@ -120,6 +120,26 @@ TEST_F(ProtocolResultTest, Copy)
   EXPECT_EQ(result.GetValue(), ServerProtocolDecodingError.GetValue());
   EXPECT_EQ(result, ServerProtocolDecodingError);
 
+  // ServerProtocolDecodingError
+  result = ServerProtocolDecodingError;
+  EXPECT_EQ(result.GetValue(), ServerProtocolDecodingError.GetValue());
+  EXPECT_EQ(result, ServerProtocolDecodingError);
+
+  // ServerUnsupportedPayloadEncodingError
+  result = ServerUnsupportedPayloadEncodingError;
+  EXPECT_EQ(result.GetValue(), ServerUnsupportedPayloadEncodingError.GetValue());
+  EXPECT_EQ(result, ServerUnsupportedPayloadEncodingError);
+
+  // InvalidAsynchronousOperationError
+  result = InvalidAsynchronousOperationError;
+  EXPECT_EQ(result.GetValue(), InvalidAsynchronousOperationError.GetValue());
+  EXPECT_EQ(result, InvalidAsynchronousOperationError);
+
+  // ServerProtocolException
+  result = ServerProtocolException;
+  EXPECT_EQ(result.GetValue(), ServerProtocolException.GetValue());
+  EXPECT_EQ(result, ServerProtocolException);
+
   // Custom result
   ProtocolResult custom_result{42};
   result = custom_result;
@@ -184,6 +204,22 @@ TEST_F(ProtocolResultTest, ToString)
   result = ServerProtocolDecodingError;
   EXPECT_EQ(ProtocolResultToString(result), "ServerProtocolDecodingError");
 
+  // InvalidRequestIdentifierError
+  result = InvalidRequestIdentifierError;
+  EXPECT_EQ(ProtocolResultToString(result), "InvalidRequestIdentifierError");
+
+  // ServerUnsupportedPayloadEncodingError
+  result = ServerUnsupportedPayloadEncodingError;
+  EXPECT_EQ(ProtocolResultToString(result), "ServerUnsupportedPayloadEncodingError");
+
+  // InvalidAsynchronousOperationError
+  result = InvalidAsynchronousOperationError;
+  EXPECT_EQ(ProtocolResultToString(result), "InvalidAsynchronousOperationError");
+
+  // ServerProtocolException
+  result = ServerProtocolException;
+  EXPECT_EQ(ProtocolResultToString(result), "ServerProtocolException");
+
   // Custom result
   ProtocolResult custom_result{42};
   result = custom_result;
@@ -217,6 +253,10 @@ TEST_F(ProtocolResultTest, Comparison)
   EXPECT_TRUE(custom_result != ServerProtocolEncodingError);
   EXPECT_TRUE(custom_result != ClientProtocolDecodingError);
   EXPECT_TRUE(custom_result != ServerProtocolDecodingError);
+  EXPECT_TRUE(custom_result != ServerUnsupportedPayloadEncodingError);
+  EXPECT_TRUE(custom_result != InvalidRequestIdentifierError);
+  EXPECT_TRUE(custom_result != InvalidAsynchronousOperationError);
+  EXPECT_TRUE(custom_result != ServerProtocolException);
   EXPECT_FALSE(custom_result != ProtocolResult(42u));
 }
 

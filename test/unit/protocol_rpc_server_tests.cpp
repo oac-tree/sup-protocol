@@ -149,7 +149,7 @@ TEST_F(ProtocolRPCServerTest, ProtocolThrows)
   auto reply = server(request);
   EXPECT_TRUE(utils::CheckReplyFormat(reply));
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(),
-            ServerTransportEncodingError.GetValue());
+            ServerProtocolException.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
   auto last_input = m_test_protocol.GetLastInput();
@@ -231,7 +231,7 @@ TEST_F(ProtocolRPCServerTest, ServiceThrows)
   auto reply = server(request);
   EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
   EXPECT_EQ(reply[constants::SERVICE_REPLY_RESULT].As<unsigned int>(),
-            ServerTransportEncodingError.GetValue());
+            ServerProtocolException.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 }
 

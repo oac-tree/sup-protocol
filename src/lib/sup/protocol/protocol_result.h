@@ -236,6 +236,12 @@ extern const ProtocolResult InvalidRequestIdentifierError;
  * not valid, e.g. a client tries to get the reply when it was not ready.
 */
 extern const ProtocolResult InvalidAsynchronousOperationError;
+/**
+ * @brief Error when the Protocol at the server side throws an exception during a call to
+ * `Protocol::Invoke` or `Protocol::Service`. Note that since the Protocol implementation comes
+ * from the application layer, sup-protocol has no specific way to handle such exceptions.
+*/
+extern const ProtocolResult ServerProtocolException;
 
 }  // namespace protocol
 
