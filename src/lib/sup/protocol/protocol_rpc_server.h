@@ -32,6 +32,8 @@ namespace sup
 {
 namespace protocol
 {
+class AsyncInvokeServer;
+
 /**
  * @brief The ProtocolRPCServer is an AnyFunctor implementation that forwards to a Protocol.
  *
@@ -59,6 +61,7 @@ private:
   sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request,
                                           PayloadEncoding encoding);
   Protocol& m_protocol;
+  std::unique_ptr<AsyncInvokeServer> m_async_server;
 };
 
 }  // namespace protocol

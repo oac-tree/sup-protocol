@@ -22,6 +22,8 @@
 #include <sup/protocol/protocol_rpc_server.h>
 #include <sup/protocol/exceptions.h>
 
+#include <sup/protocol/base/async_invoke_server.h>
+
 #include <sup/dto/anyvalue_helper.h>
 
 namespace sup
@@ -31,6 +33,7 @@ namespace protocol
 
 ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol)
   : m_protocol{protocol}
+  , m_async_server{new AsyncInvokeServer{m_protocol}}
 {}
 
 ProtocolRPCServer::~ProtocolRPCServer() = default;
@@ -66,8 +69,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyVal
   auto async_info = utils::GetAsyncInfo(request);
   if (async_info.first)
   {
-    // TODO: Handle asynchronous call
-    return utils::CreateRPCReply(ServerTransportDecodingError);
+    return m_async_server->HandleInvoke(payload, encoding, async_info.second);
   }
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
