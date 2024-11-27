@@ -37,122 +37,232 @@ protected:
   virtual ~ProtocolRPCTest();
 };
 
+TEST_F(ProtocolRPCTest, SupportedEncoding)
+{
+  // No encoding
+  EXPECT_TRUE(utils::IsSupportedPayloadEncoding(PayloadEncoding::kNone));
+  // Base64
+  EXPECT_TRUE(utils::IsSupportedPayloadEncoding(PayloadEncoding::kBase64));
+  // Next enum integer is not supported
+  EXPECT_FALSE(utils::IsSupportedPayloadEncoding(utils::EncodingFromInteger(2)));
+  // Higher enum integer is not supported
+  EXPECT_FALSE(utils::IsSupportedPayloadEncoding(utils::EncodingFromInteger(42)));
+}
+
 TEST_F(ProtocolRPCTest, CheckRequestFormat)
 {
-  // Correctly formatted request
-  sup::dto::AnyValue correct_request = {{
-    { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_TRUE(utils::CheckRequestFormat(correct_request));
-
-  // Correctly formatted request with extra field
-  sup::dto::AnyValue correct_request_extra_field = {{
-    { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }},
-    { "extra_field", "extra content" }
-  }};
-  EXPECT_TRUE(utils::CheckRequestFormat(correct_request_extra_field));
-
-  // Missing obsolete timestamp field
-  sup::dto::AnyValue request_missing_timestamp = {{
-    { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_TRUE(utils::CheckRequestFormat(request_missing_timestamp));
-
-  // Incorrect type of obsolete timestamp field
-  sup::dto::AnyValue request_wrong_timestamp_type = {{
-    { constants::REQUEST_TIMESTAMP, {sup::dto::SignedInteger16Type, 42 }},
-    { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_FALSE(utils::CheckRequestFormat(request_wrong_timestamp_type));
-
-  // Missing mandatory payload
-  sup::dto::AnyValue request_missing_payload = {{
-    { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }}
-  }};
-  EXPECT_FALSE(utils::CheckRequestFormat(request_missing_payload));
+  {
+    // Minimal request
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
+    }};
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with correct timestamp
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
+    }};
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with correct encoding field
+    sup::dto::AnyValue request = {{
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 87 }},
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
+    }};
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with correct async field
+    sup::dto::AnyValue request = {{
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger32Type, 42u }},
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
+    }};
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with extra unknown field (ignored)
+    sup::dto::AnyValue request = {{
+      { "extra_field", "extra content" },
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }}
+    }};
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with wrong type of timestamp field
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }},
+      { constants::REQUEST_TIMESTAMP, {sup::dto::SignedInteger16Type, 42 }}
+    }};
+    EXPECT_FALSE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with wrong type of encoding field
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger16Type, 42 }}
+    }};
+    EXPECT_FALSE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with wrong type of async field
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_PAYLOAD, {sup::dto::BooleanType, true }},
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::SignedInteger16Type, 42 }}
+    }};
+    EXPECT_FALSE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request with missing payload field
+    sup::dto::AnyValue request = {{
+      { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 87 }},
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_FALSE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request generated with helper function
+    sup::dto::AnyValue payload = {{
+      { "flag", {sup::dto::BooleanType, true }},
+      { "set_point", {sup::dto::Float64Type, 3.14 }}
+    }};
+    auto request = utils::CreateRPCRequest(payload, PayloadEncoding::kNone);
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
+  {
+    // Request generated with async helper function
+    sup::dto::AnyValue payload = {{
+      { "flag", {sup::dto::BooleanType, true }},
+      { "set_point", {sup::dto::Float64Type, 3.14 }}
+    }};
+    auto request = utils::CreateAsyncRPCRequest(payload, PayloadEncoding::kBase64);
+    EXPECT_TRUE(utils::CheckRequestFormat(request));
+  }
 }
 
 TEST_F(ProtocolRPCTest, CheckReplyFormat)
 {
-  // Correctly formatted reply
-  sup::dto::AnyValue correct_reply = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, "some reason"}
-  }};
-  EXPECT_TRUE(utils::CheckReplyFormat(correct_reply));
-
-  // Correctly formatted reply with payload
-  sup::dto::AnyValue correct_reply_payload = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_TRUE(utils::CheckReplyFormat(correct_reply_payload));
-
-  // Correctly formatted reply with payload and extra field
-  sup::dto::AnyValue correct_reply_extra_field = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }},
-    { "extra_field", "extra content" }
-  }};
-  EXPECT_TRUE(utils::CheckReplyFormat(correct_reply_extra_field));
-
-  // Reply with missing mandatory result field
-  sup::dto::AnyValue reply_missing_result = {{
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_FALSE(utils::CheckReplyFormat(reply_missing_result));
-
-  // Reply with wrong type for result field
-  sup::dto::AnyValue reply_wrong_result_type = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_FALSE(utils::CheckReplyFormat(reply_wrong_result_type));
-
-  // Reply with missing obsolete timestamp field
-  sup::dto::AnyValue reply_missing_timestamp = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_TRUE(utils::CheckReplyFormat(reply_missing_timestamp));
-
-  // Reply with wrong type for obsolete timestamp field
-  sup::dto::AnyValue reply_wrong_timestamp_type = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::SignedInteger16Type, 42 }},
-    { constants::REPLY_REASON, "some reason"},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_FALSE(utils::CheckReplyFormat(reply_wrong_timestamp_type));
-
-  // Reply with missing obsolete reason field
-  sup::dto::AnyValue reply_missing_reason = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_TRUE(utils::CheckReplyFormat(reply_missing_reason));
-
-  // Reply with wrong type for obsolete reason field
-  sup::dto::AnyValue reply_wrong_reason_type = {{
-    { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }},
-    { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
-    { constants::REPLY_REASON, 3.14 },
-    { constants::REPLY_PAYLOAD, {sup::dto::BooleanType, true }}
-  }};
-  EXPECT_FALSE(utils::CheckReplyFormat(reply_wrong_reason_type));
+  {
+    // Minimal reply
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with timestamp
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with encoding
+    sup::dto::AnyValue reply = {{
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 0 }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with reason field
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_REASON, {sup::dto::StringType, "some reason" }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with async field
+    sup::dto::AnyValue reply = {{
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger32Type, 0 }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with extra unknown field (ignored)
+    sup::dto::AnyValue reply = {{
+      { "unknown_field", true },
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with wrong type of timestamp field
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_TIMESTAMP, {sup::dto::SignedInteger16Type, 42 }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_FALSE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with wrong type of encoding field
+    sup::dto::AnyValue reply = {{
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger16Type, 42 }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_FALSE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with wrong type of reason field
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_REASON, {sup::dto::Float32Type, 3.14 }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_FALSE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with wrong type of async field
+    sup::dto::AnyValue reply = {{
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger64Type, 1729u }},
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 42u }}
+    }};
+    EXPECT_FALSE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply with missing result field
+    sup::dto::AnyValue reply = {{
+      { constants::REPLY_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 42u }},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 0 }},
+      { constants::REPLY_REASON, {sup::dto::StringType, "some reason" }},
+      { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger32Type, 0 }},
+    }};
+    EXPECT_FALSE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply generated with helper function, no payload
+    auto reply = utils::CreateRPCReply(Success);
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Reply generated with helper function, with payload
+    sup::dto::AnyValue payload = {{
+      { "flag", {sup::dto::BooleanType, true }},
+      { "set_point", {sup::dto::Float64Type, 3.14 }}
+    }};
+    auto reply = utils::CreateRPCReply(NotConnected, payload, PayloadEncoding::kBase64);
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Async reply generated with helper function, no payload
+    auto reply = utils::CreateAsyncRPCReply(Success, AsyncCommand::kInitialRequest);
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
+  {
+    // Async reply generated with helper function, with payload
+    sup::dto::AnyValue payload = {{
+      { "flag", {sup::dto::BooleanType, true }},
+      { "set_point", {sup::dto::Float64Type, 3.14 }}
+    }};
+    auto reply = utils::CreateAsyncRPCReply(NotConnected, payload, PayloadEncoding::kBase64,
+                                            AsyncCommand::kGetReply);
+    EXPECT_TRUE(utils::CheckReplyFormat(reply));
+  }
 }
 
 TEST_F(ProtocolRPCTest, CreateRPCRequest)
