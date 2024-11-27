@@ -119,13 +119,46 @@ ProtocolResult AsyncRequestTestProtocol::Service(const sup::dto::AnyValue& input
   return Success;
 }
 
-sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
+sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
 {
-  if (!reply.HasField(constants::REPLY_PAYLOAD))
+  auto encoding_result = utils::TryGetPacketEncoding(reply);
+  if (!encoding_result.first)
   {
     return 0;
   }
-  auto& payload = reply[constants::REPLY_PAYLOAD];
+  auto encoding = encoding_result.second;
+  auto payload_result = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD, encoding);
+  if (!payload_result.first)
+  {
+    return 0;
+  }
+  auto payload = payload_result.second;
+  if (!payload.HasField(constants::ASYNC_ID_FIELD_NAME))
+  {
+    return 0;
+  }
+  auto& id_field = payload[constants::ASYNC_ID_FIELD_NAME];
+  if (id_field.GetType() != sup::dto::UnsignedInteger64Type)
+  {
+    return 0;
+  }
+  return id_field.As<sup::dto::uint64>();
+}
+
+sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
+{
+  auto encoding_result = utils::TryGetPacketEncoding(reply);
+  if (!encoding_result.first)
+  {
+    return 0;
+  }
+  auto encoding = encoding_result.second;
+  auto payload_result = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD, encoding);
+  if (!payload_result.first)
+  {
+    return 0;
+  }
+  auto payload = payload_result.second;
   if (!payload.HasField(constants::ASYNC_READY_FIELD_NAME))
   {
     return 0;

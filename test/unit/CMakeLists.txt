@@ -12,6 +12,7 @@ target_sources(unit-tests
   protocol_factory_utils_tests.cpp
   protocol_result_tests.cpp
   protocol_rpc_client_tests.cpp
+  protocol_rpc_server_async_tests.cpp
   protocol_rpc_server_tests.cpp
   protocol_rpc_tests.cpp
   sup_protocol_di_tests.cpp

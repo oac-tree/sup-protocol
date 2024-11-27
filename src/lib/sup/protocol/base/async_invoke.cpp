@@ -80,11 +80,11 @@ void AsyncInvoke::Invalidate()
 }
 
 AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
-                                                 const sup::dto::AnyValue& input)
+                                              const sup::dto::AnyValue& input)
   : m_future{}
   , m_invalidated{false}
 {
-  auto func = [&protocol, &input]() -> AsyncInvoke::Reply {
+  auto func = [&protocol, input]() -> AsyncInvoke::Reply {
     sup::dto::AnyValue output{};
     auto result = protocol.Invoke(input, output);
     return { result, output };

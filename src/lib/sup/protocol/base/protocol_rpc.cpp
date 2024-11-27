@@ -345,6 +345,22 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
   (void)packet.AddMember(member_name, encoded_payload);
 }
 
+std::pair<bool, ProtocolResult> TryExtractProtocolResult(const sup::dto::AnyValue& packet)
+{
+  std::pair<bool, ProtocolResult> failure{ false, ClientTransportDecodingError };
+  if (!packet.HasField(constants::REPLY_RESULT))
+  {
+    return failure;
+  }
+  auto& result_field = packet[constants::REPLY_RESULT];
+  if (result_field.GetType() != sup::dto::UnsignedInteger32Type)
+  {
+    return failure;
+  }
+  auto result_int = result_field.As<sup::dto::uint32>();
+  return { true, ProtocolResult{result_int} };
+}
+
 std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
                                                          const std::string& member_name,
                                                          PayloadEncoding encoding)

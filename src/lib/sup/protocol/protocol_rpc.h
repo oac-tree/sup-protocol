@@ -199,6 +199,8 @@ sup::protocol::ProtocolResult HandleApplicationProtocolInfo(
 void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload,
                    const std::string& member_name, PayloadEncoding encoding);
 
+std::pair<bool, ProtocolResult> TryExtractProtocolResult(const sup::dto::AnyValue& packet);
+
 std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
                                                          const std::string& member_name,
                                                          PayloadEncoding encoding);

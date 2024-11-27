@@ -47,11 +47,6 @@ AsyncCommand ExtractAsyncCommand(const sup::dto::AnyValue& reply)
   return static_cast<AsyncCommand>(command_id);
 }
 
-sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
-{
-  return reply[constants::REPLY_PAYLOAD][constants::ASYNC_ID_FIELD_NAME].As<sup::dto::uint64>();
-}
-
 TEST_F(AsyncRequestServerTest, NoActiveRequests)
 {
   // Check status of AsyncInvokeServer after construction (without any active requests).
@@ -83,6 +78,16 @@ TEST_F(AsyncRequestServerTest, NoActiveRequests)
   }
 }
 
+TEST_F(AsyncRequestServerTest, SimpleScalarRequest)
+{
+  test::TestProtocol protocol{};
+  AsyncInvokeServer async_server{protocol};
+  sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
+  auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
+                                         AsyncCommand::kInitialRequest);
+
+}
+
 TEST_F(AsyncRequestServerTest, SingleRequest)
 {
   // Check status of AsyncInvokeServer after launching a single request
@@ -94,7 +99,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   // Launch new request (first id should be 1)
   auto reply = async_server.HandleInvoke(input, PayloadEncoding::kNone,
                                          AsyncCommand::kInitialRequest);
-  auto id = ExtractRequestId(reply);
+  auto id = test::ExtractRequestId(reply);
   EXPECT_EQ(id, 1u);
 
   // Request should not be ready
@@ -151,7 +156,7 @@ TEST_F(AsyncRequestServerTest, Invalidate)
   // Launch new request (first id should be 1)
   auto reply = async_server.HandleInvoke(input, PayloadEncoding::kNone,
                                          AsyncCommand::kInitialRequest);
-  auto id = ExtractRequestId(reply);
+  auto id = test::ExtractRequestId(reply);
   EXPECT_EQ(id, 1u);
 
   // Request should not be ready
