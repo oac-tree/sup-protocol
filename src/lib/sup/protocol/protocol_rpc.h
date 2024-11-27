@@ -25,6 +25,8 @@
 #include <sup/dto/anyvalue.h>
 #include <sup/protocol/protocol_result.h>
 
+#include <utility>
+
 namespace sup
 {
 namespace protocol
@@ -190,9 +192,12 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
                    const std::string& member_name, PayloadEncoding encoding);
 
 sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
-                                     const std::string& member_name);
+                                     const std::string& member_name,
+                                     PayloadEncoding encoding);
 
-PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet);
+std::pair<bool, PayloadEncoding> GetPacketEncoding(const sup::dto::AnyValue& packet);
+
+bool IsAsyncPacket(const sup::dto::AnyValue& packet);
 
 }  // namespace utils
 

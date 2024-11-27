@@ -195,7 +195,8 @@ TEST_F(ProtocolFactoryUtilsTest, ClientStackScalarPayload)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD);
+  auto payload = utils::ExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD,
+                                          PayloadEncoding::kBase64);
   EXPECT_EQ(payload.GetType(), sup::dto::SignedInteger32Type);
   EXPECT_EQ(payload, input);
 }

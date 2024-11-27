@@ -20,10 +20,9 @@
  ******************************************************************************/
 
 #include <sup/protocol/protocol_rpc_server.h>
+#include <sup/protocol/exceptions.h>
 
 #include <sup/dto/anyvalue_helper.h>
-#include <sup/protocol/exceptions.h>
-#include <sup/protocol/protocol_rpc.h>
 
 namespace sup
 {
@@ -38,24 +37,25 @@ ProtocolRPCServer::~ProtocolRPCServer() = default;
 
 sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& request)
 {
+  auto encoding_result = utils::GetPacketEncoding(request);
+  if (!encoding_result.first)
+  {
+    return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
+  }
+  auto encoding = encoding_result.second;
   if (utils::IsServiceRequest(request))
   {
-    return HandleServiceRequest(request);
+    return HandleServiceRequest(request, encoding);
   }
   if (!utils::CheckRequestFormat(request))
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
   }
-  PayloadEncoding encoding = utils::GetPacketEncoding(request);
-  if (!utils::IsSupportedPayloadEncoding(encoding))
-  {
-    return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
-  }
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try
   {
-    auto payload = utils::ExtractRPCPayload(request, constants::REQUEST_PAYLOAD);
+    auto payload = utils::ExtractRPCPayload(request, constants::REQUEST_PAYLOAD, encoding);
     result = m_protocol.Invoke(payload, output);
   }
   catch(...)
@@ -65,14 +65,10 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   return utils::CreateRPCReply(result, output, encoding);
 }
 
-sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& input)
+sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& input,
+                                                           PayloadEncoding encoding)
 {
-  PayloadEncoding encoding = utils::GetPacketEncoding(input);
-  if (!utils::IsSupportedPayloadEncoding(encoding))
-  {
-    return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
-  }
-  auto payload = utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD);
+  auto payload = utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD, encoding);
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try

@@ -22,9 +22,11 @@
 #ifndef SUP_PROTOCOL_PROTOCOL_RPC_SERVER_H_
 #define SUP_PROTOCOL_PROTOCOL_RPC_SERVER_H_
 
+#include <sup/protocol/protocol_rpc.h>
+#include <sup/protocol/protocol.h>
+
 #include <sup/dto/any_functor.h>
 #include <sup/dto/basic_scalar_types.h>
-#include <sup/protocol/protocol.h>
 
 namespace sup
 {
@@ -52,7 +54,8 @@ public:
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 private:
-  sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request);
+  sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request,
+                                          PayloadEncoding encoding);
   Protocol& m_protocol;
 };
 

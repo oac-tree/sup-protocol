@@ -79,6 +79,12 @@ bool CheckRequestFormat(const sup::dto::AnyValue& request)
   {
     return false;
   }
+  // Only check type of async command field when present
+  if (request.HasField(constants::ASYNC_COMMAND_FIELD_NAME)
+      && request[constants::ASYNC_COMMAND_FIELD_NAME].GetType() != sup::dto::UnsignedInteger32Type)
+  {
+    return false;
+  }
   if (!request.HasField(constants::REQUEST_PAYLOAD))
   {
     return false;
@@ -108,6 +114,12 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
   // Only check type of reason field when present
   if (reply.HasField(constants::REPLY_REASON)
       && reply[constants::REPLY_REASON].GetType() != sup::dto::StringType)
+  {
+    return false;
+  }
+  // Only check type of async command field when present
+  if (reply.HasField(constants::ASYNC_COMMAND_FIELD_NAME)
+      && reply[constants::ASYNC_COMMAND_FIELD_NAME].GetType() != sup::dto::UnsignedInteger32Type)
   {
     return false;
   }
@@ -286,7 +298,8 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
 }
 
 sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
-                                     const std::string& member_name)
+                                     const std::string& member_name,
+                                     PayloadEncoding encoding)
 {
   if (!packet.HasField(member_name))
   {
@@ -294,7 +307,6 @@ sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
                         " not present: " + member_name;
     throw InvalidOperationException(error);
   }
-  auto encoding = GetPacketEncoding(packet);
   if (encoding == PayloadEncoding::kNone)
   {
     return packet[member_name];
@@ -302,19 +314,34 @@ sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
   return encoding::Decode(packet[member_name], encoding);
 }
 
-PayloadEncoding GetPacketEncoding(const sup::dto::AnyValue& packet)
+std::pair<bool, PayloadEncoding> GetPacketEncoding(const sup::dto::AnyValue& packet)
 {
+  std::pair<bool, PayloadEncoding> failure{ false, PayloadEncoding::kNone };
   if (!packet.HasField(constants::ENCODING_FIELD_NAME))
   {
-    return PayloadEncoding::kNone;
+    return { true, PayloadEncoding::kNone};
   }
   auto encoding_field = packet[constants::ENCODING_FIELD_NAME];
   if (encoding_field.GetType() != sup::dto::SignedInteger32Type)
   {
-    std::string error = "GetPacketEncoding(): encoding field is not of the correct (int32) type";
-    throw InvalidOperationException(error);
+    return failure;
   }
-  return utils::EncodingFromInteger(encoding_field.As<sup::dto::int32>());
+  auto encoding = utils::EncodingFromInteger(encoding_field.As<sup::dto::int32>());
+  if (!IsSupportedPayloadEncoding(encoding))
+  {
+    return failure;
+  }
+  return { true, encoding };
+}
+
+bool IsAsyncPacket(const sup::dto::AnyValue& packet)
+{
+  if (packet.HasField(constants::ASYNC_COMMAND_FIELD_NAME) &&
+      packet[constants::ASYNC_COMMAND_FIELD_NAME].GetType() == sup::dto::UnsignedInteger32Type)
+  {
+    return true;
+  }
+  return false;
 }
 
 }  // namespace utils

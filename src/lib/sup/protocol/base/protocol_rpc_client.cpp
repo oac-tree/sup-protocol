@@ -60,7 +60,8 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::REPLY_PAYLOAD))
   {
-    auto payload = utils::ExtractRPCPayload(reply, constants::REPLY_PAYLOAD);
+    // TODO: parse encoding field instead
+    auto payload = utils::ExtractRPCPayload(reply, constants::REPLY_PAYLOAD, m_encoding);
     if (!sup::dto::TryAssignIfEmptyOrConvert(output, payload))
     {
       return ClientTransportDecodingError;
@@ -92,7 +93,8 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   }
   if (reply.HasField(constants::SERVICE_REPLY_PAYLOAD))
   {
-    auto payload = utils::ExtractRPCPayload(reply, constants::SERVICE_REPLY_PAYLOAD);
+    // TODO: parse encoding field instead
+    auto payload = utils::ExtractRPCPayload(reply, constants::SERVICE_REPLY_PAYLOAD, m_encoding);
     if (!sup::dto::TryAssignIfEmptyOrConvert(output, payload))
     {
       return ClientTransportDecodingError;

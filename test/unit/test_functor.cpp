@@ -46,10 +46,11 @@ TestFunctor::~TestFunctor() = default;
 sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
 {
   m_last_request.reset(new sup::dto::AnyValue(input));
-  auto encoding = utils::GetPacketEncoding(input);
+  auto encoding = utils::GetPacketEncoding(input).second;
   bool normal_request = input.HasField(constants::REQUEST_PAYLOAD);
-  auto query = normal_request ? utils::ExtractRPCPayload(input, constants::REQUEST_PAYLOAD)
-                              : utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD);
+  auto query =
+    normal_request ? utils::ExtractRPCPayload(input, constants::REQUEST_PAYLOAD, encoding)
+                   : utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD, encoding);
   if (query.HasField(BAD_REPLY_FIELD) && query[BAD_REPLY_FIELD].As<bool>())
   {
     return sup::dto::AnyValue{{{"BadReplyFormat", {sup::dto::BooleanType, true}}}};

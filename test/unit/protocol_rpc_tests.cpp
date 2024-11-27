@@ -170,7 +170,8 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
     auto payload_from_request = utils::ExtractRPCPayload(request_payload,
-                                                         constants::REQUEST_PAYLOAD);
+                                                         constants::REQUEST_PAYLOAD,
+                                                         PayloadEncoding::kNone);
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
     EXPECT_EQ(payload_from_request, payload);
     EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
@@ -185,7 +186,8 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
     auto payload_from_request = utils::ExtractRPCPayload(request_payload,
-                                                         constants::REQUEST_PAYLOAD);
+                                                         constants::REQUEST_PAYLOAD,
+                                                         PayloadEncoding::kBase64);
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
     EXPECT_EQ(payload_from_request, payload);
     EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
