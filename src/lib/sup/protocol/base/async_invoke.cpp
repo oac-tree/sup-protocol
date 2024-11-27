@@ -124,7 +124,16 @@ AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
   {
     return failure;
   }
-  return m_future.get();
+  AsyncInvoke::Reply reply{ Success, {} };
+  try
+  {
+    reply = m_future.get();
+  }
+  catch(...)
+  {
+    return failure;
+  }
+  return reply;
 }
 
 void AsyncInvoke::AsyncInvokeImpl::Invalidate()
