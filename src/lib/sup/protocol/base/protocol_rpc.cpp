@@ -338,14 +338,16 @@ std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& 
   return { true, encoding };
 }
 
-bool IsAsyncPacket(const sup::dto::AnyValue& packet)
+std::pair<bool, AsyncCommand> GetAsyncInfo(const sup::dto::AnyValue& packet)
 {
   if (packet.HasField(constants::ASYNC_COMMAND_FIELD_NAME) &&
       packet[constants::ASYNC_COMMAND_FIELD_NAME].GetType() == sup::dto::UnsignedInteger32Type)
   {
-    return true;
+    auto command_nr = packet[constants::ASYNC_COMMAND_FIELD_NAME].As<sup::dto::uint32>();
+    auto command = static_cast<AsyncCommand>(command_nr);
+    return { true, command };
   }
-  return false;
+  return { false, AsyncCommand::kInitialRequest };
 }
 
 }  // namespace utils

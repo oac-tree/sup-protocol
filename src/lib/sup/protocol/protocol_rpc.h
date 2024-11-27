@@ -197,7 +197,7 @@ std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValu
 
 std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& packet);
 
-bool IsAsyncPacket(const sup::dto::AnyValue& packet);
+std::pair<bool, AsyncCommand> GetAsyncInfo(const sup::dto::AnyValue& packet);
 
 }  // namespace utils
 

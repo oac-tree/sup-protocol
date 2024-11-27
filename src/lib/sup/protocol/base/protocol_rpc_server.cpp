@@ -63,6 +63,12 @@ sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyVal
     return utils::CreateRPCReply(ServerTransportDecodingError);
   }
   auto payload = payload_result.second;
+  auto async_info = utils::GetAsyncInfo(request);
+  if (async_info.first)
+  {
+    // TODO: Handle asynchronous call
+    return utils::CreateRPCReply(ServerTransportDecodingError);
+  }
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try

@@ -170,7 +170,7 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
     auto payload_result = utils::TryExtractRPCPayload(request_payload, constants::REQUEST_PAYLOAD,
-                                                      PayloadEncoding::kBase64);
+                                                      PayloadEncoding::kNone);
     ASSERT_TRUE(payload_result.first);
     auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
