@@ -127,22 +127,12 @@ sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
     return 0;
   }
   auto encoding = encoding_result.second;
-  auto payload_result = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD, encoding);
-  if (!payload_result.first)
+  auto id_result = utils::TryExtractRequestId(reply, encoding);
+  if (!id_result.first)
   {
     return 0;
   }
-  auto payload = payload_result.second;
-  if (!payload.HasField(constants::ASYNC_ID_FIELD_NAME))
-  {
-    return 0;
-  }
-  auto& id_field = payload[constants::ASYNC_ID_FIELD_NAME];
-  if (id_field.GetType() != sup::dto::UnsignedInteger64Type)
-  {
-    return 0;
-  }
-  return id_field.As<sup::dto::uint64>();
+  return id_result.second;
 }
 
 sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
@@ -153,22 +143,12 @@ sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
     return 0;
   }
   auto encoding = encoding_result.second;
-  auto payload_result = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD, encoding);
-  if (!payload_result.first)
+  auto ready_result = utils::TryExtractReadyStatus(reply, encoding);
+  if (!ready_result.first)
   {
     return 0;
   }
-  auto payload = payload_result.second;
-  if (!payload.HasField(constants::ASYNC_READY_FIELD_NAME))
-  {
-    return 0;
-  }
-  auto& ready_field = payload[constants::ASYNC_READY_FIELD_NAME];
-  if (ready_field.GetType() != sup::dto::UnsignedInteger32Type)
-  {
-    return 0;
-  }
-  return ready_field.As<sup::dto::uint32>();
+  return ready_result.second;
 }
 
 bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double seconds)

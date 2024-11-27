@@ -382,6 +382,50 @@ std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValu
   return { true, payload };
 }
 
+std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
+                                                      PayloadEncoding encoding)
+{
+  std::pair<bool, sup::dto::uint64> failure{ false, 0 };
+  auto payload_result = utils::TryExtractRPCPayload(packet, constants::REPLY_PAYLOAD, encoding);
+  if (!payload_result.first)
+  {
+    return failure;
+  }
+  auto payload = payload_result.second;
+  if (!payload.HasField(constants::ASYNC_ID_FIELD_NAME))
+  {
+    return failure;
+  }
+  auto& id_field = payload[constants::ASYNC_ID_FIELD_NAME];
+  if (id_field.GetType() != sup::dto::UnsignedInteger64Type)
+  {
+    return failure;
+  }
+  return { true, id_field.As<sup::dto::uint64>() };
+}
+
+std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
+                                                        PayloadEncoding encoding)
+{
+  std::pair<bool, sup::dto::uint32> failure{ false, 0 };
+  auto payload_result = utils::TryExtractRPCPayload(packet, constants::REPLY_PAYLOAD, encoding);
+  if (!payload_result.first)
+  {
+    return failure;
+  }
+  auto payload = payload_result.second;
+  if (!payload.HasField(constants::ASYNC_READY_FIELD_NAME))
+  {
+    return failure;
+  }
+  auto& id_field = payload[constants::ASYNC_READY_FIELD_NAME];
+  if (id_field.GetType() != sup::dto::UnsignedInteger32Type)
+  {
+    return failure;
+  }
+  return { true, id_field.As<sup::dto::uint32>() };
+}
+
 std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& packet)
 {
   std::pair<bool, PayloadEncoding> failure{ false, PayloadEncoding::kNone };
