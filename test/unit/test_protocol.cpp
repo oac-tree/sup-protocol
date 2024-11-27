@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <thread>
 
 namespace sup
 {
