@@ -148,8 +148,16 @@ bool CheckRequestFormat(const sup::dto::AnyValue& request);
 
 bool CheckReplyFormat(const sup::dto::AnyValue& reply);
 
-sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
-                                    PayloadEncoding encoding);
+sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload, PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateAsyncRPCRequest(const sup::dto::AnyValue& payload,
+                                         PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateAsyncRPCPoll(sup::dto::uint64 id, PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateAsyncRPCGetReply(sup::dto::uint64 id, PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateAsyncRPCInvalidate(sup::dto::uint64 id, PayloadEncoding encoding);
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
                                   const sup::dto::AnyValue& payload,

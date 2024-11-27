@@ -24,6 +24,9 @@
 
 #include <sup/protocol/protocol.h>
 
+#include <sup/dto/any_functor.h>
+#include <sup/dto/anyvalue.h>
+
 #include <future>
 #include <memory>
 
@@ -31,6 +34,7 @@ namespace sup
 {
 namespace protocol
 {
+
 namespace test
 {
 const std::string ECHO_FIELD = "echo";
@@ -78,6 +82,10 @@ public:
 private:
   std::future<void> m_go_future;
 };
+
+sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply);
+
+bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double seconds);
 
 }  // namespace test
 

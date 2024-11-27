@@ -26,6 +26,7 @@
 #include <sup/dto/anyvalue.h>
 #include <sup/dto/anyvalue_helper.h>
 
+#include <cmath>
 #include <stdexcept>
 
 namespace sup
@@ -116,6 +117,47 @@ ProtocolResult AsyncRequestTestProtocol::Service(const sup::dto::AnyValue& input
 {
   output = input;
   return Success;
+}
+
+sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
+{
+  if (!reply.HasField(constants::REPLY_PAYLOAD))
+  {
+    return 0;
+  }
+  auto& payload = reply[constants::REPLY_PAYLOAD];
+  if (!payload.HasField(constants::ASYNC_READY_FIELD_NAME))
+  {
+    return 0;
+  }
+  auto& ready_field = payload[constants::ASYNC_READY_FIELD_NAME];
+  if (ready_field.GetType() != sup::dto::UnsignedInteger32Type)
+  {
+    return 0;
+  }
+  return ready_field.As<sup::dto::uint32>();
+}
+
+bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double seconds)
+{
+  auto poll_request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kBase64);
+  auto timeout_ns = std::chrono::nanoseconds(std::lround(seconds * 1e9));
+  auto start = std::chrono::steady_clock::now();
+  while (true)
+  {
+    auto current_time = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - start);
+    if (elapsed > timeout_ns)
+    {
+      return false;
+    }
+    auto reply = functor(poll_request);
+    if (ExtractReadyStatus(reply) == 1u)
+    {
+      return true;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 }  // namespace test

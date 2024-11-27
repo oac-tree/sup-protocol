@@ -52,11 +52,6 @@ sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
   return reply[constants::REPLY_PAYLOAD][constants::ASYNC_ID_FIELD_NAME].As<sup::dto::uint64>();
 }
 
-sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
-{
-  return reply[constants::REPLY_PAYLOAD][constants::ASYNC_READY_FIELD_NAME].As<sup::dto::uint32>();
-}
-
 TEST_F(AsyncRequestServerTest, NoActiveRequests)
 {
   // Check status of AsyncInvokeServer after construction (without any active requests).
@@ -109,7 +104,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
   EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
   EXPECT_EQ(ExtractProtocolResult(reply), Success);
-  auto is_ready = ExtractReadyStatus(reply);
+  auto is_ready = test::ExtractReadyStatus(reply);
   EXPECT_EQ(is_ready, 0);
 
   // GetReply returns an error ProtocolResult since the reply is not ready
@@ -125,7 +120,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
   EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
   EXPECT_EQ(ExtractProtocolResult(reply), Success);
-  is_ready = ExtractReadyStatus(reply);
+  is_ready = test::ExtractReadyStatus(reply);
   EXPECT_EQ(is_ready, 1);
 
   // GetReply returns the expected reply
@@ -166,7 +161,7 @@ TEST_F(AsyncRequestServerTest, Invalidate)
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
   EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
   EXPECT_EQ(ExtractProtocolResult(reply), Success);
-  auto is_ready = ExtractReadyStatus(reply);
+  auto is_ready = test::ExtractReadyStatus(reply);
   EXPECT_EQ(is_ready, 0);
 
   // GetReply returns an error ProtocolResult since the reply is not ready

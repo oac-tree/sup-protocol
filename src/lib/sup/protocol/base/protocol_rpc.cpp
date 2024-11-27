@@ -37,6 +37,8 @@ sup::dto::AnyValue CreateApplicationProtocolRequestPayload();
 
 sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& application_type,
                                                          const std::string& application_version);
+
+sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id);
 }  // unnamed namespace
 
 namespace sup
@@ -126,8 +128,7 @@ bool CheckReplyFormat(const sup::dto::AnyValue& reply)
   return true;
 }
 
-sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
-                                    PayloadEncoding encoding)
+sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload, PayloadEncoding encoding)
 {
   if (sup::dto::IsEmptyValue(payload))
   {
@@ -138,6 +139,53 @@ sup::dto::AnyValue CreateRPCRequest(const sup::dto::AnyValue& payload,
   AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
   return request;
 }
+
+sup::dto::AnyValue CreateAsyncRPCRequest(const sup::dto::AnyValue& payload,
+                                         PayloadEncoding encoding)
+{
+  if (sup::dto::IsEmptyValue(payload))
+  {
+    std::string error_message = "CreateRPCRequest(): empty payload is not allowed";
+    throw InvalidOperationException(error_message);
+  }
+  sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
+  AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
+  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                    static_cast<sup::dto::uint32>(AsyncCommand::kInitialRequest));
+  return request;
+}
+
+sup::dto::AnyValue CreateAsyncRPCPoll(sup::dto::uint64 id, PayloadEncoding encoding)
+{
+  sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
+  auto payload = CreateRequestIdPayload(id);
+  AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
+  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                    static_cast<sup::dto::uint32>(AsyncCommand::kPoll));
+  return request;
+}
+
+sup::dto::AnyValue CreateAsyncRPCGetReply(sup::dto::uint64 id, PayloadEncoding encoding)
+{
+  sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
+  auto payload = CreateRequestIdPayload(id);
+  AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
+  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                    static_cast<sup::dto::uint32>(AsyncCommand::kGetReply));
+  return request;
+}
+
+
+sup::dto::AnyValue CreateAsyncRPCInvalidate(sup::dto::uint64 id, PayloadEncoding encoding)
+{
+  sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
+  auto payload = CreateRequestIdPayload(id);
+  AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
+  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                    static_cast<sup::dto::uint32>(AsyncCommand::kInvalidate));
+  return request;
+}
+
 
 sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
                                   const sup::dto::AnyValue& payload,
@@ -371,6 +419,14 @@ sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& appl
   sup::dto::AnyValue payload = {
     { constants::APPLICATION_PROTOCOL_TYPE, {sup::dto::StringType, application_type} },
     { constants::APPLICATION_PROTOCOL_VERSION, {sup::dto::StringType, application_version} }
+  };
+  return payload;
+}
+
+sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id)
+{
+  sup::dto::AnyValue payload = {
+    { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, id }}
   };
   return payload;
 }
