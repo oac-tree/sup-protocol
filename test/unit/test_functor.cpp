@@ -46,11 +46,17 @@ TestFunctor::~TestFunctor() = default;
 sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
 {
   m_last_request.reset(new sup::dto::AnyValue(input));
-  auto encoding = utils::GetPacketEncoding(input).second;
+  auto encoding = utils::TryGetPacketEncoding(input).second;
   bool normal_request = input.HasField(constants::REQUEST_PAYLOAD);
-  auto query =
-    normal_request ? utils::ExtractRPCPayload(input, constants::REQUEST_PAYLOAD, encoding)
-                   : utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD, encoding);
+  auto query_result =
+    normal_request ? utils::TryExtractRPCPayload(input, constants::REQUEST_PAYLOAD, encoding)
+                   : utils::TryExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD,
+                                                 encoding);
+  if (!query_result.first)
+  {
+    throw std::runtime_error("Could not extract payload");
+  }
+  auto query = query_result.second;
   if (query.HasField(BAD_REPLY_FIELD) && query[BAD_REPLY_FIELD].As<bool>())
   {
     return sup::dto::AnyValue{{{"BadReplyFormat", {sup::dto::BooleanType, true}}}};

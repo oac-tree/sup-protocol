@@ -54,6 +54,8 @@ public:
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 private:
+  sup::dto::AnyValue HandleInvokeRequest(const sup::dto::AnyValue& request,
+                                         PayloadEncoding encoding);
   sup::dto::AnyValue HandleServiceRequest(const sup::dto::AnyValue& request,
                                           PayloadEncoding encoding);
   Protocol& m_protocol;

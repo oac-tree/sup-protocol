@@ -169,9 +169,10 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     auto request_payload = utils::CreateRPCRequest(payload, PayloadEncoding::kNone);
     EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
-    auto payload_from_request = utils::ExtractRPCPayload(request_payload,
-                                                         constants::REQUEST_PAYLOAD,
-                                                         PayloadEncoding::kNone);
+    auto payload_result = utils::TryExtractRPCPayload(request_payload, constants::REQUEST_PAYLOAD,
+                                                      PayloadEncoding::kBase64);
+    ASSERT_TRUE(payload_result.first);
+    auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
     EXPECT_EQ(payload_from_request, payload);
     EXPECT_TRUE(utils::CheckRequestFormat(request_payload));
@@ -185,9 +186,10 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     auto request_payload = utils::CreateRPCRequest(payload, PayloadEncoding::kBase64);
     EXPECT_EQ(request_payload.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(request_payload.HasField(constants::REQUEST_PAYLOAD));
-    auto payload_from_request = utils::ExtractRPCPayload(request_payload,
-                                                         constants::REQUEST_PAYLOAD,
-                                                         PayloadEncoding::kBase64);
+    auto payload_result = utils::TryExtractRPCPayload(request_payload, constants::REQUEST_PAYLOAD,
+                                                      PayloadEncoding::kBase64);
+    ASSERT_TRUE(payload_result.first);
+    auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
     EXPECT_EQ(payload_from_request, payload);
     EXPECT_TRUE(utils::CheckRequestFormat(request_payload));

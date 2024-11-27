@@ -297,24 +297,28 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
   (void)packet.AddMember(member_name, encoded_payload);
 }
 
-sup::dto::AnyValue ExtractRPCPayload(const sup::dto::AnyValue& packet,
-                                     const std::string& member_name,
-                                     PayloadEncoding encoding)
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
+                                                         const std::string& member_name,
+                                                         PayloadEncoding encoding)
 {
+  std::pair<bool, sup::dto::AnyValue> failure{ false, {} };
   if (!packet.HasField(member_name))
   {
-    std::string error = "ExtractRPCPayload(): trying to extract payload with fieldname that is "
-                        " not present: " + member_name;
-    throw InvalidOperationException(error);
+    return failure;
   }
-  if (encoding == PayloadEncoding::kNone)
+  sup::dto::AnyValue payload{};
+  try
   {
-    return packet[member_name];
+    payload = encoding::Decode(packet[member_name], encoding);
   }
-  return encoding::Decode(packet[member_name], encoding);
+  catch(...)
+  {
+    return failure;
+  }
+  return { true, payload };
 }
 
-std::pair<bool, PayloadEncoding> GetPacketEncoding(const sup::dto::AnyValue& packet)
+std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& packet)
 {
   std::pair<bool, PayloadEncoding> failure{ false, PayloadEncoding::kNone };
   if (!packet.HasField(constants::ENCODING_FIELD_NAME))

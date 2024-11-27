@@ -37,7 +37,7 @@ ProtocolRPCServer::~ProtocolRPCServer() = default;
 
 sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& request)
 {
-  auto encoding_result = utils::GetPacketEncoding(request);
+  auto encoding_result = utils::TryGetPacketEncoding(request);
   if (!encoding_result.first)
   {
     return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
@@ -47,15 +47,26 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   {
     return HandleServiceRequest(request, encoding);
   }
+  return HandleInvokeRequest(request, encoding);
+}
+
+sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyValue& request,
+                                                          PayloadEncoding encoding)
+{
   if (!utils::CheckRequestFormat(request))
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
   }
+  auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD, encoding);
+  if (!payload_result.first)
+  {
+    return utils::CreateRPCReply(ServerTransportDecodingError);
+  }
+  auto payload = payload_result.second;
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try
   {
-    auto payload = utils::ExtractRPCPayload(request, constants::REQUEST_PAYLOAD, encoding);
     result = m_protocol.Invoke(payload, output);
   }
   catch(...)
@@ -65,10 +76,16 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
   return utils::CreateRPCReply(result, output, encoding);
 }
 
-sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& input,
+sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& request,
                                                            PayloadEncoding encoding)
 {
-  auto payload = utils::ExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD, encoding);
+  auto payload_result = utils::TryExtractRPCPayload(request, constants::SERVICE_REQUEST_PAYLOAD,
+                                                    encoding);
+  if (!payload_result.first)
+  {
+    return utils::CreateRPCReply(ServerTransportDecodingError);
+  }
+  auto payload = payload_result.second;
   sup::dto::AnyValue output;
   ProtocolResult result = Success;
   try
