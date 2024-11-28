@@ -56,6 +56,8 @@ public:
   ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
 private:
+  ProtocolResult HandleSyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
+  ProtocolResult HandleAsyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
   dto::AnyFunctor& m_any_functor;
   PayloadEncoding m_encoding;
 };

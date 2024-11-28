@@ -29,6 +29,11 @@ namespace sup
 {
 namespace protocol
 {
+namespace
+{
+std::pair<bool, ProtocolResult> PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id,
+                                               PayloadEncoding encoding);
+}  // unnamed namespace
 
 ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor, PayloadEncoding encoding)
   : m_any_functor{any_functor}
@@ -112,6 +117,84 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   }
   return ProtocolResult{reply[constants::SERVICE_REPLY_RESULT].As<sup::dto::uint32>()};
 }
+
+ProtocolResult ProtocolRPCClient::HandleSyncInvoke(const sup::dto::AnyValue& input,
+                                                   sup::dto::AnyValue& output)
+{
+  return Success;
+}
+
+ProtocolResult ProtocolRPCClient::HandleAsyncInvoke(const sup::dto::AnyValue& input,
+                                                    sup::dto::AnyValue& output)
+{
+  const auto new_request = utils::CreateAsyncRPCRequest(input, m_encoding);
+  try
+  {
+    auto initial_reply = m_any_functor(new_request);
+    auto encoding_info = utils::TryGetPacketEncoding(initial_reply);
+    if (!encoding_info.first)
+    {
+      return ClientTransportDecodingError;
+    }
+    auto encoding = encoding_info.second;
+    auto id_info = utils::TryExtractReplyId(initial_reply, encoding);
+    if (!id_info.first)
+    {
+      return ClientTransportDecodingError;
+    }
+    auto id = id_info.second;
+    auto ready_status = PollUntilReady(m_any_functor, id, encoding);
+    if (ready_status.first)
+    {
+      // TODO: GetReply and copy to output
+    }
+    else
+    {
+      if (ready_status.second == Success)
+      {
+        return AsynchronousProtocolTimeout;
+      }
+      return ready_status.second;
+    }
+  }
+  catch(...)
+  {
+    return ClientTransportDecodingError;
+  }
+
+  return Success;
+}
+
+namespace
+{
+std::pair<bool, ProtocolResult> PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id,
+                                               PayloadEncoding encoding)
+{
+  const auto poll_request = utils::CreateAsyncRPCPoll(id, encoding);
+  while (true)
+  {
+    auto poll_reply = functor(poll_request);
+    auto encoding_info = utils::TryGetPacketEncoding(poll_reply);
+    if (!encoding_info.first)
+    {
+      return { false, ClientTransportDecodingError };
+    }
+    auto encoding = encoding_info.second;
+    auto ready_info = utils::TryExtractReadyStatus(poll_reply, encoding);
+    if (!ready_info.first)
+    {
+      return { false, ClientTransportDecodingError };
+    }
+    if (ready_info.second)
+    {
+      return { true, Success };
+    }
+    // TODO: sleep and exit if timeout expired
+  }
+  return { false, Success };  // protocol was successfull, but timeout expired
+}
+
+}  // unnamed namespace
 
 }  // namespace protocol
 

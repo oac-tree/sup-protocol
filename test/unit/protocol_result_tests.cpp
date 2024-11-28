@@ -140,6 +140,16 @@ TEST_F(ProtocolResultTest, Copy)
   EXPECT_EQ(result.GetValue(), ServerProtocolException.GetValue());
   EXPECT_EQ(result, ServerProtocolException);
 
+  // ClientTransportException
+  result = ClientTransportException;
+  EXPECT_EQ(result.GetValue(), ClientTransportException.GetValue());
+  EXPECT_EQ(result, ClientTransportException);
+
+  // AsynchronousProtocolTimeout
+  result = AsynchronousProtocolTimeout;
+  EXPECT_EQ(result.GetValue(), AsynchronousProtocolTimeout.GetValue());
+  EXPECT_EQ(result, AsynchronousProtocolTimeout);
+
   // Custom result
   ProtocolResult custom_result{42};
   result = custom_result;
@@ -220,6 +230,14 @@ TEST_F(ProtocolResultTest, ToString)
   result = ServerProtocolException;
   EXPECT_EQ(ProtocolResultToString(result), "ServerProtocolException");
 
+  // ClientTransportException
+  result = ClientTransportException;
+  EXPECT_EQ(ProtocolResultToString(result), "ClientTransportException");
+
+  // AsynchronousProtocolTimeout
+  result = AsynchronousProtocolTimeout;
+  EXPECT_EQ(ProtocolResultToString(result), "AsynchronousProtocolTimeout");
+
   // Custom result
   ProtocolResult custom_result{42};
   result = custom_result;
@@ -257,6 +275,8 @@ TEST_F(ProtocolResultTest, Comparison)
   EXPECT_TRUE(custom_result != InvalidRequestIdentifierError);
   EXPECT_TRUE(custom_result != InvalidAsynchronousOperationError);
   EXPECT_TRUE(custom_result != ServerProtocolException);
+  EXPECT_TRUE(custom_result != ClientTransportException);
+  EXPECT_TRUE(custom_result != AsynchronousProtocolTimeout);
   EXPECT_FALSE(custom_result != ProtocolResult(42u));
 }
 

@@ -49,7 +49,9 @@ enum ProtocolStatus : sup::dto::uint32
   SERVER_UNSUPPORTED_PAYLOAD_ENCODING,
   INVALID_REQUEST_IDENTIFIER,
   INVALID_ASYNCHROUNOUS_OPERATION,
-  SERVER_PROTOCOL_EXCEPTION
+  SERVER_PROTOCOL_EXCEPTION,
+  CLIENT_TRANSPORT_EXCEPTION,
+  ASYNCHRONOUS_PROTOCOL_TIMEOUT
 };
 }  // namespace status
 
@@ -108,7 +110,9 @@ std::string ProtocolResultToString(const ProtocolResult& result)
       {status::SERVER_UNSUPPORTED_PAYLOAD_ENCODING, "ServerUnsupportedPayloadEncodingError"},
       {status::INVALID_REQUEST_IDENTIFIER, "InvalidRequestIdentifierError"},
       {status::INVALID_ASYNCHROUNOUS_OPERATION, "InvalidAsynchronousOperationError"},
-      {status::SERVER_PROTOCOL_EXCEPTION, "ServerProtocolException"}};
+      {status::SERVER_PROTOCOL_EXCEPTION, "ServerProtocolException"},
+      {status::CLIENT_TRANSPORT_EXCEPTION, "ClientTransportException"},
+      {status::ASYNCHRONOUS_PROTOCOL_TIMEOUT, "AsynchronousProtocolTimeout"}};
   auto it = results.find(result.GetValue());
   if (it != results.end())
   {
@@ -136,6 +140,8 @@ const ProtocolResult ServerUnsupportedPayloadEncodingError{
 const ProtocolResult InvalidRequestIdentifierError{status::INVALID_REQUEST_IDENTIFIER};
 const ProtocolResult InvalidAsynchronousOperationError{status::INVALID_ASYNCHROUNOUS_OPERATION};
 const ProtocolResult ServerProtocolException{status::SERVER_PROTOCOL_EXCEPTION};
+const ProtocolResult ClientTransportException{status::CLIENT_TRANSPORT_EXCEPTION};
+const ProtocolResult AsynchronousProtocolTimeout{status::ASYNCHRONOUS_PROTOCOL_TIMEOUT};
 
 }  // namespace protocol
 

@@ -242,6 +242,17 @@ extern const ProtocolResult InvalidAsynchronousOperationError;
  * from the application layer, sup-protocol has no specific way to handle such exceptions.
 */
 extern const ProtocolResult ServerProtocolException;
+/**
+ * @brief Error when the injected transport AnyFunctor on the client side throws an exception during
+ * its function call operator. Note that the transport implementation is outside of the
+ * control of the protocol client.
+*/
+extern const ProtocolResult ClientTransportException;
+/**
+ * @brief Error when the Protocol server receives a request for an asynchronous request that is
+ * not valid, e.g. a client tries to get the reply when it was not ready.
+*/
+extern const ProtocolResult AsynchronousProtocolTimeout;
 
 }  // namespace protocol
 
