@@ -84,6 +84,7 @@ AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
   : m_future{}
   , m_invalidated{false}
 {
+  // input is captured with copy, since it may be a temporary object
   auto func = [&protocol, input]() -> AsyncInvoke::Reply {
     sup::dto::AnyValue output{};
     auto result = protocol.Invoke(input, output);
@@ -111,7 +112,7 @@ bool AsyncInvoke::AsyncInvokeImpl::IsReadyForRemoval() const
   {
     return true;
   }
-  bool is_ready = m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+  const bool is_ready = m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
   return is_ready && m_invalidated;
 }
 
@@ -131,7 +132,7 @@ AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
   }
   catch(...)
   {
-    return { ServerProtocolException, {} };
+    reply = { ServerProtocolException, {} };
   }
   return reply;
 }

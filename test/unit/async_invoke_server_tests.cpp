@@ -50,7 +50,7 @@ AsyncCommand ExtractAsyncCommand(const sup::dto::AnyValue& reply)
 TEST_F(AsyncRequestServerTest, NoActiveRequests)
 {
   // Check status of AsyncInvokeServer after construction (without any active requests).
-  sup::dto::AnyValue id_payload = {{
+  const sup::dto::AnyValue id_payload = {{
     { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, 42u }}
   }};
   std::promise<void> go;
@@ -82,7 +82,7 @@ TEST_F(AsyncRequestServerTest, SimpleScalarRequest)
 {
   test::TestProtocol protocol{};
   AsyncInvokeServer async_server{protocol};
-  sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
+  const sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
   auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
                                          AsyncCommand::kInitialRequest);
 
@@ -91,7 +91,7 @@ TEST_F(AsyncRequestServerTest, SimpleScalarRequest)
 TEST_F(AsyncRequestServerTest, SingleRequest)
 {
   // Check status of AsyncInvokeServer after launching a single request
-  sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
+  const sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
   AsyncInvokeServer async_server{protocol};
@@ -103,7 +103,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   EXPECT_EQ(id, 1u);
 
   // Request should not be ready
-  sup::dto::AnyValue id_payload = {{
+  const sup::dto::AnyValue id_payload = {{
     { constants::ASYNC_ID_FIELD_NAME, id }
   }};
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
@@ -148,7 +148,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
 TEST_F(AsyncRequestServerTest, Invalidate)
 {
   // Check status of AsyncInvokeServer after launching a single request
-  sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
+  const sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
   AsyncInvokeServer async_server{protocol};
@@ -160,7 +160,7 @@ TEST_F(AsyncRequestServerTest, Invalidate)
   EXPECT_EQ(id, 1u);
 
   // Request should not be ready
-  sup::dto::AnyValue id_payload = {{
+  const sup::dto::AnyValue id_payload = {{
     { constants::ASYNC_ID_FIELD_NAME, id }
   }};
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
