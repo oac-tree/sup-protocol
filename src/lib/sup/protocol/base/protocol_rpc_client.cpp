@@ -61,7 +61,7 @@ ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
   if (reply.HasField(constants::REPLY_PAYLOAD))
   {
     // TODO: parse encoding field instead
-    auto payload_result = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD, m_encoding);
+    auto payload_result = utils::TryExtractRPCReplyPayload(reply, m_encoding);
     if (!payload_result.first)
     {
       return ClientTransportDecodingError;
@@ -99,8 +99,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   if (reply.HasField(constants::SERVICE_REPLY_PAYLOAD))
   {
     // TODO: parse encoding field instead
-    auto payload_result = utils::TryExtractRPCPayload(reply, constants::SERVICE_REPLY_PAYLOAD,
-                                                      m_encoding);
+    auto payload_result = utils::TryExtractServiceReplyPayload(reply, m_encoding);
     if (!payload_result.first)
     {
       return ClientTransportDecodingError;

@@ -49,9 +49,8 @@ sup::dto::AnyValue TestFunctor::operator()(const sup::dto::AnyValue& input)
   auto encoding = utils::TryGetPacketEncoding(input).second;
   bool normal_request = input.HasField(constants::REQUEST_PAYLOAD);
   auto query_result =
-    normal_request ? utils::TryExtractRPCPayload(input, constants::REQUEST_PAYLOAD, encoding)
-                   : utils::TryExtractRPCPayload(input, constants::SERVICE_REQUEST_PAYLOAD,
-                                                 encoding);
+    normal_request ? utils::TryExtractRPCRequestPayload(input, encoding)
+                   : utils::TryExtractServiceRequestPayload(input, encoding);
   if (!query_result.first)
   {
     throw std::runtime_error("Could not extract payload");

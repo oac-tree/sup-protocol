@@ -82,13 +82,9 @@ sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& paylo
 {
   std::lock_guard<std::mutex> lk{m_mtx};
   auto id = GetRequestId();
-  sup::dto::AnyValue reply_payload = {{
-    { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, id }}
-  }};
   m_invokes.emplace(std::piecewise_construct, std::forward_as_tuple(id),
                     std::forward_as_tuple(m_protocol, payload));
-  return utils::CreateAsyncRPCReply(Success, reply_payload, encoding,
-                                    AsyncCommand::kInitialRequest);
+  return utils::CreateAsyncRPCNewRequestReply(id, encoding);
 }
 
 sup::dto::AnyValue AsyncInvokeServer::Poll(sup::dto::uint64 id, PayloadEncoding encoding)
@@ -105,12 +101,7 @@ sup::dto::AnyValue AsyncInvokeServer::Poll(sup::dto::uint64 id, PayloadEncoding 
   {
     return utils::CreateAsyncRPCReply(InvalidAsynchronousOperationError, AsyncCommand::kPoll);
   }
-  sup::dto::uint32 ready_status = iter->second.IsReady() ? 1 : 0;
-  sup::dto::AnyValue reply_payload = {{
-    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::UnsignedInteger32Type, ready_status }}
-  }};
-  return utils::CreateAsyncRPCReply(Success, reply_payload, encoding,
-                                    AsyncCommand::kPoll);
+  return utils::CreateAsyncRPCPollReply(iter->second.IsReady(), encoding);
 }
 
 sup::dto::AnyValue AsyncInvokeServer::GetReply(sup::dto::uint64 id, PayloadEncoding encoding)

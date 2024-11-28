@@ -232,8 +232,7 @@ TEST_F(ProtocolRPCServerAsyncTest, EchoPayload)
   EXPECT_EQ(result.second, ProtocolResult{65u});
 
   // Check returned payload
-  auto extract_payload = utils::TryExtractRPCPayload(reply, constants::REPLY_PAYLOAD,
-                                                     PayloadEncoding::kBase64);
+  auto extract_payload = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kBase64);
   ASSERT_TRUE(extract_payload.first);
   auto reply_payload = extract_payload.second;
   EXPECT_EQ(reply_payload.GetType(), payload.GetType());

@@ -85,7 +85,7 @@ private:
 
 sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply);
 
-sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply);
+bool ExtractReadyStatus(const sup::dto::AnyValue& reply);
 
 bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double seconds);
 

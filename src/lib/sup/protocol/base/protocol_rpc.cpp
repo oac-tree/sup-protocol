@@ -40,6 +40,10 @@ sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& appl
 
 sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id);
 
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
+                                                         const std::string& member_name,
+                                                         PayloadEncoding encoding);
+
 std::pair<bool, sup::dto::uint64> TryExtractId(const sup::dto::AnyValue& packet,
                                                const std::string& member_name,
                                                PayloadEncoding encoding);
@@ -205,6 +209,12 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
   return reply;
 }
 
+sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result)
+{
+  // With empty payload, the encoding has no effect, so we pass kNone
+  return CreateRPCReply(result, {}, PayloadEncoding::kNone);
+}
+
 sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
                                        const sup::dto::AnyValue& payload,
                                        PayloadEncoding encoding,
@@ -217,19 +227,31 @@ sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& resu
   return reply;
 }
 
-sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result)
-{
-  // With empty payload, the encoding has no effect, so we pass kNone
-  return CreateRPCReply(result, {}, PayloadEncoding::kNone);
-}
-
 sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
                                        AsyncCommand command)
 {
   return CreateAsyncRPCReply(result, {}, PayloadEncoding::kNone, command);
 }
 
-bool IsServiceRequest(const sup::dto::AnyValue& request)
+sup::dto::AnyValue CreateAsyncRPCNewRequestReply(sup::dto::uint64 id, PayloadEncoding encoding)
+{
+  const sup::dto::AnyValue reply_payload = {{
+    { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, id }}
+  }};
+  return utils::CreateAsyncRPCReply(Success, reply_payload, encoding,
+                                    AsyncCommand::kInitialRequest);
+}
+
+sup::dto::AnyValue CreateAsyncRPCPollReply(bool is_ready, PayloadEncoding encoding)
+{
+  const sup::dto::uint32 ready_status = is_ready ? 1 : 0;
+  const sup::dto::AnyValue reply_payload = {{
+    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::BooleanType, ready_status }}
+  }};
+  return utils::CreateAsyncRPCReply(Success, reply_payload, encoding, AsyncCommand::kPoll);
+}
+
+bool CheckServiceRequest(const sup::dto::AnyValue& request)
 {
   // Only check type of encoding field when present
   if (request.HasField(constants::ENCODING_FIELD_NAME)
@@ -365,25 +387,29 @@ std::pair<bool, ProtocolResult> TryExtractProtocolResult(const sup::dto::AnyValu
   return { true, ProtocolResult{result_int} };
 }
 
-std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
-                                                         const std::string& member_name,
-                                                         PayloadEncoding encoding)
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCRequestPayload(const sup::dto::AnyValue& packet,
+                                                                PayloadEncoding encoding)
 {
-  std::pair<bool, sup::dto::AnyValue> failure{ false, {} };
-  if (!packet.HasField(member_name))
-  {
-    return failure;
-  }
-  sup::dto::AnyValue payload{};
-  try
-  {
-    payload = encoding::Decode(packet[member_name], encoding);
-  }
-  catch(...)
-  {
-    return failure;
-  }
-  return { true, payload };
+  return TryExtractRPCPayload(packet, constants::REQUEST_PAYLOAD, encoding);
+}
+
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCReplyPayload(const sup::dto::AnyValue& packet,
+                                                              PayloadEncoding encoding)
+{
+  return TryExtractRPCPayload(packet, constants::REPLY_PAYLOAD, encoding);
+}
+
+std::pair<bool, sup::dto::AnyValue> TryExtractServiceRequestPayload(
+  const sup::dto::AnyValue& packet, PayloadEncoding encoding)
+{
+  return TryExtractRPCPayload(packet, constants::SERVICE_REQUEST_PAYLOAD, encoding);
+}
+
+
+std::pair<bool, sup::dto::AnyValue> TryExtractServiceReplyPayload(const sup::dto::AnyValue& packet,
+                                                                  PayloadEncoding encoding)
+{
+  return TryExtractRPCPayload(packet, constants::SERVICE_REPLY_PAYLOAD, encoding);
 }
 
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
@@ -398,11 +424,11 @@ std::pair<bool, sup::dto::uint64> TryExtractReplyId(const sup::dto::AnyValue& pa
   return TryExtractId(packet, constants::REPLY_PAYLOAD, encoding);
 }
 
-std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
+std::pair<bool, bool> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
                                                         PayloadEncoding encoding)
 {
-  std::pair<bool, sup::dto::uint32> failure{ false, 0 };
-  auto payload_result = utils::TryExtractRPCPayload(packet, constants::REPLY_PAYLOAD, encoding);
+  std::pair<bool, bool> failure{ false, false };
+  auto payload_result = utils::TryExtractRPCReplyPayload(packet, encoding);
   if (!payload_result.first)
   {
     return failure;
@@ -413,11 +439,11 @@ std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue
     return failure;
   }
   auto& id_field = payload[constants::ASYNC_READY_FIELD_NAME];
-  if (id_field.GetType() != sup::dto::UnsignedInteger32Type)
+  if (id_field.GetType() != sup::dto::BooleanType)
   {
     return failure;
   }
-  return { true, id_field.As<sup::dto::uint32>() };
+  return { true, id_field.As<sup::dto::boolean>() };
 }
 
 std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& packet)
@@ -485,12 +511,33 @@ sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id)
   return payload;
 }
 
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
+                                                         const std::string& member_name,
+                                                         PayloadEncoding encoding)
+{
+  std::pair<bool, sup::dto::AnyValue> failure{ false, {} };
+  if (!packet.HasField(member_name))
+  {
+    return failure;
+  }
+  sup::dto::AnyValue payload{};
+  try
+  {
+    payload = encoding::Decode(packet[member_name], encoding);
+  }
+  catch(...)
+  {
+    return failure;
+  }
+  return { true, payload };
+}
+
 std::pair<bool, sup::dto::uint64> TryExtractId(const sup::dto::AnyValue& packet,
                                                const std::string& member_name,
                                                PayloadEncoding encoding)
 {
   std::pair<bool, sup::dto::uint64> failure{ false, 0 };
-  auto payload_result = utils::TryExtractRPCPayload(packet, member_name, encoding);
+  auto payload_result = TryExtractRPCPayload(packet, member_name, encoding);
   if (!payload_result.first)
   {
     return failure;

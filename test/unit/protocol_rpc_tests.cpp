@@ -274,12 +274,12 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     // Request with payload and no encoding
     sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 5u };
     auto request = utils::CreateRPCRequest(payload, PayloadEncoding::kNone);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check payload
     auto& payload_field = request[constants::REQUEST_PAYLOAD];
     EXPECT_EQ(payload_field.GetType(), payload.GetType());
-    auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD,
-                                                      PayloadEncoding::kNone);
+    auto payload_result = utils::TryExtractRPCRequestPayload(request, PayloadEncoding::kNone);
     ASSERT_TRUE(payload_result.first);
     auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
@@ -296,12 +296,12 @@ TEST_F(ProtocolRPCTest, CreateRPCRequest)
     // Request with payload and base64 encoding
     sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 5u };
     auto request = utils::CreateRPCRequest(payload, PayloadEncoding::kBase64);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check payload
     auto& payload_field = request[constants::REQUEST_PAYLOAD];
     EXPECT_EQ(payload_field.GetType(), sup::dto::StringType);
-    auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD,
-                                                      PayloadEncoding::kBase64);
+    auto payload_result = utils::TryExtractRPCRequestPayload(request, PayloadEncoding::kBase64);
     ASSERT_TRUE(payload_result.first);
     auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
@@ -325,12 +325,12 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCRequest)
     // Request with payload and no encoding
     sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 5u };
     auto request = utils::CreateAsyncRPCRequest(payload, PayloadEncoding::kNone);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check payload
     auto& payload_field = request[constants::REQUEST_PAYLOAD];
     EXPECT_EQ(payload_field.GetType(), payload.GetType());
-    auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD,
-                                                      PayloadEncoding::kNone);
+    auto payload_result = utils::TryExtractRPCRequestPayload(request, PayloadEncoding::kNone);
     ASSERT_TRUE(payload_result.first);
     auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
@@ -348,12 +348,12 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCRequest)
     // Request with payload and base64 encoding
     sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 5u };
     auto request = utils::CreateAsyncRPCRequest(payload, PayloadEncoding::kBase64);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check payload
     auto& payload_field = request[constants::REQUEST_PAYLOAD];
     EXPECT_EQ(payload_field.GetType(), sup::dto::StringType);
-    auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD,
-                                                      PayloadEncoding::kBase64);
+    auto payload_result = utils::TryExtractRPCRequestPayload(request, PayloadEncoding::kBase64);
     ASSERT_TRUE(payload_result.first);
     auto payload_from_request = payload_result.second;
     EXPECT_EQ(payload_from_request.GetType(), payload.GetType());
@@ -375,6 +375,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCPoll)
     // Poll request without encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kNone);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
@@ -393,6 +394,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCPoll)
     // Poll request with encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kBase64);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
@@ -415,6 +417,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCGetReply)
     // GetReply request without encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCGetReply(id, PayloadEncoding::kNone);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
@@ -433,6 +436,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCGetReply)
     // GetReply request with encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCGetReply(id, PayloadEncoding::kBase64);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
@@ -455,6 +459,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCInvalidate)
     // Invalidate request without encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCInvalidate(id, PayloadEncoding::kNone);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
@@ -473,6 +478,7 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCInvalidate)
     // Invalidate request with encoding
     sup::dto::uint64 id = 42u;
     auto request = utils::CreateAsyncRPCInvalidate(id, PayloadEncoding::kBase64);
+    EXPECT_EQ(request.GetTypeName(), constants::REQUEST_TYPE_NAME);
     ASSERT_TRUE(utils::CheckRequestFormat(request));
     // check poll id
     auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
@@ -491,78 +497,348 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCInvalidate)
 
 TEST_F(ProtocolRPCTest, CreateRPCReply)
 {
-  // Reply from Success result without payload
-  auto reply_from_result = utils::CreateRPCReply(Success);
-  EXPECT_EQ(reply_from_result.GetTypeName(), constants::REPLY_TYPE_NAME);
-  ASSERT_TRUE(reply_from_result.HasField(constants::REPLY_RESULT));
-  EXPECT_EQ(reply_from_result[constants::REPLY_RESULT].GetType(),
-            sup::dto::UnsignedInteger32Type);
-  EXPECT_EQ(reply_from_result[constants::REPLY_RESULT].As<unsigned int>(), Success.GetValue());
-  EXPECT_FALSE(reply_from_result.HasField(constants::REPLY_PAYLOAD));
-  EXPECT_TRUE(utils::CheckReplyFormat(reply_from_result));
-
-  // Reply from NotConnected result without payload
-  auto reply_not_connected = utils::CreateRPCReply(NotConnected);
-  EXPECT_EQ(reply_not_connected.GetTypeName(), constants::REPLY_TYPE_NAME);
-  ASSERT_TRUE(reply_not_connected.HasField(constants::REPLY_RESULT));
-  EXPECT_EQ(reply_not_connected[constants::REPLY_RESULT].GetType(),
-            sup::dto::UnsignedInteger32Type);
-  EXPECT_EQ(reply_not_connected[constants::REPLY_RESULT].As<unsigned int>(),
-            NotConnected.GetValue());
-  EXPECT_FALSE(reply_not_connected.HasField(constants::REPLY_PAYLOAD));
-  EXPECT_TRUE(utils::CheckReplyFormat(reply_not_connected));
-
-  // Reply from ServerNetworkEncodingError result and payload
-  sup::dto::AnyValue payload = {{
-    { "enabled", true },
-    { "value", 2.0f }
-  }};
-  auto reply_payload =
-    utils::CreateRPCReply(ServerNetworkEncodingError, payload, PayloadEncoding::kNone);
-  EXPECT_EQ(reply_payload.GetTypeName(), constants::REPLY_TYPE_NAME);
-  ASSERT_TRUE(reply_payload.HasField(constants::REPLY_RESULT));
-  EXPECT_EQ(reply_payload[constants::REPLY_RESULT].GetType(),
-            sup::dto::UnsignedInteger32Type);
-  EXPECT_EQ(reply_payload[constants::REPLY_RESULT].As<unsigned int>(),
-            ServerNetworkEncodingError.GetValue());
-  ASSERT_TRUE(reply_payload.HasField(constants::REPLY_PAYLOAD));
-  EXPECT_EQ(reply_payload[constants::REPLY_PAYLOAD].GetType(), payload.GetType());
-  EXPECT_EQ(reply_payload[constants::REPLY_PAYLOAD], payload);
-  EXPECT_TRUE(utils::CheckReplyFormat(reply_payload));
+  {
+    // Reply Success result without payload
+    auto reply = utils::CreateRPCReply(Success);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_FALSE(payload_info.first);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_FALSE(async_info.first);
+  }
+  {
+    // Reply NotConnected result without payload
+    auto reply = utils::CreateRPCReply(NotConnected);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, NotConnected);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_FALSE(payload_info.first);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_FALSE(async_info.first);
+  }
+  {
+    // Reply ServerNetworkEncodingError result with payload, no encoding
+    const sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    auto reply =
+      utils::CreateRPCReply(ServerNetworkEncodingError, payload, PayloadEncoding::kNone);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, ServerNetworkEncodingError);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(payload_info.first);
+    EXPECT_EQ(payload_info.second, payload);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_FALSE(async_info.first);
+  }
+  {
+    // Reply ClientProtocolEncodingError result with payload and encoding
+    const sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    auto reply =
+      utils::CreateRPCReply(ClientProtocolEncodingError, payload, PayloadEncoding::kBase64);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, ClientProtocolEncodingError);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(payload_info.first);
+    EXPECT_EQ(payload_info.second, payload);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_FALSE(async_info.first);
+  }
 }
 
-TEST_F(ProtocolRPCTest, IsServiceRequest)
+TEST_F(ProtocolRPCTest, CreateAsyncRPCReply)
+{
+  {
+    // Reply Success result without payload
+    AsyncCommand command = AsyncCommand::kInitialRequest;
+    auto reply = utils::CreateAsyncRPCReply(Success, command);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_FALSE(payload_info.first);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, command);
+  }
+  {
+    // Reply NotConnected result without payload
+    AsyncCommand command = AsyncCommand::kPoll;
+    auto reply = utils::CreateAsyncRPCReply(NotConnected, command);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, NotConnected);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_FALSE(payload_info.first);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, command);
+  }
+  {
+    // Reply ServerNetworkEncodingError result with payload, no encoding
+    const sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    AsyncCommand command = AsyncCommand::kGetReply;
+    auto reply = utils::CreateAsyncRPCReply(ServerNetworkEncodingError, payload,
+                                            PayloadEncoding::kNone, command);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, ServerNetworkEncodingError);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(payload_info.first);
+    EXPECT_EQ(payload_info.second, payload);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, command);
+  }
+  {
+    // Reply ClientProtocolEncodingError result with payload and encoding
+    const sup::dto::AnyValue payload = {{
+      { "enabled", true },
+      { "value", 2.0f }
+    }};
+    AsyncCommand command = AsyncCommand::kInvalidate;
+    auto reply = utils::CreateAsyncRPCReply(ClientProtocolEncodingError, payload,
+                                            PayloadEncoding::kBase64, command);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, ClientProtocolEncodingError);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(payload_info.first);
+    EXPECT_EQ(payload_info.second, payload);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, command);
+  }
+}
+
+TEST_F(ProtocolRPCTest, CreateAsyncRPCNewRequestReply)
+{
+  {
+    // Reply to new async request without encoding
+    sup::dto::uint64 id{42u};
+    auto reply = utils::CreateAsyncRPCNewRequestReply(id, PayloadEncoding::kNone);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(payload_info.first);
+    // check id in payload
+    auto id_info = utils::TryExtractReplyId(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(id_info.first);
+    EXPECT_EQ(id_info.second, id);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kInitialRequest);
+  }
+  {
+    // Reply to new async request with base64 encoding
+    sup::dto::uint64 id{42u};
+    auto reply = utils::CreateAsyncRPCNewRequestReply(id, PayloadEncoding::kBase64);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(payload_info.first);
+    // check id in payload
+    auto id_info = utils::TryExtractReplyId(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(id_info.first);
+    EXPECT_EQ(id_info.second, id);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kInitialRequest);
+  }
+}
+
+TEST_F(ProtocolRPCTest, CreateAsyncRPCPollReply)
+{
+  {
+    // Reply to poll with ready, no encoding
+    const bool is_ready = true;
+    auto reply = utils::CreateAsyncRPCPollReply(is_ready, PayloadEncoding::kNone);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(payload_info.first);
+    // check id in payload
+    auto ready_info = utils::TryExtractReadyStatus(reply, PayloadEncoding::kNone);
+    EXPECT_TRUE(ready_info.first);
+    EXPECT_EQ(ready_info.second, is_ready);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kPoll);
+  }
+  {
+    // Reply to poll with not ready, base64 encoding
+    const bool is_ready = false;
+    auto reply = utils::CreateAsyncRPCPollReply(is_ready, PayloadEncoding::kBase64);
+    EXPECT_EQ(reply.GetTypeName(), constants::REPLY_TYPE_NAME);
+    ASSERT_TRUE(utils::CheckReplyFormat(reply));
+    // check result field
+    auto result_info = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result_info.first);
+    EXPECT_EQ(result_info.second, Success);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(reply);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check payload field
+    auto payload_info = utils::TryExtractRPCReplyPayload(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(payload_info.first);
+    // check id in payload
+    auto ready_info = utils::TryExtractReadyStatus(reply, PayloadEncoding::kBase64);
+    EXPECT_TRUE(ready_info.first);
+    EXPECT_EQ(ready_info.second, is_ready);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(reply);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kPoll);
+  }
+}
+
+TEST_F(ProtocolRPCTest, CheckServiceRequest)
 {
   {
     // Empty value is not a service request
     sup::dto::AnyValue request;
-    EXPECT_FALSE(utils::IsServiceRequest(request));
+    EXPECT_FALSE(utils::CheckServiceRequest(request));
   }
   {
     // Empty struct is not a service request
     sup::dto::AnyValue request = sup::dto::EmptyStruct();
-    EXPECT_FALSE(utils::IsServiceRequest(request));
+    EXPECT_FALSE(utils::CheckServiceRequest(request));
   }
   {
     // Only struct with a 'service' member is a service request
     sup::dto::AnyValue request = {
       { constants::SERVICE_REQUEST_PAYLOAD, {sup::dto::StringType, "does_not_matter"}}
     };
-    EXPECT_TRUE(utils::IsServiceRequest(request));
+    EXPECT_TRUE(utils::CheckServiceRequest(request));
   }
   {
     // Struct with a 'service' member is a service request, also when it's not a string
     sup::dto::AnyValue request = {
       { constants::SERVICE_REQUEST_PAYLOAD, {sup::dto::BooleanType, true}}
     };
-    EXPECT_TRUE(utils::IsServiceRequest(request));
+    EXPECT_TRUE(utils::CheckServiceRequest(request));
   }
   {
     // Value created by CreateServiceRequest is a valid service request
     sup::dto::AnyValue request =
       utils::CreateServiceRequest({sup::dto::StringType, "does_not_matter"},
                                   PayloadEncoding::kBase64 );
-    EXPECT_TRUE(utils::IsServiceRequest(request));
+    EXPECT_TRUE(utils::CheckServiceRequest(request));
   }
 }
 
@@ -618,7 +894,7 @@ TEST_F(ProtocolRPCTest, CreateServiceRequest)
     // Empty payload throws
     sup::dto::AnyValue payload{ sup::dto::StringType, "service_payload" };
     auto service_request = utils::CreateServiceRequest(payload, PayloadEncoding::kNone);
-    EXPECT_TRUE(utils::IsServiceRequest(service_request));
+    EXPECT_TRUE(utils::CheckServiceRequest(service_request));
   }
 }
 

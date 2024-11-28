@@ -37,10 +37,10 @@ namespace constants
 {
 /**
  * Generic fields in transport packets:
- * - encoding: specifies how the payload is encoded
- * - async: specifies a command for asynchronous RPC calls
- * - id: provides the identification of a specific asynchronous RPC call
- * - ready: provides the readiness of the reply for a specific asynchronous RPC call
+ * - encoding: (int32) specifies how the payload is encoded
+ * - async: (uint32) specifies a command for asynchronous RPC calls
+ * - id: (uint64) provides the identification of a specific asynchronous RPC call
+ * - ready: (bool) provides the readiness of the reply for a specific asynchronous RPC call
 */
 const std::string ENCODING_FIELD_NAME = "encoding";
 const std::string ASYNC_COMMAND_FIELD_NAME = "async";
@@ -163,17 +163,21 @@ sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result,
                                   const sup::dto::AnyValue& payload,
                                   PayloadEncoding encoding);
 
+sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result);
+
 sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
                                        const sup::dto::AnyValue& payload,
                                        PayloadEncoding encoding,
                                        AsyncCommand command);
 
-sup::dto::AnyValue CreateRPCReply(const sup::protocol::ProtocolResult& result);
-
 sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& result,
                                        AsyncCommand command);
 
-bool IsServiceRequest(const sup::dto::AnyValue& request);
+sup::dto::AnyValue CreateAsyncRPCNewRequestReply(sup::dto::uint64 id, PayloadEncoding encoding);
+
+sup::dto::AnyValue CreateAsyncRPCPollReply(bool is_ready, PayloadEncoding encoding);
+
+bool CheckServiceRequest(const sup::dto::AnyValue& request);
 
 bool CheckServiceReplyFormat(const sup::dto::AnyValue& reply);
 
@@ -201,9 +205,17 @@ void AddRPCPayload(sup::dto::AnyValue& packet, const sup::dto::AnyValue& payload
 
 std::pair<bool, ProtocolResult> TryExtractProtocolResult(const sup::dto::AnyValue& packet);
 
-std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValue& packet,
-                                                         const std::string& member_name,
-                                                         PayloadEncoding encoding);
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCRequestPayload(const sup::dto::AnyValue& packet,
+                                                                PayloadEncoding encoding);
+
+std::pair<bool, sup::dto::AnyValue> TryExtractRPCReplyPayload(const sup::dto::AnyValue& packet,
+                                                              PayloadEncoding encoding);
+
+std::pair<bool, sup::dto::AnyValue> TryExtractServiceRequestPayload(
+  const sup::dto::AnyValue& packet, PayloadEncoding encoding);
+
+std::pair<bool, sup::dto::AnyValue> TryExtractServiceReplyPayload(const sup::dto::AnyValue& packet,
+                                                                  PayloadEncoding encoding);
 
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
                                                       PayloadEncoding encoding);
@@ -211,8 +223,8 @@ std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& 
 std::pair<bool, sup::dto::uint64> TryExtractReplyId(const sup::dto::AnyValue& packet,
                                                     PayloadEncoding encoding);
 
-std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
-                                                        PayloadEncoding encoding);
+std::pair<bool, bool> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
+                                            PayloadEncoding encoding);
 
 std::pair<bool, PayloadEncoding> TryGetPacketEncoding(const sup::dto::AnyValue& packet);
 

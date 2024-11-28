@@ -75,8 +75,7 @@ TEST_F(ProtocolRPCClientTest, InvokeScalarInput)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  auto payload_result = utils::TryExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD,
-                                                    PayloadEncoding::kBase64);
+  auto payload_result = utils::TryExtractRPCRequestPayload(last_request, PayloadEncoding::kBase64);
   ASSERT_TRUE(payload_result.first);
   auto payload = payload_result.second;
   EXPECT_EQ(payload.GetType(), sup::dto::SignedInteger32Type);
@@ -98,8 +97,7 @@ TEST_F(ProtocolRPCClientTest, InvokeBadReply)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  auto payload_result = utils::TryExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD,
-                                                    PayloadEncoding::kBase64);
+  auto payload_result = utils::TryExtractRPCRequestPayload(last_request, PayloadEncoding::kBase64);
   ASSERT_TRUE(payload_result.first);
   auto payload = payload_result.second;
   EXPECT_EQ(payload.GetType(), input.GetType());
@@ -132,8 +130,7 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
   EXPECT_TRUE(utils::CheckRequestFormat(last_request));
   EXPECT_EQ(last_request.GetTypeName(), constants::REQUEST_TYPE_NAME);
   EXPECT_TRUE(last_request.HasField(constants::REQUEST_PAYLOAD));
-  auto payload_result = utils::TryExtractRPCPayload(last_request, constants::REQUEST_PAYLOAD,
-                                                    PayloadEncoding::kBase64);
+  auto payload_result = utils::TryExtractRPCRequestPayload(last_request, PayloadEncoding::kBase64);
   ASSERT_TRUE(payload_result.first);
   auto payload = payload_result.second;
   EXPECT_EQ(payload.GetType(), input.GetType());

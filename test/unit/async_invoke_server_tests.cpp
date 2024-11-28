@@ -110,7 +110,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
   EXPECT_EQ(ExtractProtocolResult(reply), Success);
   auto is_ready = test::ExtractReadyStatus(reply);
-  EXPECT_EQ(is_ready, 0);
+  EXPECT_FALSE(is_ready);
 
   // GetReply returns an error ProtocolResult since the reply is not ready
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);
@@ -126,7 +126,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   EXPECT_EQ(ExtractAsyncCommand(reply), AsyncCommand::kPoll);
   EXPECT_EQ(ExtractProtocolResult(reply), Success);
   is_ready = test::ExtractReadyStatus(reply);
-  EXPECT_EQ(is_ready, 1);
+  EXPECT_TRUE(is_ready);
 
   // GetReply returns the expected reply
   reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kGetReply);

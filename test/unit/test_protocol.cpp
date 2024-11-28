@@ -136,18 +136,18 @@ sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
   return id_result.second;
 }
 
-sup::dto::uint32 ExtractReadyStatus(const sup::dto::AnyValue& reply)
+bool ExtractReadyStatus(const sup::dto::AnyValue& reply)
 {
   auto encoding_result = utils::TryGetPacketEncoding(reply);
   if (!encoding_result.first)
   {
-    return 0;
+    return false;
   }
   auto encoding = encoding_result.second;
   auto ready_result = utils::TryExtractReadyStatus(reply, encoding);
   if (!ready_result.first)
   {
-    return 0;
+    return false;
   }
   return ready_result.second;
 }
@@ -166,7 +166,7 @@ bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double s
       return false;
     }
     auto reply = functor(poll_request);
-    if (ExtractReadyStatus(reply) == 1u)
+    if (ExtractReadyStatus(reply))
     {
       return true;
     }

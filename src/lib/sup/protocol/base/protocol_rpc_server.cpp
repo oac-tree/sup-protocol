@@ -46,7 +46,7 @@ sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& reque
     return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
   }
   auto encoding = encoding_result.second;
-  if (utils::IsServiceRequest(request))
+  if (utils::CheckServiceRequest(request))
   {
     return HandleServiceRequest(request, encoding);
   }
@@ -60,7 +60,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyVal
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
   }
-  auto payload_result = utils::TryExtractRPCPayload(request, constants::REQUEST_PAYLOAD, encoding);
+  auto payload_result = utils::TryExtractRPCRequestPayload(request, encoding);
   if (!payload_result.first)
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
@@ -87,8 +87,7 @@ sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyVal
 sup::dto::AnyValue ProtocolRPCServer::HandleServiceRequest(const sup::dto::AnyValue& request,
                                                            PayloadEncoding encoding)
 {
-  auto payload_result = utils::TryExtractRPCPayload(request, constants::SERVICE_REQUEST_PAYLOAD,
-                                                    encoding);
+  auto payload_result = utils::TryExtractServiceRequestPayload(request, encoding);
   if (!payload_result.first)
   {
     return utils::CreateRPCReply(ServerTransportDecodingError);
