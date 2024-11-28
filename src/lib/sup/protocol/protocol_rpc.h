@@ -208,6 +208,9 @@ std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValu
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
                                                       PayloadEncoding encoding);
 
+std::pair<bool, sup::dto::uint64> TryExtractReplyId(const sup::dto::AnyValue& packet,
+                                                    PayloadEncoding encoding);
+
 std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
                                                         PayloadEncoding encoding);
 

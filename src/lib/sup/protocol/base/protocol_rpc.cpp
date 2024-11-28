@@ -39,6 +39,10 @@ sup::dto::AnyValue CreateApplicationProtocolReplyPayload(const std::string& appl
                                                          const std::string& application_version);
 
 sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id);
+
+std::pair<bool, sup::dto::uint64> TryExtractId(const sup::dto::AnyValue& packet,
+                                               const std::string& member_name,
+                                               PayloadEncoding encoding);
 }  // unnamed namespace
 
 namespace sup
@@ -385,23 +389,13 @@ std::pair<bool, sup::dto::AnyValue> TryExtractRPCPayload(const sup::dto::AnyValu
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
                                                       PayloadEncoding encoding)
 {
-  std::pair<bool, sup::dto::uint64> failure{ false, 0 };
-  auto payload_result = utils::TryExtractRPCPayload(packet, constants::REPLY_PAYLOAD, encoding);
-  if (!payload_result.first)
-  {
-    return failure;
-  }
-  auto payload = payload_result.second;
-  if (!payload.HasField(constants::ASYNC_ID_FIELD_NAME))
-  {
-    return failure;
-  }
-  auto& id_field = payload[constants::ASYNC_ID_FIELD_NAME];
-  if (id_field.GetType() != sup::dto::UnsignedInteger64Type)
-  {
-    return failure;
-  }
-  return { true, id_field.As<sup::dto::uint64>() };
+  return TryExtractId(packet, constants::REQUEST_PAYLOAD, encoding);
+}
+
+std::pair<bool, sup::dto::uint64> TryExtractReplyId(const sup::dto::AnyValue& packet,
+                                                    PayloadEncoding encoding)
+{
+  return TryExtractId(packet, constants::REPLY_PAYLOAD, encoding);
 }
 
 std::pair<bool, sup::dto::uint32> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
@@ -489,6 +483,29 @@ sup::dto::AnyValue CreateRequestIdPayload(sup::dto::uint64 id)
     { constants::ASYNC_ID_FIELD_NAME, { sup::dto::UnsignedInteger64Type, id }}
   };
   return payload;
+}
+
+std::pair<bool, sup::dto::uint64> TryExtractId(const sup::dto::AnyValue& packet,
+                                               const std::string& member_name,
+                                               PayloadEncoding encoding)
+{
+  std::pair<bool, sup::dto::uint64> failure{ false, 0 };
+  auto payload_result = utils::TryExtractRPCPayload(packet, member_name, encoding);
+  if (!payload_result.first)
+  {
+    return failure;
+  }
+  auto payload = payload_result.second;
+  if (!payload.HasField(constants::ASYNC_ID_FIELD_NAME))
+  {
+    return failure;
+  }
+  auto& id_field = payload[constants::ASYNC_ID_FIELD_NAME];
+  if (id_field.GetType() != sup::dto::UnsignedInteger64Type)
+  {
+    return failure;
+  }
+  return { true, id_field.As<sup::dto::uint64>() };
 }
 
 }  // unnamed namespace

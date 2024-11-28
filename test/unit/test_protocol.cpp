@@ -128,7 +128,7 @@ sup::dto::uint64 ExtractRequestId(const sup::dto::AnyValue& reply)
     return 0;
   }
   auto encoding = encoding_result.second;
-  auto id_result = utils::TryExtractRequestId(reply, encoding);
+  auto id_result = utils::TryExtractReplyId(reply, encoding);
   if (!id_result.first)
   {
     return 0;

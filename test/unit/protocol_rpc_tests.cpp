@@ -369,6 +369,126 @@ TEST_F(ProtocolRPCTest, CreateAsyncRPCRequest)
   }
 }
 
+TEST_F(ProtocolRPCTest, CreateAsyncRPCPoll)
+{
+  {
+    // Poll request without encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kNone);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kPoll);
+  }
+  {
+    // Poll request with encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kBase64);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kPoll);
+  }
+}
+
+TEST_F(ProtocolRPCTest, CreateAsyncRPCGetReply)
+{
+  {
+    // GetReply request without encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCGetReply(id, PayloadEncoding::kNone);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kGetReply);
+  }
+  {
+    // GetReply request with encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCGetReply(id, PayloadEncoding::kBase64);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kGetReply);
+  }
+}
+
+TEST_F(ProtocolRPCTest, CreateAsyncRPCInvalidate)
+{
+  {
+    // Invalidate request without encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCInvalidate(id, PayloadEncoding::kNone);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kNone);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kNone);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kInvalidate);
+  }
+  {
+    // Invalidate request with encoding
+    sup::dto::uint64 id = 42u;
+    auto request = utils::CreateAsyncRPCInvalidate(id, PayloadEncoding::kBase64);
+    ASSERT_TRUE(utils::CheckRequestFormat(request));
+    // check poll id
+    auto poll_id = utils::TryExtractRequestId(request, PayloadEncoding::kBase64);
+    EXPECT_TRUE(poll_id.first);
+    EXPECT_EQ(poll_id.second, id);
+    // check encoding
+    auto encoding_result = utils::TryGetPacketEncoding(request);
+    EXPECT_TRUE(encoding_result.first);
+    EXPECT_EQ(encoding_result.second, PayloadEncoding::kBase64);
+    // check async info
+    auto async_info = utils::GetAsyncInfo(request);
+    EXPECT_TRUE(async_info.first);
+    EXPECT_EQ(async_info.second, AsyncCommand::kInvalidate);
+  }
+}
+
 TEST_F(ProtocolRPCTest, CreateRPCReply)
 {
   // Reply from Success result without payload
