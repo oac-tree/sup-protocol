@@ -820,21 +820,29 @@ TEST_F(ProtocolRPCTest, CheckServiceRequest)
     EXPECT_FALSE(utils::CheckServiceRequest(request));
   }
   {
-    // Only struct with a 'service' member is a service request
+    // Valid service request, no encoding
     sup::dto::AnyValue request = {
       { constants::SERVICE_REQUEST_PAYLOAD, {sup::dto::StringType, "does_not_matter"}}
     };
     EXPECT_TRUE(utils::CheckServiceRequest(request));
   }
   {
-    // Struct with a 'service' member is a service request, also when it's not a string
+    // valid service request, base64 encoding
     sup::dto::AnyValue request = {
+      { constants::ENCODING_FIELD_NAME, { sup::dto::SignedInteger32Type, 1 }},
       { constants::SERVICE_REQUEST_PAYLOAD, {sup::dto::BooleanType, true}}
     };
     EXPECT_TRUE(utils::CheckServiceRequest(request));
   }
   {
-    // Value created by CreateServiceRequest is a valid service request
+    // Value created by CreateServiceRequest without encoding is a valid service request
+    sup::dto::AnyValue request =
+      utils::CreateServiceRequest({sup::dto::StringType, "does_not_matter"},
+                                  PayloadEncoding::kNone );
+    EXPECT_TRUE(utils::CheckServiceRequest(request));
+  }
+  {
+    // Value created by CreateServiceRequest with base64 encoding is a valid service request
     sup::dto::AnyValue request =
       utils::CreateServiceRequest({sup::dto::StringType, "does_not_matter"},
                                   PayloadEncoding::kBase64 );
@@ -850,7 +858,7 @@ TEST_F(ProtocolRPCTest, CheckServiceReplyFormat)
     EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
   }
   {
-    // Correctly formatted server status reply with payload
+    // Correctly formatted server status reply with payload and base64 encoding
     sup::dto::AnyValue payload = {sup::dto::BooleanType, true};
     sup::dto::AnyValue reply =
       utils::CreateServiceReply(sup::protocol::Success, payload, PayloadEncoding::kBase64);
@@ -891,10 +899,14 @@ TEST_F(ProtocolRPCTest, CreateServiceRequest)
                  InvalidOperationException);
   }
   {
-    // Empty payload throws
+    // Non-empty payload succeeds
     sup::dto::AnyValue payload{ sup::dto::StringType, "service_payload" };
-    auto service_request = utils::CreateServiceRequest(payload, PayloadEncoding::kNone);
+    auto service_request = utils::CreateServiceRequest(payload, PayloadEncoding::kBase64);
     EXPECT_TRUE(utils::CheckServiceRequest(service_request));
+    // check encoding
+    auto encoding_info = utils::TryGetPacketEncoding(service_request);
+    EXPECT_TRUE(encoding_info.first);
+    EXPECT_EQ(encoding_info.second, PayloadEncoding::kBase64);
   }
 }
 
@@ -906,6 +918,10 @@ TEST_F(ProtocolRPCTest, CreateServiceReply)
     EXPECT_TRUE(utils::CheckServiceReplyFormat(service_reply));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_RESULT));
     EXPECT_FALSE(service_reply.HasField(constants::SERVICE_REPLY_PAYLOAD));
+    // check encoding
+    auto encoding_info = utils::TryGetPacketEncoding(service_reply);
+    EXPECT_TRUE(encoding_info.first);
+    EXPECT_EQ(encoding_info.second, PayloadEncoding::kNone);
   }
   {
     // Reply without payload by providing empty payload
@@ -915,6 +931,10 @@ TEST_F(ProtocolRPCTest, CreateServiceReply)
     EXPECT_TRUE(utils::CheckServiceReplyFormat(service_reply));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_RESULT));
     EXPECT_FALSE(service_reply.HasField(constants::SERVICE_REPLY_PAYLOAD));
+    // check encoding (without payload, there is no encoding information, so it defaults to none)
+    auto encoding_info = utils::TryGetPacketEncoding(service_reply);
+    EXPECT_TRUE(encoding_info.first);
+    EXPECT_EQ(encoding_info.second, PayloadEncoding::kNone);
   }
   {
     // Reply with payload
@@ -924,6 +944,10 @@ TEST_F(ProtocolRPCTest, CreateServiceReply)
     EXPECT_TRUE(utils::CheckServiceReplyFormat(service_reply));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_RESULT));
     EXPECT_TRUE(service_reply.HasField(constants::SERVICE_REPLY_PAYLOAD));
+    // check encoding
+    auto encoding_info = utils::TryGetPacketEncoding(service_reply);
+    EXPECT_TRUE(encoding_info.first);
+    EXPECT_EQ(encoding_info.second, PayloadEncoding::kBase64);
   }
 }
 
