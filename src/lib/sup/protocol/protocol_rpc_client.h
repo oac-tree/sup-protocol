@@ -47,7 +47,7 @@ public:
   ProtocolRPCClient(ProtocolRPCClient&&) = delete;
   ProtocolRPCClient& operator=(const ProtocolRPCClient&) = delete;
   ProtocolRPCClient& operator=(ProtocolRPCClient&&) = delete;
-  explicit ProtocolRPCClient(dto::AnyFunctor& any_functor,
+  explicit ProtocolRPCClient(sup::dto::AnyFunctor& any_functor,
                              PayloadEncoding encoding = PayloadEncoding::kBase64);
   ~ProtocolRPCClient() override;
 
@@ -58,7 +58,10 @@ public:
 private:
   ProtocolResult HandleSyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
   ProtocolResult HandleAsyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
-  dto::AnyFunctor& m_any_functor;
+  std::pair<sup::dto::uint64, ProtocolResult> AsyncSendRequest(const sup::dto::AnyValue& input);
+  std::pair<bool, ProtocolResult> AsyncPoll(sup::dto::uint64 id);
+  std::pair<ProtocolResult, sup::dto::AnyValue> AsynGetReply(sup::dto::uint64 id);
+  sup::dto::AnyFunctor& m_any_functor;
   PayloadEncoding m_encoding;
 };
 

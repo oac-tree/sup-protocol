@@ -122,7 +122,7 @@ TEST_F(ProtocolRPCClientTest, FunctorThrows)
     {test::FUNCTOR_THROW_FIELD, {sup::dto::BooleanType, true}}
   }};
   sup::dto::AnyValue output{};
-  EXPECT_EQ(client.Invoke(input, output), ClientTransportDecodingError);
+  EXPECT_EQ(client.Invoke(input, output), ClientTransportException);
   EXPECT_TRUE(sup::dto::IsEmptyValue(output));
 
   auto last_request = m_test_functor.GetLastRequest();
@@ -159,7 +159,7 @@ TEST_F(ProtocolRPCClientTest, ServiceMethod)
       { test::FUNCTOR_THROW_FIELD, {sup::dto::BooleanType, true}}
     };
     sup::dto::AnyValue output;
-    EXPECT_EQ(client.Service(input, output), sup::protocol::ClientTransportDecodingError);
+    EXPECT_EQ(client.Service(input, output), sup::protocol::ClientTransportException);
   }
   {
     // wrong output type provided
