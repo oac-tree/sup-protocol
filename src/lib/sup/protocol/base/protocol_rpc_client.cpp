@@ -50,13 +50,11 @@ ProtocolRPCClient::~ProtocolRPCClient() = default;
 ProtocolResult ProtocolRPCClient::Invoke(const sup::dto::AnyValue& input,
                                          sup::dto::AnyValue& output)
 {
-  // TODO: this must become a config parameter:
-  bool async = false;
   if (sup::dto::IsEmptyValue(input))
   {
     return ClientTransportEncodingError;
   }
-  if (async)
+  if (m_config.m_async)
   {
     return HandleAsyncInvoke(input, output);
   }
