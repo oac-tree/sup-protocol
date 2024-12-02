@@ -36,7 +36,13 @@ std::pair<bool, sup::dto::AnyValue> TryGetPayload(const sup::dto::AnyValue& repl
 
 ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor, PayloadEncoding encoding)
   : m_any_functor{any_functor}
-  , m_encoding{encoding}
+  , m_config{encoding}
+{}
+
+ProtocolRPCClient::ProtocolRPCClient(sup::dto::AnyFunctor& any_functor,
+                                     ProtocolRPCClientConfig config)
+  : m_any_functor{any_functor}
+  , m_config{config}
 {}
 
 ProtocolRPCClient::~ProtocolRPCClient() = default;
@@ -64,7 +70,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
   {
     return ClientTransportEncodingError;
   }
-  auto request = utils::CreateServiceRequest(input, m_encoding);
+  auto request = utils::CreateServiceRequest(input, m_config.m_encoding);
   sup::dto::AnyValue reply;
   try
   {
@@ -103,7 +109,7 @@ ProtocolResult ProtocolRPCClient::Service(const sup::dto::AnyValue& input,
 ProtocolResult ProtocolRPCClient::HandleSyncInvoke(const sup::dto::AnyValue& input,
                                                    sup::dto::AnyValue& output)
 {
-  auto request = utils::CreateRPCRequest(input, m_encoding);
+  auto request = utils::CreateRPCRequest(input, m_config.m_encoding);
   sup::dto::AnyValue reply;
   try
   {
@@ -178,7 +184,7 @@ std::pair<sup::dto::uint64, ProtocolResult> ProtocolRPCClient::AsyncSendRequest(
   const sup::dto::AnyValue& input)
 {
   const std::pair<sup::dto::uint64, ProtocolResult> failure{ 0, ClientTransportDecodingError };
-  const auto new_request = utils::CreateAsyncRPCRequest(input, m_encoding);
+  const auto new_request = utils::CreateAsyncRPCRequest(input, m_config.m_encoding);
   auto initial_reply = m_any_functor(new_request);
   auto encoding_info = utils::TryGetPacketEncoding(initial_reply);
   if (!encoding_info.first)
@@ -196,7 +202,7 @@ std::pair<sup::dto::uint64, ProtocolResult> ProtocolRPCClient::AsyncSendRequest(
 
 std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id)
 {
-  const auto poll_request = utils::CreateAsyncRPCPoll(id, m_encoding);
+  const auto poll_request = utils::CreateAsyncRPCPoll(id, m_config.m_encoding);
   while (true)
   {
     // TODO: catch exceptions
@@ -224,7 +230,7 @@ std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id
 std::pair<ProtocolResult, sup::dto::AnyValue> ProtocolRPCClient::AsynGetReply(sup::dto::uint64 id)
 {
   const std::pair<ProtocolResult, sup::dto::AnyValue> failure{ ClientTransportDecodingError, {} };
-  const auto get_reply_request = utils::CreateAsyncRPCGetReply(id, m_encoding);
+  const auto get_reply_request = utils::CreateAsyncRPCGetReply(id, m_config.m_encoding);
   auto reply = m_any_functor(get_reply_request);
   auto result_info = utils::TryExtractProtocolResult(reply);
   if (!result_info.first)

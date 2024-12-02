@@ -25,6 +25,7 @@
 #include <sup/dto/any_functor.h>
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol.h>
+#include <sup/protocol/protocol_rpc_client_config.h>
 #include <sup/protocol/protocol_rpc.h>
 
 namespace sup
@@ -43,13 +44,16 @@ namespace protocol
 class ProtocolRPCClient : public Protocol
 {
 public:
+  explicit ProtocolRPCClient(sup::dto::AnyFunctor& any_functor,
+                             PayloadEncoding encoding = PayloadEncoding::kBase64);
+  ProtocolRPCClient(sup::dto::AnyFunctor& any_functor, ProtocolRPCClientConfig config);
+  ~ProtocolRPCClient() override;
+
+  // No copy/move ctor/assignment:
   ProtocolRPCClient(const ProtocolRPCClient&) = delete;
   ProtocolRPCClient(ProtocolRPCClient&&) = delete;
   ProtocolRPCClient& operator=(const ProtocolRPCClient&) = delete;
   ProtocolRPCClient& operator=(ProtocolRPCClient&&) = delete;
-  explicit ProtocolRPCClient(sup::dto::AnyFunctor& any_functor,
-                             PayloadEncoding encoding = PayloadEncoding::kBase64);
-  ~ProtocolRPCClient() override;
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
@@ -62,7 +66,7 @@ private:
   std::pair<bool, ProtocolResult> AsyncPoll(sup::dto::uint64 id);
   std::pair<ProtocolResult, sup::dto::AnyValue> AsynGetReply(sup::dto::uint64 id);
   sup::dto::AnyFunctor& m_any_functor;
-  PayloadEncoding m_encoding;
+  ProtocolRPCClientConfig m_config;
 };
 
 }  // namespace protocol
