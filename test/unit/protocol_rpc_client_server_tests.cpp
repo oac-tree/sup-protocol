@@ -88,6 +88,23 @@ TEST_F(ProtocolRPCClientServerTest, AsyncInvoke)
   // DumpAnyValues(spy.GetOutputs());
 }
 
+TEST_F(ProtocolRPCClientServerTest, AsyncInvokeEcho)
+{
+  ProtocolRPCServer rpc_server{m_test_protocol};
+  AnyFunctorSpy spy{rpc_server};
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kNone, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{spy, client_config};
+  sup::dto::AnyValue input = {{
+    { "value", {sup::dto::UnsignedInteger32Type, 42u }},
+    { test::ECHO_FIELD, {sup::dto::BooleanType, true }}
+  }};
+  sup::dto::AnyValue output;
+  EXPECT_EQ(rpc_client.Invoke(input, output), Success);
+  EXPECT_GE(spy.GetInputs().size(), 3);
+  EXPECT_GE(spy.GetOutputs().size(), 3);
+  EXPECT_EQ(input, output);
+}
+
 ProtocolRPCClientServerTest::ProtocolRPCClientServerTest()
   : m_test_protocol{}
 {}
