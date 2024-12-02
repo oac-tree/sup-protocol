@@ -45,13 +45,14 @@ PollingTimeoutHandler::~PollingTimeoutHandler() = default;
 bool PollingTimeoutHandler::Wait()
 {
   auto now = GetCurrentTimestamp();
-  if (now - m_start_timestamp > m_timeout_duration_ns)
+  auto passed_ns = now - m_start_timestamp;
+  if (passed_ns > m_timeout_duration_ns)
   {
     return false;
   }
-  // TODO: this is simplistic. It should take into account not to pass the total timeout.
-  // Possibly it should also take into account the time passed since the last poll.
-  std::this_thread::sleep_for(std::chrono::nanoseconds(m_polling_interval_ns));
+  // Do not sleep so long as to pass the timeout threshold:
+  auto sleep_time = std::min(m_polling_interval_ns, m_timeout_duration_ns - passed_ns);
+  std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
   return true;
 }
 

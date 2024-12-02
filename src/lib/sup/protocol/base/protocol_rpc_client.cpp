@@ -21,6 +21,8 @@
 
 #include <sup/protocol/protocol_rpc_client.h>
 
+#include "polling_timeout_handler.h"
+
 #include <sup/dto/anyvalue_helper.h>
 #include <sup/protocol/exceptions.h>
 #include <sup/protocol/protocol_rpc.h>
@@ -201,9 +203,9 @@ std::pair<sup::dto::uint64, ProtocolResult> ProtocolRPCClient::AsyncSendRequest(
 std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id)
 {
   const auto poll_request = utils::CreateAsyncRPCPoll(id, m_config.m_encoding);
+  PollingTimeoutHandler polling_handler{m_config.m_timeout_sec, m_config.m_polling_interval_sec};
   while (true)
   {
-    // TODO: catch exceptions
     auto poll_reply = m_any_functor(poll_request);
     auto encoding_info = utils::TryGetPacketEncoding(poll_reply);
     if (!encoding_info.first)
@@ -220,7 +222,10 @@ std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id
     {
       return { true, Success };
     }
-    // TODO: sleep and exit if timeout expired
+    if (!polling_handler.Wait())
+    {
+      break;
+    }
   }
   return { false, AsynchronousProtocolTimeout };
 }
