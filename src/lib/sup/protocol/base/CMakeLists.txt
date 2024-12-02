@@ -8,6 +8,7 @@ target_sources(sup-protocol
   function_protocol.cpp
   protocol_encodings.cpp
   protocol_result.cpp
+  protocol_rpc_client_config.cpp
   protocol_rpc_client.cpp
   protocol_rpc_server.cpp
   protocol_rpc.cpp

@@ -36,6 +36,7 @@ install(FILES
   protocol_factory_utils.h
   protocol_factory.h
   protocol_result.h
+  protocol_rpc_client_config.h
   protocol_rpc_client.h
   protocol_rpc_server.h
   protocol_rpc.h
