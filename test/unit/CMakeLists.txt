@@ -11,6 +11,7 @@ target_sources(unit-tests
   process_variable_tests.cpp
   protocol_factory_utils_tests.cpp
   protocol_result_tests.cpp
+  protocol_rpc_client_server_tests.cpp
   protocol_rpc_client_tests.cpp
   protocol_rpc_server_async_tests.cpp
   protocol_rpc_server_tests.cpp

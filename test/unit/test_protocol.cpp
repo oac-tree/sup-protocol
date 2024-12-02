@@ -27,6 +27,7 @@
 #include <sup/dto/anyvalue_helper.h>
 
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 #include <thread>
 
@@ -172,6 +173,11 @@ bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double s
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
+}
+
+void DumpAnyValue(const sup::dto::AnyValue& val)
+{
+  std::cout << sup::dto::PrintAnyValue(val) << std::endl;
 }
 
 }  // namespace test

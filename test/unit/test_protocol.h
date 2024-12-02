@@ -89,6 +89,8 @@ bool ExtractReadyStatus(const sup::dto::AnyValue& reply);
 
 bool PollUntilReady(sup::dto::AnyFunctor& functor, sup::dto::uint64 id, double seconds);
 
+void DumpAnyValue(const sup::dto::AnyValue& val);
+
 }  // namespace test
 
 }  // namespace protocol

@@ -43,7 +43,7 @@ class AsyncInvokeServer;
  * The input structure needs to conform to an RPC request structure and it returns an RPC reply
  * structure (see protocol_rpc.h).
  */
-class ProtocolRPCServer : public dto::AnyFunctor
+class ProtocolRPCServer : public sup::dto::AnyFunctor
 {
 public:
   explicit ProtocolRPCServer(Protocol& protocol);
