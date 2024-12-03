@@ -92,7 +92,7 @@ TEST_F(ProtocolRPCClientServerTest, AsyncInvokeEcho)
 {
   ProtocolRPCServer rpc_server{m_test_protocol};
   AnyFunctorSpy spy{rpc_server};
-  ProtocolRPCClientConfig client_config{PayloadEncoding::kNone, 0.2, 0.02};
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
   ProtocolRPCClient rpc_client{spy, client_config};
   sup::dto::AnyValue input = {{
     { "value", {sup::dto::UnsignedInteger32Type, 42u }},
@@ -103,6 +103,21 @@ TEST_F(ProtocolRPCClientServerTest, AsyncInvokeEcho)
   EXPECT_GE(spy.GetInputs().size(), 3);
   EXPECT_GE(spy.GetOutputs().size(), 3);
   EXPECT_EQ(input, output);
+}
+
+TEST_F(ProtocolRPCClientServerTest, ServerException)
+{
+  ProtocolRPCServer rpc_server{m_test_protocol};
+  AnyFunctorSpy spy{rpc_server};
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{spy, client_config};
+  sup::dto::AnyValue input = {{
+    { test::THROW_FIELD, {sup::dto::BooleanType, true }}
+  }};
+  sup::dto::AnyValue output;
+  EXPECT_EQ(rpc_client.Invoke(input, output), ServerProtocolException);
+  EXPECT_GE(spy.GetInputs().size(), 3);
+  EXPECT_GE(spy.GetOutputs().size(), 3);
 }
 
 ProtocolRPCClientServerTest::ProtocolRPCClientServerTest()
