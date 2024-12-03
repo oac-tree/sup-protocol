@@ -21,6 +21,8 @@
 
 #include "async_invoke.h"
 
+#include "timing_utils.h"
+
 #include <chrono>
 #include <cmath>
 #include <future>
@@ -36,7 +38,7 @@ public:
   AsyncInvokeImpl(Protocol& protocol, const sup::dto::AnyValue& input);
   ~AsyncInvokeImpl();
 
-  bool WaitForReady(double seconds) const;
+  bool WaitForReady(double seconds);
 
   bool IsReadyForRemoval() const;
 
@@ -44,8 +46,12 @@ public:
 
   void Invalidate();
 private:
+  void UpdateLastAccess();
+  bool IsExpired() const;
   std::future<AsyncInvoke::Reply> m_future;
   bool m_invalidated;
+  sup::dto::uint64 m_last_access;
+  sup::dto::uint64 m_expiration_time_ns;
 };
 
 AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input)
@@ -54,12 +60,12 @@ AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input)
 
 AsyncInvoke::~AsyncInvoke() = default;
 
-bool AsyncInvoke::IsReady() const
+bool AsyncInvoke::IsReady()
 {
   return m_impl->WaitForReady(0.0);
 }
 
-bool AsyncInvoke::WaitForReady(double seconds) const
+bool AsyncInvoke::WaitForReady(double seconds)
 {
   return m_impl->WaitForReady(seconds);
 }
@@ -83,6 +89,8 @@ AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
                                               const sup::dto::AnyValue& input)
   : m_future{}
   , m_invalidated{false}
+  , m_last_access{utils::GetCurrentTimestamp()}
+  , m_expiration_time_ns{utils::ToNanoseconds(1800)}  // TODO: make this configurable (now 30min)
 {
   // input is captured with copy, since it may be a temporary object
   auto func = [&protocol, input]() -> AsyncInvoke::Reply {
@@ -96,12 +104,13 @@ AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
 AsyncInvoke::AsyncInvokeImpl::~AsyncInvokeImpl()
 {}
 
-bool AsyncInvoke::AsyncInvokeImpl::WaitForReady(double seconds) const
+bool AsyncInvoke::AsyncInvokeImpl::WaitForReady(double seconds)
 {
   if (!m_future.valid() || m_invalidated)
   {
     return false;
   }
+  UpdateLastAccess();
   auto duration = std::chrono::nanoseconds(std::lround(seconds * 1e9));
   return m_future.wait_for(duration) == std::future_status::ready;
 }
@@ -113,7 +122,9 @@ bool AsyncInvoke::AsyncInvokeImpl::IsReadyForRemoval() const
     return true;
   }
   const bool is_ready = m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-  return is_ready && m_invalidated;
+  const bool expired = IsExpired();
+  const bool is_no_longer_needed = m_invalidated || expired;
+  return is_ready && is_no_longer_needed;
 }
 
 AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
@@ -140,6 +151,17 @@ AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
 void AsyncInvoke::AsyncInvokeImpl::Invalidate()
 {
   m_invalidated = true;
+}
+
+void AsyncInvoke::AsyncInvokeImpl::UpdateLastAccess()
+{
+  m_last_access = utils::GetCurrentTimestamp();
+}
+
+bool AsyncInvoke::AsyncInvokeImpl::IsExpired() const
+{
+  const auto now = utils::GetCurrentTimestamp();
+  return (now - m_last_access) > m_expiration_time_ns;
 }
 
 }  // namespace protocol

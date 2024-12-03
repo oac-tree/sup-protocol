@@ -66,14 +66,14 @@ public:
    *
    * @return true if a reply is ready to be retrieved.
    */
-  bool IsReady() const;
+  bool IsReady();
 
   /**
    * @brief Check if a reply is ready to be retrieved within the given timeout.
    *
    * @return true if a reply is ready to be retrieved.
    */
-  bool WaitForReady(double seconds) const;
+  bool WaitForReady(double seconds);
 
   /**
    * @brief Check if this AsyncInvoke object is ready for destruction, i.e. the encapsulated thread
