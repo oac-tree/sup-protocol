@@ -20,6 +20,7 @@
  ******************************************************************************/
 
 #include "polling_timeout_handler.h"
+#include "timing_utils.h"
 
 #include <algorithm>
 #include <chrono>
@@ -36,7 +37,7 @@ sup::dto::uint64 ToNanoseconds(double seconds);
 }  // unnamed namespace
 
 PollingTimeoutHandler::PollingTimeoutHandler(double timeout_sec, double polling_interval_sec)
-  : m_start_timestamp{GetCurrentTimestamp()}
+  : m_start_timestamp{utils::GetCurrentTimestamp()}
   , m_timeout_duration_ns{ToNanoseconds(timeout_sec)}
   , m_polling_interval_ns{ToNanoseconds(polling_interval_sec)}
 {}
@@ -45,7 +46,7 @@ PollingTimeoutHandler::~PollingTimeoutHandler() = default;
 
 bool PollingTimeoutHandler::Wait()
 {
-  auto now = GetCurrentTimestamp();
+  auto now = utils::GetCurrentTimestamp();
   auto passed_ns = now - m_start_timestamp;
   if (passed_ns > m_timeout_duration_ns)
   {
@@ -55,13 +56,6 @@ bool PollingTimeoutHandler::Wait()
   auto sleep_time = std::min(m_polling_interval_ns, m_timeout_duration_ns - passed_ns);
   std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
   return true;
-}
-
-sup::dto::uint64 GetCurrentTimestamp()
-{
-  auto now = std::chrono::system_clock::now();
-  auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-  return ns;
 }
 
 namespace

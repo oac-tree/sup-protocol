@@ -14,4 +14,5 @@ target_sources(sup-protocol
   protocol_rpc_server.cpp
   protocol_rpc.cpp
   protocol.cpp
+  timing_utils.cpp
 )

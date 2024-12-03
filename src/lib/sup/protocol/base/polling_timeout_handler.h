@@ -59,8 +59,6 @@ private:
   sup::dto::uint64 m_polling_interval_ns;
 };
 
-sup::dto::uint64 GetCurrentTimestamp();
-
 }  // namespace protocol
 
 }  // namespace sup
