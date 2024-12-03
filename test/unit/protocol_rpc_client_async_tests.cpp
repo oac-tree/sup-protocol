@@ -44,7 +44,7 @@ protected:
 
 TEST_F(ProtocolRPCClientAsyncTest, AsyncSuccess)
 {
-  // Create function that imitates asynchronous communication:
+  // Create function that imitates successful asynchronous communication:
   auto func = [](const sup::dto::AnyValue& input) {
     auto async_info = utils::GetAsyncInfo(input);
     if (!async_info.first)
@@ -75,6 +75,110 @@ TEST_F(ProtocolRPCClientAsyncTest, AsyncSuccess)
   EXPECT_CALL(mock_functor, CallOperator(_)).Times(AtLeast(3));
   EXPECT_EQ(rpc_client.Invoke(input, output), Success);
   EXPECT_EQ(output, kReplyPayload);
+}
+
+TEST_F(ProtocolRPCClientAsyncTest, AsyncThrowOnNewRequest)
+{
+  // Create function that throws on receiving a new asynchronous request:
+  auto func = [](const sup::dto::AnyValue& input) {
+    auto async_info = utils::GetAsyncInfo(input);
+    if (!async_info.first)
+    {
+      throw InvalidOperationException("No synchronous support");
+    }
+    switch (async_info.second)
+    {
+    case AsyncCommand::kInitialRequest:
+      throw InvalidOperationException("Not supported");
+    case AsyncCommand::kPoll:
+      return utils::CreateAsyncRPCPollReply(true, PayloadEncoding::kNone);
+    case AsyncCommand::kGetReply:
+      return utils::CreateAsyncRPCReply(Success, kReplyPayload, PayloadEncoding::kNone,
+                                        AsyncCommand::kGetReply);
+    }
+    throw InvalidOperationException("Unknown async command");
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output;
+  // Check asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(1);
+  EXPECT_EQ(rpc_client.Invoke(input, output), ClientTransportException);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
+}
+
+TEST_F(ProtocolRPCClientAsyncTest, AsyncThrowOnPoll)
+{
+  // Create function that throws on receiving a poll request:
+  auto func = [](const sup::dto::AnyValue& input) {
+    auto async_info = utils::GetAsyncInfo(input);
+    if (!async_info.first)
+    {
+      throw InvalidOperationException("No synchronous support");
+    }
+    switch (async_info.second)
+    {
+    case AsyncCommand::kInitialRequest:
+      return utils::CreateAsyncRPCNewRequestReply(42u, PayloadEncoding::kNone);
+    case AsyncCommand::kPoll:
+      throw InvalidOperationException("Not supported");
+    case AsyncCommand::kGetReply:
+      return utils::CreateAsyncRPCReply(Success, kReplyPayload, PayloadEncoding::kNone,
+                                        AsyncCommand::kGetReply);
+    }
+    throw InvalidOperationException("Unknown async command");
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output;
+  // Check asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(2);
+  EXPECT_EQ(rpc_client.Invoke(input, output), ClientTransportException);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
+}
+
+TEST_F(ProtocolRPCClientAsyncTest, AsyncThrowOnGetReply)
+{
+  // Create function that throws on receiving a get reply request:
+  auto func = [](const sup::dto::AnyValue& input) {
+    auto async_info = utils::GetAsyncInfo(input);
+    if (!async_info.first)
+    {
+      throw InvalidOperationException("No synchronous support");
+    }
+    switch (async_info.second)
+    {
+    case AsyncCommand::kInitialRequest:
+      return utils::CreateAsyncRPCNewRequestReply(42u, PayloadEncoding::kNone);
+    case AsyncCommand::kPoll:
+      return utils::CreateAsyncRPCPollReply(true, PayloadEncoding::kNone);
+    case AsyncCommand::kGetReply:
+      throw InvalidOperationException("Not supported");
+    }
+    throw InvalidOperationException("Unknown async command");
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output;
+  // Check asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(AtLeast(3));
+  EXPECT_EQ(rpc_client.Invoke(input, output), ClientTransportException);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
 }
 
 ProtocolRPCClientAsyncTest::ProtocolRPCClientAsyncTest() = default;
