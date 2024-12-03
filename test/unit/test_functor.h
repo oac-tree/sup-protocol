@@ -25,6 +25,9 @@
 #include <sup/dto/any_functor.h>
 #include <sup/dto/anyvalue.h>
 
+#include <gmock/gmock.h>
+
+#include <functional>
 #include <memory>
 
 namespace sup
@@ -51,6 +54,20 @@ public:
 
 private:
   std::unique_ptr<sup::dto::AnyValue> m_last_request;
+};
+
+class MockFunctor : public sup::dto::AnyFunctor
+{
+public:
+  MOCK_METHOD(sup::dto::AnyValue, CallOperator, (const sup::dto::AnyValue&));
+  sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override
+  {
+    return CallOperator(input);
+  }
+  void DelegateTo(std::function<sup::dto::AnyValue(const sup::dto::AnyValue&)> func)
+  {
+    ON_CALL(*this, CallOperator).WillByDefault(func);
+  }
 };
 
 }  // namespace test

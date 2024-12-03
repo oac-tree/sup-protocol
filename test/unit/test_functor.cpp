@@ -78,7 +78,6 @@ sup::dto::AnyValue TestFunctor::GetLastRequest() const
   return result;
 }
 
-
 }  // namespace test
 
 }  // namespace protocol
