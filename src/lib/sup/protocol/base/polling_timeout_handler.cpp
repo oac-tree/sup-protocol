@@ -24,22 +24,16 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <thread>
 
 namespace sup
 {
 namespace protocol
 {
-namespace
-{
-sup::dto::uint64 ToNanoseconds(double seconds);
-}  // unnamed namespace
-
 PollingTimeoutHandler::PollingTimeoutHandler(double timeout_sec, double polling_interval_sec)
   : m_start_timestamp{utils::GetCurrentTimestamp()}
-  , m_timeout_duration_ns{ToNanoseconds(timeout_sec)}
-  , m_polling_interval_ns{ToNanoseconds(polling_interval_sec)}
+  , m_timeout_duration_ns{utils::ToNanoseconds(timeout_sec)}
+  , m_polling_interval_ns{utils::ToNanoseconds(polling_interval_sec)}
 {}
 
 PollingTimeoutHandler::~PollingTimeoutHandler() = default;
@@ -57,15 +51,6 @@ bool PollingTimeoutHandler::Wait()
   std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
   return true;
 }
-
-namespace
-{
-sup::dto::uint64 ToNanoseconds(double seconds)
-{
-  return std::lround(seconds * 1e9);
-}
-}  // unnamed namespace
-
 
 }  // namespace protocol
 

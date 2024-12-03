@@ -22,6 +22,7 @@
 #include "timing_utils.h"
 
 #include <chrono>
+#include <cmath>
 
 namespace sup
 {
@@ -29,12 +30,19 @@ namespace protocol
 {
 namespace utils
 {
+
 sup::dto::uint64 GetCurrentTimestamp()
 {
   auto now = std::chrono::system_clock::now();
   auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
   return ns;
 }
+
+sup::dto::uint64 ToNanoseconds(double seconds)
+{
+  return std::lround(seconds * 1e9);
+}
+
 }  // namespace utils
 
 }  // namespace protocol

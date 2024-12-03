@@ -32,6 +32,8 @@ namespace utils
 {
 sup::dto::uint64 GetCurrentTimestamp();
 
+sup::dto::uint64 ToNanoseconds(double seconds);
+
 }  // namespace utils
 
 }  // namespace protocol
