@@ -21,6 +21,7 @@
 
 #include "polling_timeout_handler.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <thread>
