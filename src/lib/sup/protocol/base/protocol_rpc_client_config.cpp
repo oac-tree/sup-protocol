@@ -52,7 +52,16 @@ ProtocolRPCClientConfig::~ProtocolRPCClientConfig() = default;
 
 bool ValidateProtocolRPCClientConfig(const ProtocolRPCClientConfig& cfg)
 {
-  (void)cfg;
+  if (!utils::IsSupportedPayloadEncoding(cfg.m_encoding))
+  {
+    return false;
+  }
+  if (cfg.m_async)
+  {
+    auto positive_timeout = (cfg.m_timeout_sec > 0.0);
+    auto positive_polling_interval = (cfg.m_polling_interval_sec > 0.0);
+    return positive_timeout && positive_polling_interval;
+  }
   return true;
 }
 

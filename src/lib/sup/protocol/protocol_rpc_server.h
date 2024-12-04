@@ -22,6 +22,7 @@
 #ifndef SUP_PROTOCOL_PROTOCOL_RPC_SERVER_H_
 #define SUP_PROTOCOL_PROTOCOL_RPC_SERVER_H_
 
+#include <sup/protocol/protocol_rpc_server_config.h>
 #include <sup/protocol/protocol_rpc.h>
 #include <sup/protocol/protocol.h>
 
@@ -47,6 +48,7 @@ class ProtocolRPCServer : public sup::dto::AnyFunctor
 {
 public:
   explicit ProtocolRPCServer(Protocol& protocol);
+  ProtocolRPCServer(Protocol& protocol, ProtocolRPCServerConfig config);
   ~ProtocolRPCServer() override;
 
   ProtocolRPCServer(const ProtocolRPCServer&) = default;

@@ -38,6 +38,7 @@ install(FILES
   protocol_result.h
   protocol_rpc_client_config.h
   protocol_rpc_client.h
+  protocol_rpc_server_config.h
   protocol_rpc_server.h
   protocol_rpc.h
   protocol.h
