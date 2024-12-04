@@ -23,6 +23,7 @@
 #include <sup/protocol/exceptions.h>
 
 #include <sup/protocol/base/async_invoke_server.h>
+#include <sup/protocol/base/expiration_timeout_handler.h>
 
 #include <sup/dto/anyvalue_helper.h>
 
@@ -38,12 +39,17 @@ ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol)
 ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol, ProtocolRPCServerConfig config)
   : m_protocol{protocol}
   , m_async_server{new AsyncInvokeServer{m_protocol, config.m_expiration_sec}}
+  , m_expiration_handler{new ExpirationTimeoutHandler{config.m_expiration_sec / 2.0}}
 {}
 
 ProtocolRPCServer::~ProtocolRPCServer() = default;
 
 sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& request)
 {
+  if (m_expiration_handler->IsCleanUpNeeded())
+  {
+    m_async_server->CleanUpExpiredRequests();
+  }
   auto encoding_result = utils::TryGetPacketEncoding(request);
   if (!encoding_result.first)
   {

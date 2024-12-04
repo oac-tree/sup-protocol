@@ -34,6 +34,7 @@ namespace sup
 namespace protocol
 {
 class AsyncInvokeServer;
+class ExpirationTimeoutHandler;
 
 /**
  * @brief The ProtocolRPCServer is an AnyFunctor implementation that forwards to a Protocol.
@@ -64,6 +65,7 @@ private:
                                           PayloadEncoding encoding);
   Protocol& m_protocol;
   std::unique_ptr<AsyncInvokeServer> m_async_server;
+  std::unique_ptr<ExpirationTimeoutHandler> m_expiration_handler;
 };
 
 }  // namespace protocol
