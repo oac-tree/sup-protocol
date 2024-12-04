@@ -245,6 +245,35 @@ TEST_F(ProtocolRPCServerAsyncTest, EchoPayload)
   EXPECT_EQ(last_input, payload);
 }
 
+TEST_F(ProtocolRPCServerAsyncTest, ExpiredRequest)
+{
+  // Test the clean up of expired requests
+  ProtocolRPCServerConfig config{0.01};
+  ProtocolRPCServer server{GetTestProtocol(), config};
+
+  sup::dto::AnyValue request = {{
+    { constants::REQUEST_PAYLOAD, {sup::dto::UnsignedInteger8Type, 1 }},
+    { constants::ASYNC_COMMAND_FIELD_NAME, {sup::dto::UnsignedInteger32Type, 0}}
+  }};
+  auto reply = server(request);
+  ASSERT_TRUE(utils::CheckReplyFormat(reply));
+  auto result = utils::TryExtractProtocolResult(reply);
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(result.second, Success);
+  auto id = test::ExtractRequestId(reply);
+  ASSERT_NE(id, 0);
+
+  // Wait enough time for the request to have been expired:
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Poll and check that request was already cleaned up (id is no longer valid):
+  auto poll_request = utils::CreateAsyncRPCPoll(id, PayloadEncoding::kBase64);
+  reply = server(poll_request);
+  result = utils::TryExtractProtocolResult(reply);
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(result.second, InvalidRequestIdentifierError);
+}
+
 ProtocolRPCServerAsyncTest::ProtocolRPCServerAsyncTest()
   : m_test_protocol{}
 {}
