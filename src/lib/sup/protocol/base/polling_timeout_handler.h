@@ -29,8 +29,8 @@ namespace sup
 namespace protocol
 {
 /**
- * @brief This class the timeout and polling intervals for asynchronous polling between a client
- * and server.
+ * @brief This class manages the timeout and polling intervals for asynchronous polling between a
+ * client and server.
  */
 class PollingTimeoutHandler
 {

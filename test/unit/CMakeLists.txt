@@ -5,6 +5,7 @@ target_sources(unit-tests
   async_invoke_server_tests.cpp
   async_invoke_tests.cpp
   exceptions_tests.cpp
+  expiration_timeout_handler_tests.cpp
   function_protocol_extract_tests.cpp
   function_protocol_pack_tests.cpp
   function_protocol_tests.cpp
