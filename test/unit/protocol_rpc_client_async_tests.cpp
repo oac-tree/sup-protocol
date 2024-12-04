@@ -523,6 +523,69 @@ TEST_F(ProtocolRPCClientAsyncTest, ThrowOnGetReply)
   EXPECT_TRUE(sup::dto::IsEmptyValue(output));
 }
 
+TEST_F(ProtocolRPCClientAsyncTest, SynchronousOnlyServerSuccess)
+{
+  // Simulate an RPC server that does not support asynchronous requests:
+  auto func = [](const sup::dto::AnyValue& input) {
+    (void)input;
+    return utils::CreateRPCReply(Success);
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output{};
+  // Check successful asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(1);
+  EXPECT_EQ(rpc_client.Invoke(input, output), Success);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
+}
+
+TEST_F(ProtocolRPCClientAsyncTest, SynchronousOnlyServerSuccessWithPayload)
+{
+  // Simulate an RPC server that does not support asynchronous requests:
+  auto func = [](const sup::dto::AnyValue& input) {
+    (void)input;
+    return utils::CreateRPCReply(Success, kReplyPayload, PayloadEncoding::kBase64);
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output{};
+  // Check successful asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(1);
+  EXPECT_EQ(rpc_client.Invoke(input, output), Success);
+  EXPECT_EQ(output, kReplyPayload);
+}
+
+TEST_F(ProtocolRPCClientAsyncTest, SynchronousOnlyServerWithException)
+{
+  // Simulate an RPC server that does not support asynchronous requests:
+  auto func = [](const sup::dto::AnyValue& input) {
+    (void)input;
+    return utils::CreateRPCReply(ServerProtocolException);
+  };
+  // Inject function into mock functor:
+  ::testing::StrictMock<test::MockFunctor> mock_functor;
+  mock_functor.DelegateTo(func);
+  // Create client:
+  ProtocolRPCClientConfig client_config{PayloadEncoding::kBase64, 0.2, 0.02};
+  ProtocolRPCClient rpc_client{mock_functor, client_config};
+  sup::dto::AnyValue input { sup::dto::UnsignedInteger32Type, 42u };
+  sup::dto::AnyValue output{};
+  // Check successful asynchronous invoke:
+  EXPECT_CALL(mock_functor, CallOperator(_)).Times(1);
+  EXPECT_EQ(rpc_client.Invoke(input, output), ServerProtocolException);
+  EXPECT_TRUE(sup::dto::IsEmptyValue(output));
+}
+
 ProtocolRPCClientAsyncTest::ProtocolRPCClientAsyncTest() = default;
 
 ProtocolRPCClientAsyncTest::~ProtocolRPCClientAsyncTest() = default;

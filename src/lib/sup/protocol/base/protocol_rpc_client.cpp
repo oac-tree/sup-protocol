@@ -34,6 +34,7 @@ namespace protocol
 namespace
 {
 std::pair<bool, sup::dto::AnyValue> TryGetPayload(const sup::dto::AnyValue& reply);
+ProtocolResult HandleSyncInvokeReply(const sup::dto::AnyValue& reply, sup::dto::AnyValue& output);
 }  // unnamed namespace
 
 ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor, PayloadEncoding encoding)
@@ -119,30 +120,7 @@ ProtocolResult ProtocolRPCClient::HandleSyncInvoke(const sup::dto::AnyValue& inp
   {
     return ClientTransportException;
   }
-  if (!utils::CheckReplyFormat(reply))
-  {
-    return ClientTransportDecodingError;
-  }
-  auto result_info = utils::TryExtractProtocolResult(reply);
-  if (!result_info.first)
-  {
-    return ClientTransportDecodingError;
-  }
-  auto result = result_info.second;
-  if (result == Success)
-  {
-    auto payload_info = TryGetPayload(reply);
-    if (!payload_info.first)
-    {
-      return ClientTransportDecodingError;
-    }
-    const auto& payload = payload_info.second;
-    if (!sup::dto::IsEmptyValue(payload) && !sup::dto::TryAssignIfEmptyOrConvert(output, payload))
-    {
-      return ClientTransportDecodingError;
-    }
-  }
-  return result;
+  return HandleSyncInvokeReply(reply, output);
 }
 
 ProtocolResult ProtocolRPCClient::HandleAsyncInvoke(const sup::dto::AnyValue& input,
@@ -152,18 +130,24 @@ ProtocolResult ProtocolRPCClient::HandleAsyncInvoke(const sup::dto::AnyValue& in
   try
   {
     auto initial_reply = AsyncSendRequest(input);
-    auto initial_result = initial_reply.second;
+    auto& sync_reply = std::get<2>(initial_reply);
+    // Only if the reply was not asynchronous will this be non-empty:
+    if (!sup::dto::IsEmptyValue(sync_reply))
+    {
+      return HandleSyncInvokeReply(sync_reply, output);
+    }
+    auto initial_result = std::get<1>(initial_reply);
     if (initial_result != Success)
     {
       return initial_result;
     }
-    auto id = initial_reply.first;
+    auto id = std::get<0>(initial_reply);
     auto poll_result = AsyncPoll(id);
     if (!poll_result.first)
     {
       return poll_result.second;
     }
-    auto reply_info = AsynGetReply(id);
+    auto reply_info = AsyncGetReply(id);
     if (reply_info.first == Success && !sup::dto::IsEmptyValue(reply_info.second))
     {
       if (!sup::dto::TryAssignIfEmptyOrConvert(output, reply_info.second))
@@ -180,12 +164,19 @@ ProtocolResult ProtocolRPCClient::HandleAsyncInvoke(const sup::dto::AnyValue& in
   return result;
 }
 
-std::pair<sup::dto::uint64, ProtocolResult> ProtocolRPCClient::AsyncSendRequest(
-  const sup::dto::AnyValue& input)
+std::tuple<sup::dto::uint64, ProtocolResult, sup::dto::AnyValue>
+ProtocolRPCClient::AsyncSendRequest(const sup::dto::AnyValue& input)
 {
-  const std::pair<sup::dto::uint64, ProtocolResult> failure{ 0, ClientTransportDecodingError };
+  const std::tuple<sup::dto::uint64, ProtocolResult, sup::dto::AnyValue>
+    failure{ 0, ClientTransportDecodingError, {} };
   const auto new_request = utils::CreateAsyncRPCRequest(input, m_config.m_encoding);
   auto initial_reply = m_any_functor(new_request);
+  auto async_info = utils::GetAsyncInfo(initial_reply);
+  if (!async_info.first)
+  {
+    // Provide the whole synchronous reply to be handled by the caller:
+    return { 0, Success, initial_reply };
+  }
   auto encoding_info = utils::TryGetPacketEncoding(initial_reply);
   if (!encoding_info.first)
   {
@@ -197,7 +188,7 @@ std::pair<sup::dto::uint64, ProtocolResult> ProtocolRPCClient::AsyncSendRequest(
   {
     return failure;
   }
-  return { id_info.second, Success };
+  return { id_info.second, Success, {} };
 }
 
 std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id)
@@ -230,7 +221,7 @@ std::pair<bool, ProtocolResult> ProtocolRPCClient::AsyncPoll(sup::dto::uint64 id
   return { false, AsynchronousProtocolTimeout };
 }
 
-std::pair<ProtocolResult, sup::dto::AnyValue> ProtocolRPCClient::AsynGetReply(sup::dto::uint64 id)
+std::pair<ProtocolResult, sup::dto::AnyValue> ProtocolRPCClient::AsyncGetReply(sup::dto::uint64 id)
 {
   const std::pair<ProtocolResult, sup::dto::AnyValue> failure{ ClientTransportDecodingError, {} };
   const auto get_reply_request = utils::CreateAsyncRPCGetReply(id, m_config.m_encoding);
@@ -276,6 +267,34 @@ std::pair<bool, sup::dto::AnyValue> TryGetPayload(const sup::dto::AnyValue& repl
     return failure;
   }
   return { true, payload_result.second };
+}
+
+ProtocolResult HandleSyncInvokeReply(const sup::dto::AnyValue& reply, sup::dto::AnyValue& output)
+{
+  if (!utils::CheckReplyFormat(reply))
+  {
+    return ClientTransportDecodingError;
+  }
+  auto result_info = utils::TryExtractProtocolResult(reply);
+  if (!result_info.first)
+  {
+    return ClientTransportDecodingError;
+  }
+  auto result = result_info.second;
+  if (result == Success)
+  {
+    auto payload_info = TryGetPayload(reply);
+    if (!payload_info.first)
+    {
+      return ClientTransportDecodingError;
+    }
+    const auto& payload = payload_info.second;
+    if (!sup::dto::IsEmptyValue(payload) && !sup::dto::TryAssignIfEmptyOrConvert(output, payload))
+    {
+      return ClientTransportDecodingError;
+    }
+  }
+  return result;
 }
 
 }  // unnamed namespace
