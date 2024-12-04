@@ -35,7 +35,7 @@ namespace protocol
 class AsyncInvoke::AsyncInvokeImpl
 {
 public:
-  AsyncInvokeImpl(Protocol& protocol, const sup::dto::AnyValue& input);
+  AsyncInvokeImpl(Protocol& protocol, const sup::dto::AnyValue& input, double expiration_sec);
   ~AsyncInvokeImpl();
 
   bool WaitForReady(double seconds);
@@ -54,8 +54,8 @@ private:
   sup::dto::uint64 m_expiration_time_ns;
 };
 
-AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input)
-  : m_impl{new AsyncInvokeImpl(protocol, input)}
+AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input, double expiration_sec)
+  : m_impl{new AsyncInvokeImpl(protocol, input, expiration_sec)}
 {}
 
 AsyncInvoke::~AsyncInvoke() = default;
@@ -86,11 +86,12 @@ void AsyncInvoke::Invalidate()
 }
 
 AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
-                                              const sup::dto::AnyValue& input)
+                                              const sup::dto::AnyValue& input,
+                                              double expiration_sec)
   : m_future{}
   , m_invalidated{false}
   , m_last_access{utils::GetCurrentTimestamp()}
-  , m_expiration_time_ns{utils::ToNanoseconds(1800)}  // TODO: make this configurable (now 30min)
+  , m_expiration_time_ns{utils::ToNanoseconds(expiration_sec)}
 {
   // input is captured with copy, since it may be a temporary object
   auto func = [&protocol, input]() -> AsyncInvoke::Reply {

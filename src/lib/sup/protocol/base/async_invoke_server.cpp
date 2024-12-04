@@ -30,8 +30,9 @@ namespace
 std::pair<bool, sup::dto::uint64> ExtractAsyncRequestId(const sup::dto::AnyValue& payload);
 }  // unnamed namespace
 
-AsyncInvokeServer::AsyncInvokeServer(Protocol& protocol)
+AsyncInvokeServer::AsyncInvokeServer(Protocol& protocol, double expiration_sec)
   : m_protocol{protocol}
+  , m_expiration_sec{expiration_sec}
   , m_invokes{}
   , m_mtx{}
   , m_last_id{0}
@@ -77,13 +78,30 @@ bool AsyncInvokeServer::WaitForReady(sup::dto::uint64 id, double seconds)
   return iter->second.WaitForReady(seconds);
 }
 
+void AsyncInvokeServer::CleanUpExpiredRequests()
+{
+  std::lock_guard<std::mutex> lk{m_mtx};
+  for (auto iter = m_invokes.begin(); iter != m_invokes.end();)
+  {
+    if (iter->second.IsReadyForRemoval())
+    {
+      iter = m_invokes.erase(iter);
+    }
+    else
+    {
+      ++iter;
+    }
+  }
+}
+
+
 sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& payload,
                                                  PayloadEncoding encoding)
 {
   std::lock_guard<std::mutex> lk{m_mtx};
   auto id = GetRequestId();
   m_invokes.emplace(std::piecewise_construct, std::forward_as_tuple(id),
-                    std::forward_as_tuple(m_protocol, payload));
+                    std::forward_as_tuple(m_protocol, payload, m_expiration_sec));
   return utils::CreateAsyncRPCNewRequestReply(id, encoding);
 }
 

@@ -42,8 +42,9 @@ public:
    * @brief Constructor.
    *
    * @param protocol Protocol to invoke.
+   * @param expiration_sec Time in seconds for an asynchronous invoke to become expired.
    */
-  explicit AsyncInvokeServer(Protocol& protocol);
+  explicit AsyncInvokeServer(Protocol& protocol, double expiration_sec);
   ~AsyncInvokeServer();
 
   // No copy/move ctor/assignment:
@@ -73,6 +74,11 @@ public:
    */
   bool WaitForReady(sup::dto::uint64 id, double seconds);
 
+  /**
+   * @brief Look for expired requests and clean up the resources associated with them.
+   */
+  void CleanUpExpiredRequests();
+
 private:
   sup::dto::AnyValue NewRequest(const sup::dto::AnyValue& payload, PayloadEncoding encoding);
   sup::dto::AnyValue Poll(sup::dto::uint64 id, PayloadEncoding encoding);
@@ -81,6 +87,7 @@ private:
   sup::dto::uint64 GetRequestId();
 
   Protocol& m_protocol;
+  const double m_expiration_sec;
   std::map<sup::dto::uint64, AsyncInvoke> m_invokes;
   std::mutex m_mtx;
   sup::dto::uint64 m_last_id;

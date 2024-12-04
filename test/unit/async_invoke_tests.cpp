@@ -29,6 +29,8 @@
 
 using namespace sup::protocol;
 
+const double kExpirationSec = 100;
+
 class AsyncRequestTest : public ::testing::Test
 {
 protected:
@@ -42,7 +44,7 @@ TEST_F(AsyncRequestTest, Construction)
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvoke req{protocol, input};
+  AsyncInvoke req{protocol, input, kExpirationSec};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
   auto reply = req.GetReply();
@@ -57,7 +59,7 @@ TEST_F(AsyncRequestTest, GetReply)
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvoke req{protocol, input};
+  AsyncInvoke req{protocol, input, kExpirationSec};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
   go.set_value();
@@ -77,7 +79,7 @@ TEST_F(AsyncRequestTest, Invalidate)
   sup::dto::AnyValue input{ sup::dto::UnsignedInteger32Type, 42u };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvoke req{protocol, input};
+  AsyncInvoke req{protocol, input, kExpirationSec};
   EXPECT_FALSE(req.IsReady());
   EXPECT_FALSE(req.IsReadyForRemoval());
   go.set_value();

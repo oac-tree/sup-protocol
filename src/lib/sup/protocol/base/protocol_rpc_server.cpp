@@ -33,7 +33,7 @@ namespace protocol
 
 ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol)
   : m_protocol{protocol}
-  , m_async_server{new AsyncInvokeServer{m_protocol}}
+  , m_async_server{new AsyncInvokeServer{m_protocol, 1800}} // TODO: remove magic constant
 {}
 
 ProtocolRPCServer::~ProtocolRPCServer() = default;

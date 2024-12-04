@@ -29,6 +29,8 @@
 
 using namespace sup::protocol;
 
+const double kExpirationSec = 100;
+
 class AsyncRequestServerTest : public ::testing::Test
 {
 protected:
@@ -55,7 +57,7 @@ TEST_F(AsyncRequestServerTest, NoActiveRequests)
   }};
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvokeServer async_server{protocol};
+  AsyncInvokeServer async_server{protocol, kExpirationSec};
   {
     // Poll non-existing request
     auto reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, AsyncCommand::kPoll);
@@ -81,7 +83,7 @@ TEST_F(AsyncRequestServerTest, NoActiveRequests)
 TEST_F(AsyncRequestServerTest, SimpleScalarRequest)
 {
   test::TestProtocol protocol{};
-  AsyncInvokeServer async_server{protocol};
+  AsyncInvokeServer async_server{protocol, kExpirationSec};
   const sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
   auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
                                          AsyncCommand::kInitialRequest);
@@ -94,7 +96,7 @@ TEST_F(AsyncRequestServerTest, SingleRequest)
   const sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvokeServer async_server{protocol};
+  AsyncInvokeServer async_server{protocol, kExpirationSec};
 
   // Launch new request (first id should be 1)
   auto reply = async_server.HandleInvoke(input, PayloadEncoding::kNone,
@@ -151,7 +153,7 @@ TEST_F(AsyncRequestServerTest, Invalidate)
   const sup::dto::AnyValue input{ sup::dto::StringType, "This is the request payload" };
   std::promise<void> go;
   test::AsyncRequestTestProtocol protocol{go.get_future()};
-  AsyncInvokeServer async_server{protocol};
+  AsyncInvokeServer async_server{protocol, kExpirationSec};
 
   // Launch new request (first id should be 1)
   auto reply = async_server.HandleInvoke(input, PayloadEncoding::kNone,

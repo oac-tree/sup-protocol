@@ -51,8 +51,9 @@ public:
    *
    * @param protocol Protocol to invoke.
    * @param input AnyValue to pass as input to Protocol::Invoke.
+   * @param expiration_sec Time in seconds for an asynchronous invoke to become expired.
    */
-  AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input);
+  AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input, double expiration_sec);
   ~AsyncInvoke();
 
   // No copy/move ctor/assignment:
