@@ -30,6 +30,8 @@
 
 #include <gtest/gtest.h>
 
+#include <thread>
+
 using namespace sup::protocol;
 
 class ProtocolRPCServerAsyncTest : public ::testing::Test
