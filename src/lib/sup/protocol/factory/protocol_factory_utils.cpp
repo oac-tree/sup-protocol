@@ -46,6 +46,13 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
   return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
 }
 
+std::unique_ptr<Protocol> CreateRPCClientStack(
+  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  ProtocolRPCClientConfig config)
+{
+  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, config));
+}
+
 PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)
 {
   if (!config.HasField(kEncoding))

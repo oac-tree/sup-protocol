@@ -32,6 +32,12 @@ RPCClientStack::RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFuncto
   , m_protocol_client{*m_rpc_client, encoding}
 {}
 
+RPCClientStack::RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+                               ProtocolRPCClientConfig config)
+  : m_rpc_client{factory_func()}
+  , m_protocol_client{*m_rpc_client, config}
+{}
+
 RPCClientStack::~RPCClientStack() = default;
 
 ProtocolResult RPCClientStack::Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
