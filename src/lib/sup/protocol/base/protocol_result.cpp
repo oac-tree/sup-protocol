@@ -65,15 +65,9 @@ ProtocolResult::ProtocolResult(unsigned int value) noexcept
   : m_value{value}
 {}
 
-ProtocolResult::ProtocolResult(const ProtocolResult& other)
-  : m_value{other.m_value}
-{}
+ProtocolResult::ProtocolResult(const ProtocolResult& other) = default;
 
-ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other) &
-{
-  m_value = other.m_value;
-  return *this;
-}
+ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other) & = default;
 
 unsigned int ProtocolResult::GetValue() const
 {
