@@ -21,6 +21,7 @@
 
 #include <sup/protocol/protocol_rpc.h>
 
+#include <sup/protocol/base/anyvalue_utils.h>
 #include <sup/protocol/base/protocol_encodings.h>
 #include <sup/protocol/protocol.h>
 #include <sup/protocol/exceptions.h>
@@ -78,20 +79,20 @@ bool IsSupportedPayloadEncoding(PayloadEncoding encoding)
 bool CheckRequestFormat(const sup::dto::AnyValue& request)
 {
   // Only check type of timestamp field when present
-  if (request.HasField(constants::REQUEST_TIMESTAMP)
-      && request[constants::REQUEST_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  if (!ValidateMemberTypeIfPresent(request, constants::REQUEST_TIMESTAMP,
+                                   sup::dto::UnsignedInteger64Type))
   {
     return false;
   }
   // Only check type of encoding field when present
-  if (request.HasField(constants::ENCODING_FIELD_NAME)
-      && request[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
+  if (!ValidateMemberTypeIfPresent(request, constants::ENCODING_FIELD_NAME,
+                                   sup::dto::SignedInteger32Type))
   {
     return false;
   }
   // Only check type of async command field when present
-  if (request.HasField(constants::ASYNC_COMMAND_FIELD_NAME)
-      && request[constants::ASYNC_COMMAND_FIELD_NAME].GetType() != sup::dto::UnsignedInteger32Type)
+  if (!ValidateMemberTypeIfPresent(request, constants::ASYNC_COMMAND_FIELD_NAME,
+                                   sup::dto::UnsignedInteger32Type))
   {
     return false;
   }

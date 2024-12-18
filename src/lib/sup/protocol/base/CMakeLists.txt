@@ -1,5 +1,6 @@
 target_sources(sup-protocol
   PRIVATE
+  anyvalue_utils.cpp
   async_invoke_server.cpp
   async_invoke.cpp
   exceptions.cpp
