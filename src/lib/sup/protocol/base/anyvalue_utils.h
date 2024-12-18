@@ -28,6 +28,9 @@ namespace sup
 {
 namespace protocol
 {
+bool ValidateMemberType(const sup::dto::AnyValue& value, const std::string& member_name,
+                        const sup::dto::AnyType& member_type);
+
 bool ValidateMemberTypeIfPresent(const sup::dto::AnyValue& value, const std::string& member_name,
                                  const sup::dto::AnyType& member_type);
 }  // namespace protocol

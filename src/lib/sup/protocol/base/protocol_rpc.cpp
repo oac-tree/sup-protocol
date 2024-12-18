@@ -105,32 +105,30 @@ bool CheckRequestFormat(const sup::dto::AnyValue& request)
 
 bool CheckReplyFormat(const sup::dto::AnyValue& reply)
 {
-  if (!reply.HasField(constants::REPLY_RESULT)
-      || reply[constants::REPLY_RESULT].GetType() != sup::dto::UnsignedInteger32Type)
+  if (!ValidateMemberType(reply, constants::REPLY_RESULT, sup::dto::UnsignedInteger32Type))
   {
     return false;
   }
   // Only check type of timestamp field when present
-  if (reply.HasField(constants::REPLY_TIMESTAMP)
-      && reply[constants::REPLY_TIMESTAMP].GetType() != sup::dto::UnsignedInteger64Type)
+  if (!ValidateMemberTypeIfPresent(reply, constants::REPLY_TIMESTAMP,
+                                   sup::dto::UnsignedInteger64Type))
   {
     return false;
   }
   // Only check type of encoding field when present
-  if (reply.HasField(constants::ENCODING_FIELD_NAME)
-      && reply[constants::ENCODING_FIELD_NAME].GetType() != sup::dto::SignedInteger32Type)
+  if (!ValidateMemberTypeIfPresent(reply, constants::ENCODING_FIELD_NAME,
+                                   sup::dto::SignedInteger32Type))
   {
     return false;
   }
   // Only check type of reason field when present
-  if (reply.HasField(constants::REPLY_REASON)
-      && reply[constants::REPLY_REASON].GetType() != sup::dto::StringType)
+  if (!ValidateMemberTypeIfPresent(reply, constants::REPLY_REASON, sup::dto::StringType))
   {
     return false;
   }
   // Only check type of async command field when present
-  if (reply.HasField(constants::ASYNC_COMMAND_FIELD_NAME)
-      && reply[constants::ASYNC_COMMAND_FIELD_NAME].GetType() != sup::dto::UnsignedInteger32Type)
+  if (!ValidateMemberTypeIfPresent(reply, constants::ASYNC_COMMAND_FIELD_NAME,
+                                   sup::dto::UnsignedInteger32Type))
   {
     return false;
   }
