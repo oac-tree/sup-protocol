@@ -44,23 +44,23 @@ ProtocolRPCServer::ProtocolRPCServer(Protocol& protocol, ProtocolRPCServerConfig
 
 ProtocolRPCServer::~ProtocolRPCServer() = default;
 
-sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& request)
+sup::dto::AnyValue ProtocolRPCServer::operator()(const sup::dto::AnyValue& input)
 {
   if (m_expiration_handler->IsCleanUpNeeded())
   {
     m_async_server->CleanUpExpiredRequests();
   }
-  auto encoding_result = utils::TryGetPacketEncoding(request);
+  auto encoding_result = utils::TryGetPacketEncoding(input);
   if (!encoding_result.first)
   {
     return utils::CreateRPCReply(ServerUnsupportedPayloadEncodingError);
   }
   auto encoding = encoding_result.second;
-  if (utils::CheckServiceRequest(request))
+  if (utils::CheckServiceRequest(input))
   {
-    return HandleServiceRequest(request, encoding);
+    return HandleServiceRequest(input, encoding);
   }
-  return HandleInvokeRequest(request, encoding);
+  return HandleInvokeRequest(input, encoding);
 }
 
 sup::dto::AnyValue ProtocolRPCServer::HandleInvokeRequest(const sup::dto::AnyValue& request,
