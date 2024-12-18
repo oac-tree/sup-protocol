@@ -102,8 +102,7 @@ AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
   m_future = std::async(std::launch::async, func);
 }
 
-AsyncInvoke::AsyncInvokeImpl::~AsyncInvokeImpl()
-{}
+AsyncInvoke::AsyncInvokeImpl::~AsyncInvokeImpl() = default;
 
 bool AsyncInvoke::AsyncInvokeImpl::WaitForReady(double seconds)
 {
