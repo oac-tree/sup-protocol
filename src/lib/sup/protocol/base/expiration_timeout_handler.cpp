@@ -33,6 +33,16 @@ ExpirationTimeoutHandler::ExpirationTimeoutHandler(double cleanup_sec)
 
 ExpirationTimeoutHandler::~ExpirationTimeoutHandler() = default;
 
+ExpirationTimeoutHandler::ExpirationTimeoutHandler(const ExpirationTimeoutHandler&) = default;
+
+ExpirationTimeoutHandler& ExpirationTimeoutHandler::operator=(
+  const ExpirationTimeoutHandler&) & = default;
+
+ExpirationTimeoutHandler::ExpirationTimeoutHandler(ExpirationTimeoutHandler&&) noexcept = default;
+
+ExpirationTimeoutHandler& ExpirationTimeoutHandler::operator=(
+  ExpirationTimeoutHandler&&) & noexcept = default;
+
 bool ExpirationTimeoutHandler::IsCleanUpNeeded()
 {
   auto now = utils::GetCurrentTimestamp();

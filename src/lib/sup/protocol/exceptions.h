@@ -44,7 +44,7 @@ protected:
   MessageException(const MessageException& other) = default;
   MessageException& operator=(const MessageException& other) & = default;
   MessageException(MessageException&&) = default;
-  MessageException& operator=(MessageException&&) = default;
+  MessageException& operator=(MessageException&&) & = default;
 private:
   std::string m_message;
 };
@@ -61,7 +61,7 @@ public:
   InvalidOperationException(const InvalidOperationException& other) = default;
   InvalidOperationException& operator=(const InvalidOperationException& other) & = default;
   InvalidOperationException(InvalidOperationException&&) = default;
-  InvalidOperationException& operator=(InvalidOperationException&&) = default;
+  InvalidOperationException& operator=(InvalidOperationException&&) & = default;
 };
 
 /**
@@ -76,7 +76,7 @@ public:
   VariableUnavailableException(const VariableUnavailableException& other) = default;
   VariableUnavailableException& operator=(const VariableUnavailableException& other) & = default;
   VariableUnavailableException(VariableUnavailableException&&) = default;
-  VariableUnavailableException& operator=(VariableUnavailableException&&) = default;
+  VariableUnavailableException& operator=(VariableUnavailableException&&) & = default;
 };
 
 }  // namespace protocol

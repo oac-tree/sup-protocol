@@ -44,6 +44,11 @@ public:
   explicit ExpirationTimeoutHandler(double cleanup_sec);
   ~ExpirationTimeoutHandler();
 
+  ExpirationTimeoutHandler(const ExpirationTimeoutHandler& other);
+  ExpirationTimeoutHandler& operator=(const ExpirationTimeoutHandler& other) &;
+  ExpirationTimeoutHandler(ExpirationTimeoutHandler&&) noexcept;
+  ExpirationTimeoutHandler& operator=(ExpirationTimeoutHandler&&) & noexcept;
+
   /**
    * @brief Check if a new clean up is needed, based on the time expired from the last clean up.
    *
