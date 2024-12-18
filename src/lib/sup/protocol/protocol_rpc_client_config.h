@@ -63,6 +63,12 @@ public:
                           double polling_interval_sec);
   ~ProtocolRPCClientConfig();
 
+  // Copy/move
+  ProtocolRPCClientConfig(const ProtocolRPCClientConfig& other);
+  ProtocolRPCClientConfig& operator=(const ProtocolRPCClientConfig& other) &;
+  ProtocolRPCClientConfig(ProtocolRPCClientConfig&&) noexcept;
+  ProtocolRPCClientConfig& operator=(ProtocolRPCClientConfig&&) & noexcept;
+
   PayloadEncoding m_encoding;
   bool m_async;
   double m_timeout_sec;

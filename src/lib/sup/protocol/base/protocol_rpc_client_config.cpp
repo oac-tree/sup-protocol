@@ -50,6 +50,16 @@ ProtocolRPCClientConfig::ProtocolRPCClientConfig(PayloadEncoding encoding, doubl
 
 ProtocolRPCClientConfig::~ProtocolRPCClientConfig() = default;
 
+ProtocolRPCClientConfig::ProtocolRPCClientConfig(const ProtocolRPCClientConfig&) = default;
+
+ProtocolRPCClientConfig& ProtocolRPCClientConfig::operator=(
+  const ProtocolRPCClientConfig&) & = default;
+
+ProtocolRPCClientConfig::ProtocolRPCClientConfig(ProtocolRPCClientConfig&&) noexcept = default;
+
+ProtocolRPCClientConfig& ProtocolRPCClientConfig::operator=(
+  ProtocolRPCClientConfig&&) & noexcept = default;
+
 bool ValidateProtocolRPCClientConfig(const ProtocolRPCClientConfig& cfg)
 {
   if (!utils::IsSupportedPayloadEncoding(cfg.m_encoding))
