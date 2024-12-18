@@ -38,6 +38,16 @@ PollingTimeoutHandler::PollingTimeoutHandler(double timeout_sec, double polling_
 
 PollingTimeoutHandler::~PollingTimeoutHandler() = default;
 
+PollingTimeoutHandler::PollingTimeoutHandler(const PollingTimeoutHandler&) = default;
+
+PollingTimeoutHandler& PollingTimeoutHandler::operator=(
+  const PollingTimeoutHandler&) & = default;
+
+PollingTimeoutHandler::PollingTimeoutHandler(PollingTimeoutHandler&&) noexcept = default;
+
+PollingTimeoutHandler& PollingTimeoutHandler::operator=(
+  PollingTimeoutHandler&&) & noexcept = default;
+
 bool PollingTimeoutHandler::Wait()
 {
   auto now = utils::GetCurrentTimestamp();

@@ -46,6 +46,11 @@ public:
   PollingTimeoutHandler(double timeout_sec, double polling_interval_sec);
   ~PollingTimeoutHandler();
 
+  PollingTimeoutHandler(const PollingTimeoutHandler& other);
+  PollingTimeoutHandler& operator=(const PollingTimeoutHandler& other) &;
+  PollingTimeoutHandler(PollingTimeoutHandler&&) noexcept;
+  PollingTimeoutHandler& operator=(PollingTimeoutHandler&&) & noexcept;
+
   /**
    * @brief Wait for the next moment to poll.
    *
