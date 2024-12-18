@@ -100,8 +100,8 @@ sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& paylo
 {
   std::lock_guard<std::mutex> lk{m_mtx};
   auto id = GetRequestId();
-  m_invokes.emplace(std::piecewise_construct, std::forward_as_tuple(id),
-                    std::forward_as_tuple(m_protocol, payload, m_expiration_sec));
+  (void)m_invokes.emplace(std::piecewise_construct, std::forward_as_tuple(id),
+                          std::forward_as_tuple(m_protocol, payload, m_expiration_sec));
   return utils::CreateAsyncRPCNewRequestReply(id, encoding);
 }
 
@@ -133,7 +133,7 @@ sup::dto::AnyValue AsyncInvokeServer::GetReply(sup::dto::uint64 id, PayloadEncod
   auto reply = iter->second.GetReply();
   if (iter->second.IsReadyForRemoval())
   {
-    m_invokes.erase(iter);
+    (void)m_invokes.erase(iter);
   }
   return utils::CreateAsyncRPCReply(reply.first, reply.second, encoding, AsyncCommand::kGetReply);
 }
@@ -149,7 +149,7 @@ sup::dto::AnyValue AsyncInvokeServer::Invalidate(sup::dto::uint64 id)
   iter->second.Invalidate();
   if (iter->second.IsReadyForRemoval())
   {
-    m_invokes.erase(iter);
+    (void)m_invokes.erase(iter);
   }
   return utils::CreateAsyncRPCReply(Success, AsyncCommand::kInvalidate);
 }
