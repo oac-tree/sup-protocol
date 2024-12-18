@@ -35,12 +35,12 @@ sup::dto::uint64 GetCurrentTimestamp()
 {
   auto now = std::chrono::system_clock::now();
   auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-  return ns;
+  return static_cast<sup::dto::uint64>(ns);
 }
 
 sup::dto::uint64 ToNanoseconds(double seconds)
 {
-  return std::lround(seconds * 1e9);
+  return static_cast<sup::dto::uint64>(std::lround(seconds * 1e9));
 }
 
 }  // namespace utils
