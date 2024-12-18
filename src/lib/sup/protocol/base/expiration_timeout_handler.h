@@ -41,7 +41,7 @@ public:
    *
    * @param cleanup_sec Minimum time to wait between consecutive cleanup operations in the server.
    */
-  ExpirationTimeoutHandler(double cleanup_sec);
+  explicit ExpirationTimeoutHandler(double cleanup_sec);
   ~ExpirationTimeoutHandler();
 
   /**
