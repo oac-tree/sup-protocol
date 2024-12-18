@@ -65,9 +65,14 @@ ProtocolResult::ProtocolResult(unsigned int value) noexcept
   : m_value{value}
 {}
 
-ProtocolResult::ProtocolResult(const ProtocolResult& other) = default;
+ProtocolResult::ProtocolResult(const ProtocolResult&) = default;
 
-ProtocolResult& ProtocolResult::operator=(const ProtocolResult& other) & = default;
+ProtocolResult& ProtocolResult::operator=(const ProtocolResult&) & = default;
+
+ProtocolResult::ProtocolResult(ProtocolResult&&) noexcept = default;
+
+ProtocolResult& ProtocolResult::operator=(
+  ProtocolResult&&) & noexcept = default;
 
 unsigned int ProtocolResult::GetValue() const
 {

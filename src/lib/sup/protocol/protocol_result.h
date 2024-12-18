@@ -96,10 +96,12 @@ public:
   explicit ProtocolResult(unsigned int value) noexcept;
 
   /**
-   * @brief Copy construction and assigment.
+   * @brief Copy/move construction and assigment.
    */
   ProtocolResult(const ProtocolResult& other);
   ProtocolResult& operator=(const ProtocolResult& other) &;
+  ProtocolResult(ProtocolResult&&) noexcept;
+  ProtocolResult& operator=(ProtocolResult&&) & noexcept;
 
   /**
    * @brief Get status as integer.
