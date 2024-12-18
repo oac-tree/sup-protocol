@@ -37,8 +37,14 @@ class MessageException : public std::exception
 {
 public:
   explicit MessageException(std::string message);
+  ~MessageException() override = default;
+
   const char* what() const noexcept override;
-  ~MessageException() = default;
+protected:
+  MessageException(const MessageException& other) = default;
+  MessageException& operator=(const MessageException& other) & = default;
+  MessageException(MessageException&&) = default;
+  MessageException& operator=(MessageException&&) = default;
 private:
   std::string m_message;
 };
@@ -51,6 +57,11 @@ class InvalidOperationException : public MessageException
 public:
   explicit InvalidOperationException(const std::string& message);
   ~InvalidOperationException() override = default;
+
+  InvalidOperationException(const InvalidOperationException& other) = default;
+  InvalidOperationException& operator=(const InvalidOperationException& other) & = default;
+  InvalidOperationException(InvalidOperationException&&) = default;
+  InvalidOperationException& operator=(InvalidOperationException&&) = default;
 };
 
 /**
@@ -61,6 +72,11 @@ class VariableUnavailableException : public MessageException
 public:
   explicit VariableUnavailableException(const std::string& message);
     ~VariableUnavailableException() override = default;
+
+  VariableUnavailableException(const VariableUnavailableException& other) = default;
+  VariableUnavailableException& operator=(const VariableUnavailableException& other) & = default;
+  VariableUnavailableException(VariableUnavailableException&&) = default;
+  VariableUnavailableException& operator=(VariableUnavailableException&&) = default;
 };
 
 }  // namespace protocol
