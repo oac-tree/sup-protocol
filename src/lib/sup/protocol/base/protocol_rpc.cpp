@@ -159,8 +159,8 @@ sup::dto::AnyValue CreateAsyncRPCRequest(const sup::dto::AnyValue& payload,
   }
   sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
   AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
-  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
-                    static_cast<sup::dto::uint32>(AsyncCommand::kInitialRequest));
+  (void)request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                          static_cast<sup::dto::uint32>(AsyncCommand::kInitialRequest));
   return request;
 }
 
@@ -169,8 +169,8 @@ sup::dto::AnyValue CreateAsyncRPCPoll(sup::dto::uint64 id, PayloadEncoding encod
   sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
   auto payload = CreateRequestIdPayload(id);
   AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
-  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
-                    static_cast<sup::dto::uint32>(AsyncCommand::kPoll));
+  (void)request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                          static_cast<sup::dto::uint32>(AsyncCommand::kPoll));
   return request;
 }
 
@@ -179,8 +179,8 @@ sup::dto::AnyValue CreateAsyncRPCGetReply(sup::dto::uint64 id, PayloadEncoding e
   sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
   auto payload = CreateRequestIdPayload(id);
   AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
-  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
-                    static_cast<sup::dto::uint32>(AsyncCommand::kGetReply));
+  (void)request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                          static_cast<sup::dto::uint32>(AsyncCommand::kGetReply));
   return request;
 }
 
@@ -190,8 +190,8 @@ sup::dto::AnyValue CreateAsyncRPCInvalidate(sup::dto::uint64 id, PayloadEncoding
   sup::dto::AnyValue request = sup::dto::EmptyStruct(constants::REQUEST_TYPE_NAME);
   auto payload = CreateRequestIdPayload(id);
   AddRPCPayload(request, payload, constants::REQUEST_PAYLOAD, encoding);
-  request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
-                    static_cast<sup::dto::uint32>(AsyncCommand::kInvalidate));
+  (void)request.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                          static_cast<sup::dto::uint32>(AsyncCommand::kInvalidate));
   return request;
 }
 
@@ -222,9 +222,9 @@ sup::dto::AnyValue CreateAsyncRPCReply(const sup::protocol::ProtocolResult& resu
                                        AsyncCommand command)
 {
   auto reply = CreateRPCReply(result, payload, encoding);
-  reply.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
-                  sup::dto::AnyValue{ sup::dto::UnsignedInteger32Type,
-                                      static_cast<sup::dto::uint32>(command) });
+  (void)reply.AddMember(constants::ASYNC_COMMAND_FIELD_NAME,
+                        sup::dto::AnyValue{ sup::dto::UnsignedInteger32Type,
+                                            static_cast<sup::dto::uint32>(command) });
   return reply;
 }
 
