@@ -49,6 +49,12 @@ public:
 
   ~ProtocolRPCServerConfig();
 
+  // Copy/move
+  ProtocolRPCServerConfig(const ProtocolRPCServerConfig& other);
+  ProtocolRPCServerConfig& operator=(const ProtocolRPCServerConfig& other) &;
+  ProtocolRPCServerConfig(ProtocolRPCServerConfig&&) noexcept;
+  ProtocolRPCServerConfig& operator=(ProtocolRPCServerConfig&&) & noexcept;
+
   double m_expiration_sec;
 };
 

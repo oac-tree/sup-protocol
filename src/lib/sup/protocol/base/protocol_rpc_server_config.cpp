@@ -36,6 +36,16 @@ ProtocolRPCServerConfig::ProtocolRPCServerConfig(double expiration_sec)
 
 ProtocolRPCServerConfig::~ProtocolRPCServerConfig() = default;
 
+ProtocolRPCServerConfig::ProtocolRPCServerConfig(const ProtocolRPCServerConfig&) = default;
+
+ProtocolRPCServerConfig& ProtocolRPCServerConfig::operator=(
+  const ProtocolRPCServerConfig&) & = default;
+
+ProtocolRPCServerConfig::ProtocolRPCServerConfig(ProtocolRPCServerConfig&&) noexcept = default;
+
+ProtocolRPCServerConfig& ProtocolRPCServerConfig::operator=(
+  ProtocolRPCServerConfig&&) & noexcept = default;
+
 bool ValidateProtocolRPCServerConfig(const ProtocolRPCServerConfig& cfg)
 {
   return cfg.m_expiration_sec > 0.0;
