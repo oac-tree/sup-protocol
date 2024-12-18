@@ -1,6 +1,7 @@
 Changes for 2.2.0:
 
 - Add support for asynchronous RPC in client and server
+- Fix possible deadlock in WaitForVariableValue
 - Quality improvements
 
 Changes for 2.1.0:

@@ -26,6 +26,7 @@
 
 #include <sup/dto/anyvalue.h>
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <condition_variable>
@@ -66,14 +67,15 @@ bool SetVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value)
 bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
                           double timeout_sec)
 {
-  std::mutex mtx;
   std::condition_variable cv;
-  sup::dto::AnyValue current;
-  auto callback = [&current, &mtx, &cv](const sup::dto::AnyValue& updated, bool connected){
+  std::atomic_bool result{false};
+  // Do not use same lock inside callback, since callbacks may be called while holding a lock,
+  // internal to the ProcessVariable and the wait_for may then have the opposite locking order,
+  // resulting in a possible deadlock.
+  auto callback = [&cv, &result, value](const sup::dto::AnyValue& updated, bool connected) {
     if (connected)
     {
-      std::lock_guard<std::mutex> lk(mtx);
-      current = updated;
+      result.store(updated == value);
     }
     cv.notify_one();
   };
@@ -82,10 +84,17 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   {
     return BusyWaitForValue(var, value, timeout_sec);
   }
+  auto condition = [&result, &var, value]() {
+    if (result.load())
+    {
+      return true;
+    }
+    auto read_back = var.GetValue(0.0);
+    return read_back.first && (read_back.second == value);
+  };
+  std::mutex mtx;
   std::unique_lock<std::mutex> lk(mtx);
-  TryFetchVariable(var, current);
-  return cv.wait_for(lk, std::chrono::nanoseconds(std::lround(timeout_sec * 1e9)),
-                     [&current, &value]() { return current == value; });
+  return cv.wait_for(lk, std::chrono::nanoseconds(std::lround(timeout_sec * 1e9)), condition);
 }
 
 }  // namespace protocol
