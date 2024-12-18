@@ -82,9 +82,12 @@ bool ValidateFunctionProtocolInput(const sup::dto::AnyValue& input, const std::s
       return false;
     }
   }
-  else if (input[field_name].GetType() != expected_type)
+  else
   {
-    return false;
+    if (input[field_name].GetType() != expected_type)
+    {
+      return false;
+    }
   }
   return true;
 }
