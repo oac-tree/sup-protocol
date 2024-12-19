@@ -39,6 +39,13 @@ TEST_F(ExceptionsTest, InvalidOperationException)
   EXPECT_EQ(e.what(), error_message);
 }
 
+TEST_F(ExceptionsTest, VariableUnavailableException)
+{
+  const std::string error_message = "Somthing went wrong";
+  VariableUnavailableException e{error_message};
+  EXPECT_EQ(e.what(), error_message);
+}
+
 ExceptionsTest::ExceptionsTest() = default;
 
 ExceptionsTest::~ExceptionsTest() = default;

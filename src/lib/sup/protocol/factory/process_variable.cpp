@@ -23,6 +23,7 @@
 
 #include <sup/protocol/exceptions.h>
 #include <sup/protocol/variable_callback_guard.h>
+#include <sup/protocol/factory/process_variable_utils.h>
 
 #include <sup/dto/anyvalue.h>
 
@@ -32,14 +33,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
-
-namespace
-{
-using namespace sup::protocol;
-void TryFetchVariable(const ProcessVariable& var, sup::dto::AnyValue& output);
-bool BusyWaitForValue(const ProcessVariable& var, const sup::dto::AnyValue& expected_value,
-                      double timeout_sec);
-}  // unnamed namespace
 
 namespace sup
 {
@@ -82,7 +75,7 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   VariableCallbackGuard cb_guard(var, callback);
   if (!cb_guard.CallbackSupported())
   {
-    return BusyWaitForValue(var, value, timeout_sec);
+    return utils::BusyWaitForValue(var, value, timeout_sec);
   }
   auto condition = [&result, &var, value]() {
     if (result.load())
@@ -100,35 +93,3 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
 }  // namespace protocol
 
 }  // namespace sup
-
-namespace
-{
-void TryFetchVariable(const ProcessVariable& var, sup::dto::AnyValue& output)
-{
-  auto info = var.GetValue(0.0);
-  if (info.first)
-  {
-    output = info.second;
-  }
-}
-
-bool BusyWaitForValue(const ProcessVariable& var, const sup::dto::AnyValue& expected_value,
-                      double timeout_sec)
-{
-  auto end_time =
-      std::chrono::system_clock::now() + std::chrono::nanoseconds(std::lround(timeout_sec * 1e9));
-  sup::dto::AnyValue current;
-  TryFetchVariable(var, current);
-  while (current != expected_value)
-  {
-    if (std::chrono::system_clock::now() > end_time)
-    {
-      return false;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    TryFetchVariable(var, current);
-  }
-  return true;
-}
-}  // unnamed namespace
-
