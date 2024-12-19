@@ -214,9 +214,6 @@ std::pair<bool, sup::dto::AnyValue> TryExtractRPCReplyPayload(const sup::dto::An
 std::pair<bool, sup::dto::AnyValue> TryExtractServiceRequestPayload(
   const sup::dto::AnyValue& packet, PayloadEncoding encoding);
 
-std::pair<bool, sup::dto::AnyValue> TryExtractServiceReplyPayload(const sup::dto::AnyValue& packet,
-                                                                  PayloadEncoding encoding);
-
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
                                                       PayloadEncoding encoding);
 

@@ -404,13 +404,6 @@ std::pair<bool, sup::dto::AnyValue> TryExtractServiceRequestPayload(
   return TryExtractRPCPayload(packet, constants::SERVICE_REQUEST_PAYLOAD, encoding);
 }
 
-
-std::pair<bool, sup::dto::AnyValue> TryExtractServiceReplyPayload(const sup::dto::AnyValue& packet,
-                                                                  PayloadEncoding encoding)
-{
-  return TryExtractRPCPayload(packet, constants::SERVICE_REPLY_PAYLOAD, encoding);
-}
-
 std::pair<bool, sup::dto::uint64> TryExtractRequestId(const sup::dto::AnyValue& packet,
                                                       PayloadEncoding encoding)
 {
