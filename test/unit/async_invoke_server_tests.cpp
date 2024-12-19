@@ -196,6 +196,51 @@ TEST_F(AsyncRequestServerTest, Invalidate)
   EXPECT_EQ(ExtractProtocolResult(reply), InvalidRequestIdentifierError);
 }
 
+TEST_F(AsyncRequestServerTest, MissingRequestId)
+{
+  {
+    // Missing id in poll:
+    test::TestProtocol protocol{};
+    AsyncInvokeServer async_server{protocol, kExpirationSec};
+    const sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
+    auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
+                                           AsyncCommand::kPoll);
+    EXPECT_EQ(ExtractProtocolResult(reply), ServerTransportDecodingError);
+  }
+  {
+    // Missing id in get reply:
+    test::TestProtocol protocol{};
+    AsyncInvokeServer async_server{protocol, kExpirationSec};
+    const sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
+    auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
+                                           AsyncCommand::kGetReply);
+    EXPECT_EQ(ExtractProtocolResult(reply), ServerTransportDecodingError);
+  }
+  {
+    // Missing id in invalidate:
+    test::TestProtocol protocol{};
+    AsyncInvokeServer async_server{protocol, kExpirationSec};
+    const sup::dto::AnyValue payload{ sup::dto::UnsignedInteger8Type, 1 };
+    auto reply = async_server.HandleInvoke(payload, PayloadEncoding::kNone,
+                                           AsyncCommand::kInvalidate);
+    EXPECT_EQ(ExtractProtocolResult(reply), ServerTransportDecodingError);
+  }
+}
+
+TEST_F(AsyncRequestServerTest, InvalidAsyncOperation)
+{
+  // Use invalid asynchronous command:
+  test::TestProtocol protocol{};
+  AsyncInvokeServer async_server{protocol, kExpirationSec};
+  sup::dto::uint64 id = 17u;
+  const sup::dto::AnyValue id_payload = {{
+    { constants::ASYNC_ID_FIELD_NAME, id }
+  }};
+  auto command = static_cast<AsyncCommand>(42u);
+  auto reply = async_server.HandleInvoke(id_payload, PayloadEncoding::kNone, command);
+  EXPECT_EQ(ExtractProtocolResult(reply), InvalidAsynchronousOperationError);
+}
+
 AsyncRequestServerTest::AsyncRequestServerTest() = default;
 
 AsyncRequestServerTest::~AsyncRequestServerTest() = default;

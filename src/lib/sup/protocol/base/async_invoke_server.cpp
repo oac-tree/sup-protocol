@@ -25,10 +25,6 @@ namespace sup
 {
 namespace protocol
 {
-namespace
-{
-std::pair<bool, sup::dto::uint64> ExtractAsyncRequestId(const sup::dto::AnyValue& payload);
-}  // unnamed namespace
 
 AsyncInvokeServer::AsyncInvokeServer(Protocol& protocol, double expiration_sec)
   : m_protocol{protocol}
@@ -94,7 +90,6 @@ void AsyncInvokeServer::CleanUpExpiredRequests()
   }
 }
 
-
 sup::dto::AnyValue AsyncInvokeServer::NewRequest(const sup::dto::AnyValue& payload,
                                                  PayloadEncoding encoding)
 {
@@ -159,8 +154,6 @@ sup::dto::uint64 AsyncInvokeServer::GetRequestId()
   return ++m_last_id;
 }
 
-namespace
-{
 std::pair<bool, sup::dto::uint64> ExtractAsyncRequestId(const sup::dto::AnyValue& payload)
 {
   std::pair<bool, sup::dto::uint64> failure{ false, 0 };
@@ -175,7 +168,6 @@ std::pair<bool, sup::dto::uint64> ExtractAsyncRequestId(const sup::dto::AnyValue
   }
   return { true, id_field.As<sup::dto::uint64>() };
 }
-}  // unnamed namespace
 
 }  // namespace protocol
 

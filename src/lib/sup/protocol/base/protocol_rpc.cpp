@@ -424,7 +424,7 @@ std::pair<bool, sup::dto::uint64> TryExtractReplyId(const sup::dto::AnyValue& pa
 }
 
 std::pair<bool, bool> TryExtractReadyStatus(const sup::dto::AnyValue& packet,
-                                                        PayloadEncoding encoding)
+                                            PayloadEncoding encoding)
 {
   std::pair<bool, bool> failure{ false, false };
   auto payload_result = utils::TryExtractRPCReplyPayload(packet, encoding);

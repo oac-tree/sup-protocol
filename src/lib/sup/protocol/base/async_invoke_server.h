@@ -93,6 +93,15 @@ private:
   sup::dto::uint64 m_last_id;
 };
 
+/**
+ * @brief Try to extract the unique id of the asynchronous request from the payload.
+ *
+ * @param payload Payload to use for unique id extraction.
+ * @return The first member of the pair indicates if the extraction was successful, and if so,
+ * the second member will contain the extracted unique id.
+ */
+std::pair<bool, sup::dto::uint64> ExtractAsyncRequestId(const sup::dto::AnyValue& payload);
+
 }  // namespace protocol
 
 }  // namespace sup
