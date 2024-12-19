@@ -162,6 +162,23 @@ TEST_F(ProtocolFactoryUtilsTest, CreateClientStack)
   EXPECT_TRUE(utils::CheckRequestFormat(functor_handle->GetLastRequest()));
 }
 
+TEST_F(ProtocolFactoryUtilsTest, CreateClientStackWithConfig)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  ProtocolRPCClientConfig config{PayloadEncoding::kBase64, 5.0, 0.1};
+  auto client_stack = CreateRPCClientStack(factory_func, config);
+  ASSERT_NE(functor_handle, nullptr);
+  sup::dto::AnyValue input = {{
+    {"flag", {sup::dto::BooleanType, true}}
+  }};
+  sup::dto::AnyValue output{};
+  EXPECT_NO_THROW(client_stack->Invoke(input, output));
+  EXPECT_TRUE(utils::CheckRequestFormat(functor_handle->GetLastRequest()));
+}
+
 TEST_F(ProtocolFactoryUtilsTest, ClientStackEmptyPayload)
 {
   test::TestFunctor* functor_handle = nullptr;

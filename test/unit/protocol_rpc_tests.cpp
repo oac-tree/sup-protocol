@@ -875,16 +875,40 @@ TEST_F(ProtocolRPCTest, CheckServiceReplyFormat)
     EXPECT_FALSE(utils::CheckServiceReplyFormat(reply));
   }
   {
-    // Struct without required field is not valid
+    // Manually constructed valid reply
     sup::dto::AnyValue reply = {
-      { "wrong_field_name", {sup::dto::UnsignedInteger16Type, 0}}
+      { constants::SERVICE_REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 0}},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 1}}
+    };
+    EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
+  }
+  {
+    // Manually constructed valid reply without encoding field
+    sup::dto::AnyValue reply = {
+      { constants::SERVICE_REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 0}}
+    };
+    EXPECT_TRUE(utils::CheckServiceReplyFormat(reply));
+  }
+  {
+    // Reply without result field is invalid
+    sup::dto::AnyValue reply = {
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 1}}
     };
     EXPECT_FALSE(utils::CheckServiceReplyFormat(reply));
   }
   {
-    // Struct with required field of wrong type is not valid
+    // Reply with wrong type of result field is invalid
     sup::dto::AnyValue reply = {
-      { constants::SERVICE_REPLY_RESULT, {sup::dto::UnsignedInteger16Type, 0}}
+      { constants::SERVICE_REPLY_RESULT, {sup::dto::SignedInteger8Type, 0}},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, 1}}
+    };
+    EXPECT_FALSE(utils::CheckServiceReplyFormat(reply));
+  }
+  {
+    // Reply with wrong type of encoding field is invalid
+    sup::dto::AnyValue reply = {
+      { constants::SERVICE_REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 0}},
+      { constants::ENCODING_FIELD_NAME, {sup::dto::UnsignedInteger64Type, 1}}
     };
     EXPECT_FALSE(utils::CheckServiceReplyFormat(reply));
   }
@@ -1061,6 +1085,105 @@ TEST_F(ProtocolRPCTest, HandleApplicationProtocolInfo)
     EXPECT_EQ(utils::HandleApplicationProtocolInfo(
       output, APPLICATION_TYPE, APPLICATION_VERSION), sup::protocol::ServerProtocolEncodingError);
     EXPECT_FALSE(utils::CheckApplicationProtocolReplyPayload(output));
+  }
+}
+
+TEST_F(ProtocolRPCTest, TryExtractProtocolResult)
+{
+  {
+    // Successful extraction of protocol result
+    sup::dto::AnyValue reply = {
+      { constants::REPLY_RESULT, {sup::dto::UnsignedInteger32Type, 0}}
+    };
+    auto result = utils::TryExtractProtocolResult(reply);
+    EXPECT_TRUE(result.first);
+    EXPECT_EQ(result.second, ProtocolResult{0});
+  }
+  {
+    // Missing result field
+    sup::dto::AnyValue reply = {
+      { "wrong_field_name", {sup::dto::UnsignedInteger32Type, 0}}
+    };
+    auto result = utils::TryExtractProtocolResult(reply);
+    EXPECT_FALSE(result.first);
+    EXPECT_EQ(result.second, ClientTransportDecodingError);
+  }
+  {
+    // Wrong type of result field
+    sup::dto::AnyValue reply = {
+      { constants::REPLY_RESULT, {sup::dto::Float32Type, 1.0}}
+    };
+    auto result = utils::TryExtractProtocolResult(reply);
+    EXPECT_FALSE(result.first);
+    EXPECT_EQ(result.second, ClientTransportDecodingError);
+  }
+}
+
+TEST_F(ProtocolRPCTest, TryExtractReadyStatus)
+{
+  {
+    // Successful extraction of ready status
+    sup::dto::AnyValue payload = {
+      { constants::ASYNC_READY_FIELD_NAME, {sup::dto::BooleanType, true}}
+    };
+    auto packet = utils::CreateRPCReply(Success, payload, PayloadEncoding::kBase64);
+    auto ready = utils::TryExtractReadyStatus(packet, PayloadEncoding::kBase64);
+    EXPECT_TRUE(ready.first);
+    EXPECT_TRUE(ready.second);
+  }
+  {
+    // Missing ready status
+    sup::dto::AnyValue payload = {
+      { "wrong_field_name", {sup::dto::BooleanType, true}}
+    };
+    auto packet = utils::CreateRPCReply(Success, payload, PayloadEncoding::kBase64);
+    auto ready = utils::TryExtractReadyStatus(packet, PayloadEncoding::kBase64);
+    EXPECT_FALSE(ready.first);
+    EXPECT_FALSE(ready.second);
+  }
+  {
+    // Wrong type of ready status
+    sup::dto::AnyValue payload = {
+      { constants::ASYNC_READY_FIELD_NAME, {sup::dto::SignedInteger16Type, 16}}
+    };
+    auto packet = utils::CreateRPCReply(Success, payload, PayloadEncoding::kBase64);
+    auto ready = utils::TryExtractReadyStatus(packet, PayloadEncoding::kBase64);
+    EXPECT_FALSE(ready.first);
+    EXPECT_FALSE(ready.second);
+  }
+}
+
+TEST_F(ProtocolRPCTest, TryGetPacketEncoding)
+{
+  {
+    // Successful extraction of packet encoding
+    auto encoding_int = static_cast<sup::dto::int32>(PayloadEncoding::kBase64);
+    sup::dto::AnyValue packet = {
+      { constants::ENCODING_FIELD_NAME, {sup::dto::SignedInteger32Type, encoding_int}}
+    };
+    auto encoding = utils::TryGetPacketEncoding(packet);
+    EXPECT_TRUE(encoding.first);
+    EXPECT_EQ(encoding.second, PayloadEncoding::kBase64);
+  }
+  {
+    // Missing packet encoding indicates no encoding
+    auto encoding_int = static_cast<sup::dto::int32>(PayloadEncoding::kBase64);
+    sup::dto::AnyValue packet = {
+      { "wrong_field_name", {sup::dto::SignedInteger32Type, encoding_int}}
+    };
+    auto encoding = utils::TryGetPacketEncoding(packet);
+    EXPECT_TRUE(encoding.first);
+    EXPECT_EQ(encoding.second, PayloadEncoding::kNone);
+  }
+  {
+    // Wrong type of packet encoding
+    auto encoding_int = static_cast<sup::dto::int32>(PayloadEncoding::kBase64);
+    sup::dto::AnyValue packet = {
+      { constants::ENCODING_FIELD_NAME, {sup::dto::UnsignedInteger32Type, encoding_int}}
+    };
+    auto encoding = utils::TryGetPacketEncoding(packet);
+    EXPECT_FALSE(encoding.first);
+    EXPECT_EQ(encoding.second, PayloadEncoding::kNone);
   }
 }
 
