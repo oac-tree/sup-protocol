@@ -26,6 +26,8 @@
 
 #include <sup/dto/anyvalue.h>
 
+#include <mutex>
+
 namespace sup
 {
 namespace protocol
@@ -49,6 +51,7 @@ public:
   mutable double m_received_timeout;
 private:
   Callback m_cb;
+  mutable std::mutex m_mtx;
 };
 
 }  // namespace test

@@ -35,29 +35,36 @@ TestProcessVariable::TestProcessVariable(const sup::dto::AnyValue& val, bool ava
   , m_available{available}
   , m_received_timeout{}
   , m_cb{}
+  , m_mtx{}
 {}
 
 TestProcessVariable::~TestProcessVariable() = default;
 
 bool TestProcessVariable::IsAvailable() const
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   return m_available;
 }
 
 std::pair<bool, sup::dto::AnyValue> TestProcessVariable::GetValue(double timeout_sec) const
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   m_received_timeout = timeout_sec;
   return { m_available, m_value };
 }
 
 bool TestProcessVariable::SetValue(const sup::dto::AnyValue& value, double timeout_sec)
 {
-  m_received_timeout = timeout_sec;
-  if (!m_available)
+  bool result{};
   {
-    return false;
+    std::lock_guard<std::mutex> lk{m_mtx};
+    m_received_timeout = timeout_sec;
+    if (!m_available)
+    {
+      return false;
+    }
+    result = sup::dto::TryAssignIfEmptyOrConvert(m_value, value);
   }
-  auto result = sup::dto::TryAssignIfEmptyOrConvert(m_value, value);
   if (result && m_cb)
   {
     m_cb(value, true);
@@ -67,11 +74,13 @@ bool TestProcessVariable::SetValue(const sup::dto::AnyValue& value, double timeo
 
 bool TestProcessVariable::WaitForAvailable(double timeout_sec) const
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   return m_available;
 }
 
 bool TestProcessVariable::SetMonitorCallback(Callback func)
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   m_cb = func;
   return true;
 }
