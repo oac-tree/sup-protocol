@@ -105,7 +105,7 @@ std::pair<bool, sup::dto::AnyValue> EncodedProcessVariable<Codec>::GetValue(doub
   auto encoded = m_variable->GetValue(timeout_sec);
   if (!encoded.first)
   {
-    return encoded;
+    return { false, {} };
   }
   return Codec::Decode(encoded.second);
 }
