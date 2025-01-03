@@ -95,10 +95,10 @@ AsyncInvoke::AsyncInvokeImpl::AsyncInvokeImpl(Protocol& protocol,
   , m_expiration_time_ns{utils::ToNanoseconds(expiration_sec)}
 {
   // input is captured with copy, since it may be a temporary object
-  auto func = [&protocol, input]() -> AsyncInvoke::Reply {
+  auto func = [&protocol, input]() {
     sup::dto::AnyValue output{};
     auto result = protocol.Invoke(input, output);
-    return { result, output };
+    return AsyncInvoke::Reply{ result, output };
   };
   m_future = std::async(std::launch::async, func);
 }
