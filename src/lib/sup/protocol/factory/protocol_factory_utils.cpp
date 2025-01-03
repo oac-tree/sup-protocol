@@ -37,20 +37,20 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
   Protocol& protocol)
 {
-  return std::unique_ptr<RPCServerInterface>(new RPCServerStack(factory_func, protocol));
+  return std::make_unique<RPCServerStack>(factory_func, protocol);
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
 {
-  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, encoding));
+  return std::make_unique<RPCClientStack>(factory_func, encoding);
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
   ProtocolRPCClientConfig config)
 {
-  return std::unique_ptr<Protocol>(new RPCClientStack(factory_func, config));
+  return std::make_unique<RPCClientStack>(factory_func, config);
 }
 
 PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)

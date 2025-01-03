@@ -58,12 +58,12 @@ protected:
   std::unique_ptr<RPCServerInterface> CreateTestRPCServer(
     sup::dto::AnyFunctor& protocol_server, TestRPCServer*& handle)
   {
-    return std::unique_ptr<RPCServerInterface>(new TestRPCServer(protocol_server, handle));
+    return std::make_unique<TestRPCServer>(protocol_server, handle);
   }
 
   std::unique_ptr<sup::dto::AnyFunctor> CreateTestFunctor(test::TestFunctor*& handle)
   {
-    return std::unique_ptr<sup::dto::AnyFunctor>{new test::TestFunctor(handle)};
+    return std::make_unique<test::TestFunctor>(handle);
   }
 };
 

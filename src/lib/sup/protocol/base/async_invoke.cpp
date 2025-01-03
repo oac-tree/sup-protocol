@@ -26,6 +26,7 @@
 #include <chrono>
 #include <cmath>
 #include <future>
+#include <memory>
 
 namespace sup
 {
@@ -55,7 +56,7 @@ private:
 };
 
 AsyncInvoke::AsyncInvoke(Protocol& protocol, const sup::dto::AnyValue& input, double expiration_sec)
-  : m_impl{new AsyncInvokeImpl(protocol, input, expiration_sec)}
+  : m_impl{std::make_unique<AsyncInvokeImpl>(protocol, input, expiration_sec)}
 {}
 
 AsyncInvoke::~AsyncInvoke() = default;

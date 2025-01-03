@@ -29,6 +29,7 @@
 #include <sup/dto/anyvalue_helper.h>
 
 #include <gtest/gtest.h>
+#include <memory>
 
 using namespace sup::protocol;
 
@@ -41,7 +42,7 @@ protected:
   std::unique_ptr<ProcessVariable> GetTestProcessVariable(const sup::dto::AnyValue& val,
                                                           bool available = true)
   {
-    return std::unique_ptr<ProcessVariable>{new test::TestProcessVariable{val, available}};
+    return std::make_unique<test::TestProcessVariable>(val, available);
   }
 };
 
