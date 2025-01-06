@@ -112,7 +112,7 @@ bool AsyncInvoke::AsyncInvokeImpl::WaitForReady(double seconds)
     return false;
   }
   UpdateLastAccess();
-  auto duration = std::chrono::nanoseconds(std::lround(seconds * 1e9));
+  auto duration = std::chrono::duration<double>(seconds);
   return m_future.wait_for(duration) == std::future_status::ready;
 }
 

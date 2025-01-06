@@ -43,8 +43,7 @@ void TryFetchVariable(const ProcessVariable& var, sup::dto::AnyValue& output)
 bool BusyWaitForValue(const ProcessVariable& var, const sup::dto::AnyValue& expected_value,
                       double timeout_sec)
 {
-  auto end_time =
-      std::chrono::system_clock::now() + std::chrono::nanoseconds(std::lround(timeout_sec * 1e9));
+  auto end_time = std::chrono::system_clock::now() + std::chrono::duration<double>(timeout_sec);
   sup::dto::AnyValue current;
   TryFetchVariable(var, current);
   while (current != expected_value)

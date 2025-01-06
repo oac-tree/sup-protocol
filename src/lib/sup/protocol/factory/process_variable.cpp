@@ -87,7 +87,8 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   };
   std::mutex mtx;
   std::unique_lock<std::mutex> lk(mtx);
-  return cv.wait_for(lk, std::chrono::nanoseconds(std::lround(timeout_sec * 1e9)), condition);
+  auto timeout = std::chrono::duration<double>(timeout_sec);
+  return cv.wait_for(lk, timeout, condition);
 }
 
 }  // namespace protocol
