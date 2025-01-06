@@ -32,7 +32,6 @@
 #include <cmath>
 #include <condition_variable>
 #include <mutex>
-#include <thread>
 
 namespace sup
 {
