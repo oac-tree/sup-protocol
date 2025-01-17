@@ -37,7 +37,7 @@ std::pair<bool, sup::dto::AnyValue> TryGetPayload(const sup::dto::AnyValue& repl
 ProtocolResult HandleSyncInvokeReply(const sup::dto::AnyValue& reply, sup::dto::AnyValue& output);
 }  // unnamed namespace
 
-ProtocolRPCClient::ProtocolRPCClient(dto::AnyFunctor& any_functor, PayloadEncoding encoding)
+ProtocolRPCClient::ProtocolRPCClient(sup::dto::AnyFunctor& any_functor, PayloadEncoding encoding)
   : m_any_functor{any_functor}
   , m_config{encoding}
 {}

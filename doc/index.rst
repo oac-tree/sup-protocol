@@ -1,5 +1,5 @@
 Welcome to sup-protocol's documentation!
-==================================
+========================================
 
 This is a work in progress.
 
