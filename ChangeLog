@@ -1,3 +1,7 @@
+Changes for 2.4.0:
+
+- Update pom for CODAC 7.3
+
 Changes for 2.3.0:
 
 - Fix doxygen warnings
