@@ -34,7 +34,9 @@ The `Protocol` interface contains the following methods:
 
    API method that can provide generic application protocol information to the caller.
 
-The following basic `ProtocolResult` objects are defined:
+`ProtocolResult` is a simple wrapper around an unsigned integer value that describes success or a failure condition. User applications can extend the existing set with their application specific error conditions. User-defined error codes should start from the value `GENERIC_APPLICATION_ERROR_START` for generic application frameworks and from `SPECIFIC_APPLICATION_ERROR_START` for concrete applications.
+
+The following basic `ProtocolResult` objects are defined in `sup-protocol`:
 
 .. list-table::
    :widths: 30 85
