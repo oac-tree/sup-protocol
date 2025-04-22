@@ -252,8 +252,7 @@ extern const ProtocolResult ServerProtocolException;
 */
 extern const ProtocolResult ClientTransportException;
 /**
- * @brief Error when the Protocol server receives a request for an asynchronous request that is
- * not valid, e.g. a client tries to get the reply when it was not ready.
+ * @brief Error when an asynchronous request times out.
 */
 extern const ProtocolResult AsynchronousProtocolTimeout;
 
