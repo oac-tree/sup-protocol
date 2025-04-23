@@ -1,6 +1,9 @@
-add_executable(unit-tests)
+add_executable(sup-protocol-unit-tests)
 
-target_sources(unit-tests
+set_target_properties(sup-protocol-unit-tests PROPERTIES OUTPUT_NAME "unit-tests")
+set_target_properties(sup-protocol-unit-tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+
+target_sources(sup-protocol-unit-tests
   PRIVATE
   async_invoke_server_tests.cpp
   async_invoke_tests.cpp
@@ -28,11 +31,11 @@ target_sources(unit-tests
   test_protocol.cpp
 )
 
-target_include_directories(unit-tests
+target_include_directories(sup-protocol-unit-tests
   PRIVATE
 )
 
-target_link_libraries(unit-tests
+target_link_libraries(sup-protocol-unit-tests
   PRIVATE
   GTest::GTest
   GTest::Main
@@ -41,6 +44,4 @@ target_link_libraries(unit-tests
   sup-protocol::sup-protocol-di
 )
 
-set_target_properties(unit-tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-
-gtest_discover_tests(unit-tests)
+gtest_discover_tests(sup-protocol-unit-tests)
