@@ -16,7 +16,7 @@ The following image summarizes the relationship between the main classes and int
 Application Layer
 ^^^^^^^^^^^^^^^^^
 
-At the top of the diagram is the application specific code. This code defines an API in the `ApplicationService` interface that the programmer wishes to expose as an RPC. When the `Consumer` class interacts with this interface, it should not be able to distinguish between local implementations of this service (`ConcreteService`) and the `ApplicationProtocolClient` class that forwards method calls so they can be handled by a server side implementation.
+At the top of the diagram is the application specific code. This code defines an API in the `ApplicationService` interface that the programmer wishes to expose as an RPC. When the `Consumer` class interacts with this interface, it stays unaware of the concrete nature of the implementation. It can be a local implementation of this service ('ConcreteService"), or a remote protocol adapter implemented via `ApplicationProtocolClient` class. The later forwards method calls so they can be handled by a server-side implementation.
 
 To be able to expose the `ApplicationService` as an RPC, the application developers need to implement two concrete classes:
 
