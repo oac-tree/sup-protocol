@@ -102,6 +102,50 @@ The protocol and transport layer is defined by `sup-protocol`, as can be seen fr
 .. note::
    The split into a protocol and transport layer is not strictly necessary, but it allows for a more flexible design. The protocol layer is responsible for defining the structure of the messages exchanged between the client and server, while the transport layer is responsible for defining how these messages are exchanged over the network. This allows for supporting asynchronous communication over a synchronous network protocol.
 
+The translation between the protocol and transport layer is done by the `ProtocolRPCClient` and `ProtocolRPCServer` classes. Multiple transport layer protocols are supported, depending on whether the transport layer is synchronous or asynchronous and whether the payload is encoded or not.
+
+The choice of encoding and (a)synchronous communication is determined by the `ProtocolRPCClient`'s configuration. The server will respect the same transport layer protocol as requested by the client or return an error status if this is not supported.
+
+Synchronous transport layer
+"""""""""""""""""""""""""""
+
+If `ProtocolRPCClient` is configured to use synchronous communication over the transport layer, it will create a transport packet that is structured as follows:
+
+.. code-block:: text
+
+   # Without encoding
+   struct sup::protocolRequest/v2.1
+       query: <payload>
+       encoding: int32 0 (optional)
+
+   # With base64 encoding
+   struct sup::protocolRequest/v2.1
+       query: string <base64 encoded payload>
+       encoding: int32 1
+
+where `<payload>` represents the `input` parameter of the `Protocol::Invoke` method. In case no encoding of the payload is used, the `encoding` field is optional and can be omitted. Currently, only two encoding methods are supported:
+
+* No encoding (0)
+* Base64 encoding (1): the `input` parameter of the `Protocol::Invokde` method will first be serialized into a binary format that is then base64 encoded into a string.
+
+The `ProtocolRPCServer` object at the server side will unpack this packet to extract the original `input` parameter, possibly using base64 decoding. It will then call the custom `Protocol::Invoke` method of the application and create a return packet as follows:
+
+.. code-block:: text
+
+    # Without encoding
+   struct sup::protocolReply/v2.1
+       result: uint32 0
+       reply: <payload>
+       encoding: int32 0 (optional)
+
+   # With base64 encoding
+   struct sup::protocolReply/v2.1
+       result: uint32 0
+       reply: string <base64 encoded payload>
+       encoding: int32 1
+
+where `<payload>` now refers to the `output` parameter of the `Protocol::Invoke` method. The `result` field encodes the return value of the `Protocol::Invoke` method.
+
 Network Layer
 ^^^^^^^^^^^^^
 
@@ -110,3 +154,5 @@ At the bottom part of the diagram is the network implementation (the diagram use
 .. function:: AnyValue operator()(const AnyValue& input)
 
    The function call operator with an `AnyValue` parameter and return value.
+
+An implementation of the network layer is only required to forward this call to the `ProtocolRPCServer` at the server side and return the corresponding return value.
