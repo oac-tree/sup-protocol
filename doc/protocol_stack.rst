@@ -37,6 +37,9 @@ The `Protocol` interface contains the following methods:
 
    API method that can provide generic application protocol information to the caller.
 
+.. note::
+   The `input` parameter for both API methods cannot be empty.
+
 `ProtocolResult` is a simple wrapper around an unsigned integer value that describes success or a failure condition. User applications can extend the existing set with their application specific error conditions. User-defined error codes should start from the value `GENERIC_APPLICATION_ERROR_START` for generic application frameworks and from `SPECIFIC_APPLICATION_ERROR_START` for concrete applications.
 
 The following basic `ProtocolResult` objects are defined in `sup-protocol`:
@@ -215,4 +218,6 @@ At the bottom part of the diagram is the network implementation (the diagram use
 
    The function call operator with an `AnyValue` parameter and return value.
 
-An implementation of the network layer is only required to forward this call to the `ProtocolRPCServer` at the server side and return the corresponding return value.
+An implementation of the network layer requires:
+
+* The client and server implementations obey the contract of the transport layer. This means that the return values of the function call operator are compliant with the above mentioned reply structures.
