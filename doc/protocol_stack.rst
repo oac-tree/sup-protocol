@@ -146,6 +146,66 @@ The `ProtocolRPCServer` object at the server side will unpack this packet to ext
 
 where `<payload>` now refers to the `output` parameter of the `Protocol::Invoke` method. The `result` field encodes the return value of the `Protocol::Invoke` method.
 
+Asynchronous transport layer
+""""""""""""""""""""""""""""
+
+For simplicity, in this section all packets are shown without encoding. If base64 encoding would be used, this would add the member field `encoding` to the packet and both `query` and `reply` would be base64 encoded strings.
+
+If `ProtocolRPCClient` is configured to use asynchronous communication over the transport layer, it will first send an initial request packet to the server that is encoded as follows:
+
+.. code-block:: text
+
+   struct sup::protocolRequest/v2.1
+       query: <payload or encoded payload>
+       async: uint32 0
+
+If the server does not support the asynchronous transport protocol, it will ignore the `async` field and process the request as a synchronous request. If the server does support the asynchronous transport protocol, it will process the request and return a packet that is structured as follows:
+
+.. code-block:: text
+
+   struct sup::protocolReply/v2.1
+       result: uint32 0
+       reply: struct
+           id: uint64 <request_id>
+       async: uint32 0
+
+where `<request_id>` is a unique integer identifier for the request.
+
+The client will then poll the server to check if the request has been processed. The polling packets are structured as follows:
+
+.. code-block:: text
+
+   # Poll request
+   struct sup::protocolRequest/v2.1
+       query: struct
+           id: uint64 <request_id>
+       async: uint32 1
+
+    # Poll reply
+    struct sup::protocolReply/v2.1
+        result: uint32 0
+        reply: struct
+            ready: bool <true/false>
+        async: uint32 1
+
+If the poll reply indicates that the initial request has been fully processed, the client will attempt to retrieve the result of this processing by sending a request packet that is structured as follows:
+
+.. code-block:: text
+
+   struct sup::protocolRequest/v2.1
+       query: struct
+           id: uint64 <request_id>
+       async: uint32 2
+
+And the server will return the result of the processing in a packet that is structured as follows:
+
+.. code-block:: text
+
+   struct sup::protocolReply/v2.1
+       result: uint32 0
+       reply: <payload>
+       async: uint32 2
+
 Network Layer
 ^^^^^^^^^^^^^
 

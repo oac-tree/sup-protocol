@@ -244,9 +244,8 @@ sup::dto::AnyValue CreateAsyncRPCNewRequestReply(sup::dto::uint64 id, PayloadEnc
 
 sup::dto::AnyValue CreateAsyncRPCPollReply(bool is_ready, PayloadEncoding encoding)
 {
-  const sup::dto::uint32 ready_status = is_ready ? 1u : 0;
   const sup::dto::AnyValue reply_payload = {{
-    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::BooleanType, ready_status }}
+    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::BooleanType, is_ready }}
   }};
   return utils::CreateAsyncRPCReply(Success, reply_payload, encoding, AsyncCommand::kPoll);
 }
