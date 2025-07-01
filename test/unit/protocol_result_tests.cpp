@@ -40,14 +40,17 @@ TEST_F(ProtocolResultTest, Construction)
   ProtocolResult default_result;
   EXPECT_EQ(default_result.GetValue(), 0);
   EXPECT_EQ(default_result, Success);
+  EXPECT_TRUE(default_result.Success());
 
   ProtocolResult custom_result{42};
   EXPECT_EQ(custom_result.GetValue(), 42u);
   EXPECT_NE(custom_result, Success);
+  EXPECT_FALSE(custom_result.Success());
 
   ProtocolResult not_connected_copy{NotConnected};
   EXPECT_EQ(not_connected_copy.GetValue(), NotConnected.GetValue());
   EXPECT_EQ(not_connected_copy, NotConnected);
+  EXPECT_FALSE(not_connected_copy.Success());
 }
 
 TEST_F(ProtocolResultTest, Copy)
