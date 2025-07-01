@@ -112,6 +112,14 @@ public:
   unsigned int GetValue() const;
 
   /**
+   * @brief Verify if this ProtocolResult denotes success, i.e. it is equal to the const
+   * `Success` object defined further.
+   *
+   * @return true when equal to `Success`.
+   */
+   bool Success() const;
+
+  /**
    * @brief Comparison operators.
    */
   bool operator==(const ProtocolResult& other) const;

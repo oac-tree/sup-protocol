@@ -80,6 +80,11 @@ unsigned int ProtocolResult::GetValue() const
   return m_value;
 }
 
+bool ProtocolResult::Success() const
+{
+  return m_value == status::SUCCESS;
+}
+
 bool ProtocolResult::operator==(const ProtocolResult& other) const
 {
   return m_value == other.m_value;
