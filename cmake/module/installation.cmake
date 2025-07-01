@@ -20,7 +20,7 @@ set(PACKAGE_TARGETS_FILE ${BUILD_CONFIGDIR}/${PACKAGE_TARGETS_FILENAME})
 install(EXPORT sup-protocol-targets FILE ${PACKAGE_TARGETS_FILENAME} NAMESPACE sup-protocol:: DESTINATION ${INSTALL_CONFIGDIR})
 
 # Generate the export targets for the build tree usage
-export(TARGETS sup-protocol sup-protocol-di NAMESPACE sup-protocol:: FILE ${PACKAGE_TARGETS_FILE})
+export(TARGETS sup-protocol NAMESPACE sup-protocol:: FILE ${PACKAGE_TARGETS_FILE})
 
 # Export the package to CMake registry for build tree usage (goes to $HOME/.cmake)
 if(COA_EXPORT_BUILD_TREE)

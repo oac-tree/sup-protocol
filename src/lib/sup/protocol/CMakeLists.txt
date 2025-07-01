@@ -15,6 +15,7 @@ target_include_directories(sup-protocol PUBLIC
 target_link_libraries(sup-protocol
   PUBLIC
     sup-dto::sup-dto
+    sup-di::sup-di
   PRIVATE
     sup-utils::sup-codec)
 
@@ -42,6 +43,7 @@ install(FILES
   protocol_rpc_server.h
   protocol_rpc.h
   protocol.h
+  registered_names.h
   variable_callback_guard.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sup/protocol
 )

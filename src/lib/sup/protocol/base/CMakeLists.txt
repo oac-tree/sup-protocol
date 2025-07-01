@@ -9,6 +9,7 @@ target_sources(sup-protocol
   function_protocol_pack.cpp
   function_protocol.cpp
   polling_timeout_handler.cpp
+  protocol_di.cpp
   protocol_encodings.cpp
   protocol_result.cpp
   protocol_rpc_client_config.cpp

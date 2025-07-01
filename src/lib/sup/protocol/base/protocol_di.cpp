@@ -20,7 +20,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include "registered_names.h"
+#include <sup/protocol/registered_names.h>
 
 #include <sup/protocol/protocol_rpc_client.h>
 #include <sup/protocol/protocol_rpc_server.h>

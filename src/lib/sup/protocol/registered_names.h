@@ -20,8 +20,8 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_PROTOCOL_DI_REGISTERED_NAMES_H_
-#define SUP_PROTOCOL_DI_REGISTERED_NAMES_H_
+#ifndef SUP_PROTOCOL_REGISTERED_NAMES_H_
+#define SUP_PROTOCOL_REGISTERED_NAMES_H_
 
 #include <string>
 
@@ -40,4 +40,4 @@ const std::string PROTOCOL_RPC_SERVER = "ProtocolRPCServer";
 
 }  // namespace sup
 
-#endif  // SUP_PROTOCOL_DI_REGISTERED_NAMES_H_
+#endif  // SUP_PROTOCOL_REGISTERED_NAMES_H_

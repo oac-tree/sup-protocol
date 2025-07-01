@@ -41,7 +41,6 @@ target_link_libraries(sup-protocol-unit-tests
   GTest::Main
   GTest::gmock
   sup-protocol::sup-protocol
-  sup-protocol::sup-protocol-di
 )
 
 gtest_discover_tests(sup-protocol-unit-tests)

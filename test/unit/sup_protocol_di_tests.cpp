@@ -20,7 +20,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol-di/registered_names.h>
+#include <sup/protocol/registered_names.h>
 
 #include "test_protocol.h"
 

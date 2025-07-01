@@ -1,6 +1,7 @@
 Changes for 2.5.0:
 
 - Add ProtocolResult::Success member function
+- Move RPC client/server registration to main library and remove sup-protocol-di library
 
 Changes for 2.4.0:
 
