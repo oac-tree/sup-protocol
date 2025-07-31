@@ -25,6 +25,7 @@
 #include <sup/dto/anyvalue.h>
 #include <sup/protocol/log_protocol_decorator.h>
 
+#include <tuple>
 #include <vector>
 #include <utility>
 
@@ -55,24 +56,31 @@ protected:
   virtual ~LogProtocolDecoratorTest();
 
   EchoProtocol m_protocol;
-  LogProtocolDecorator::LogFunction m_log_function;
-  std::vector<std::pair<std::string, sup::dto::AnyValue>> m_log_entries;
+  LogProtocolDecorator::LogInputFunction m_log_input_function;
+  LogProtocolDecorator::LogOutputFunction m_log_output_function;
+  std::vector<std::pair<sup::dto::AnyValue,
+                        sup::protocol::LogProtocolDecorator::PacketType>> m_log_input_entries;
+  std::vector<std::tuple<ProtocolResult, sup::dto::AnyValue,
+                         sup::protocol::LogProtocolDecorator::PacketType>> m_log_output_entries;
 };
 
 TEST_F(LogProtocolDecoratorTest, InvokeEntries)
 {
-  LogProtocolDecorator decorator{m_protocol, m_log_function};
+  using PacketType = LogProtocolDecorator::PacketType;
+  LogProtocolDecorator decorator{m_protocol, m_log_input_function, m_log_output_function};
   {
     // Test with empty payload
     sup::dto::AnyValue request{};
     sup::dto::AnyValue reply;
     EXPECT_EQ(decorator.Invoke(request, reply), Success);
     EXPECT_EQ(reply, request);
-    ASSERT_EQ(m_log_entries.size(), 2);
-    EXPECT_EQ(m_log_entries[0].first, kLogProtocolRequestTitle);
-    EXPECT_EQ(m_log_entries[0].second, request);
-    EXPECT_EQ(m_log_entries[1].first, kLogProtocolReplyTitle);
-    EXPECT_EQ(m_log_entries[1].second, reply);
+    ASSERT_EQ(m_log_input_entries.size(), 1);
+    ASSERT_EQ(m_log_output_entries.size(), 1);
+    EXPECT_EQ(m_log_input_entries[0].first, request);
+    EXPECT_EQ(m_log_input_entries[0].second, PacketType::kNormal);
+    EXPECT_EQ(std::get<0>(m_log_output_entries[0]), Success);
+    EXPECT_EQ(std::get<1>(m_log_output_entries[0]), reply);
+    EXPECT_EQ(std::get<2>(m_log_output_entries[0]), PacketType::kNormal);
   }
   {
     // Test with scalar payload
@@ -80,28 +88,33 @@ TEST_F(LogProtocolDecoratorTest, InvokeEntries)
     sup::dto::AnyValue reply;
     EXPECT_EQ(decorator.Invoke(request, reply), Success);
     EXPECT_EQ(reply, request);
-    ASSERT_EQ(m_log_entries.size(), 4);
-    EXPECT_EQ(m_log_entries[2].first, kLogProtocolRequestTitle);
-    EXPECT_EQ(m_log_entries[2].second, request);
-    EXPECT_EQ(m_log_entries[3].first, kLogProtocolReplyTitle);
-    EXPECT_EQ(m_log_entries[3].second, reply);
+    ASSERT_EQ(m_log_input_entries.size(), 2);
+    ASSERT_EQ(m_log_output_entries.size(), 2);
+    EXPECT_EQ(m_log_input_entries[1].first, request);
+    EXPECT_EQ(m_log_input_entries[1].second, PacketType::kNormal);
+    EXPECT_EQ(std::get<0>(m_log_output_entries[1]), Success);
+    EXPECT_EQ(std::get<1>(m_log_output_entries[1]), reply);
+    EXPECT_EQ(std::get<2>(m_log_output_entries[1]), PacketType::kNormal);
   }
 }
 
 TEST_F(LogProtocolDecoratorTest, ServiceEntries)
 {
-  LogProtocolDecorator decorator{m_protocol, m_log_function};
+  using PacketType = LogProtocolDecorator::PacketType;
+  LogProtocolDecorator decorator{m_protocol, m_log_input_function, m_log_output_function};
   {
     // Test with empty payload
     sup::dto::AnyValue request{};
     sup::dto::AnyValue reply;
     EXPECT_EQ(decorator.Service(request, reply), Success);
     EXPECT_EQ(reply, request);
-    ASSERT_EQ(m_log_entries.size(), 2);
-    EXPECT_EQ(m_log_entries[0].first, kLogProtocolServiceRequestTitle);
-    EXPECT_EQ(m_log_entries[0].second, request);
-    EXPECT_EQ(m_log_entries[1].first, kLogProtocolServiceReplyTitle);
-    EXPECT_EQ(m_log_entries[1].second, reply);
+    ASSERT_EQ(m_log_input_entries.size(), 1);
+    ASSERT_EQ(m_log_output_entries.size(), 1);
+    EXPECT_EQ(m_log_input_entries[0].first, request);
+    EXPECT_EQ(m_log_input_entries[0].second, PacketType::kService);
+    EXPECT_EQ(std::get<0>(m_log_output_entries[0]), Success);
+    EXPECT_EQ(std::get<1>(m_log_output_entries[0]), reply);
+    EXPECT_EQ(std::get<2>(m_log_output_entries[0]), PacketType::kService);
   }
   {
     // Test with scalar payload
@@ -109,20 +122,29 @@ TEST_F(LogProtocolDecoratorTest, ServiceEntries)
     sup::dto::AnyValue reply;
     EXPECT_EQ(decorator.Service(request, reply), Success);
     EXPECT_EQ(reply, request);
-    ASSERT_EQ(m_log_entries.size(), 4);
-    EXPECT_EQ(m_log_entries[2].first, kLogProtocolServiceRequestTitle);
-    EXPECT_EQ(m_log_entries[2].second, request);
-    EXPECT_EQ(m_log_entries[3].first, kLogProtocolServiceReplyTitle);
-    EXPECT_EQ(m_log_entries[3].second, reply);
+    ASSERT_EQ(m_log_input_entries.size(), 2);
+    ASSERT_EQ(m_log_output_entries.size(), 2);
+    EXPECT_EQ(m_log_input_entries[1].first, request);
+    EXPECT_EQ(m_log_input_entries[1].second, PacketType::kService);
+    EXPECT_EQ(std::get<0>(m_log_output_entries[1]), Success);
+    EXPECT_EQ(std::get<1>(m_log_output_entries[1]), reply);
+    EXPECT_EQ(std::get<2>(m_log_output_entries[1]), PacketType::kService);
   }
 }
 
 LogProtocolDecoratorTest::LogProtocolDecoratorTest()
   : m_protocol{}
-  , m_log_function{}
+  , m_log_input_function{}
+  , m_log_output_function{}
 {
-  m_log_function = [this](const sup::dto::AnyValue& value, const std::string& message) {
-    m_log_entries.emplace_back(message, value);
+  m_log_input_function =
+    [this](const sup::dto::AnyValue& value, LogProtocolDecorator::PacketType type) {
+      m_log_input_entries.emplace_back(value, type);
+  };
+  m_log_output_function =
+    [this](ProtocolResult result, const sup::dto::AnyValue& value,
+           LogProtocolDecorator::PacketType type) {
+      m_log_output_entries.emplace_back(result, value, type);
   };
 }
 

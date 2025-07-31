@@ -29,26 +29,30 @@ namespace sup
 namespace protocol
 {
 
-LogProtocolDecorator::LogProtocolDecorator(Protocol& protocol, LogFunction log_function)
+LogProtocolDecorator::LogProtocolDecorator(Protocol& protocol, LogInputFunction log_input_function,
+                                           LogOutputFunction log_output_function)
   : m_protocol{protocol}
-  , m_log_function{log_function}
+  , m_log_input_function{log_input_function}
+  , m_log_output_function{log_output_function}
 {}
 
 LogProtocolDecorator::~LogProtocolDecorator() = default;
 
-ProtocolResult LogProtocolDecorator::Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
+ProtocolResult LogProtocolDecorator::Invoke(const sup::dto::AnyValue& input,
+                                            sup::dto::AnyValue& output)
 {
-  m_log_function(input, kLogProtocolRequestTitle);
+  m_log_input_function(input, PacketType::kNormal);
   auto result = m_protocol.Invoke(input, output);
-  m_log_function(output, kLogProtocolReplyTitle);
+  m_log_output_function(result, output, PacketType::kNormal);
   return result;
 }
 
-ProtocolResult LogProtocolDecorator::Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
+ProtocolResult LogProtocolDecorator::Service(const sup::dto::AnyValue& input,
+                                             sup::dto::AnyValue& output)
 {
-  m_log_function(input, kLogProtocolServiceRequestTitle);
+  m_log_input_function(input, PacketType::kService);
   auto result = m_protocol.Service(input, output);
-  m_log_function(output, kLogProtocolServiceReplyTitle);
+  m_log_output_function(result, output, PacketType::kService);
   return result;
 }
 

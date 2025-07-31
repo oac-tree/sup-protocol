@@ -36,17 +36,18 @@ class AnyValue;
 
 namespace protocol
 {
-const std::string kLogProtocolRequestTitle = "Request protocol packet";
-const std::string kLogProtocolReplyTitle = "Reply protocol packet";
-
-const std::string kLogProtocolServiceRequestTitle = "Request protocol service packet";
-const std::string kLogProtocolServiceReplyTitle = "Reply protocol service packet";
-
 class LogProtocolDecorator : public Protocol
 {
 public:
-  using LogFunction = std::function<void(const sup::dto::AnyValue&, const std::string&)>;
-  LogProtocolDecorator(Protocol& protocol, LogFunction log_function);
+  enum class PacketType
+  {
+    kNormal = 0,
+    kService
+  };
+  using LogInputFunction = std::function<void(const sup::dto::AnyValue&, PacketType)>;
+  using LogOutputFunction = std::function<void(ProtocolResult, const sup::dto::AnyValue&, PacketType)>;
+  LogProtocolDecorator(Protocol& protocol, LogInputFunction log_input_function,
+                       LogOutputFunction log_output_function);
   ~LogProtocolDecorator() override;
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
@@ -54,7 +55,8 @@ public:
 
 private:
   Protocol& m_protocol;
-  LogFunction m_log_function;
+  LogInputFunction m_log_input_function;
+  LogOutputFunction m_log_output_function;
 };
 
 }  // namespace protocol
