@@ -35,6 +35,7 @@ install(FILES
   function_protocol_pack.h
   function_protocol.h
   log_anyvalue_functor_decorator.h
+  log_protocol_decorator.h
   process_variable.h
   protocol_factory_utils.h
   protocol_factory.h

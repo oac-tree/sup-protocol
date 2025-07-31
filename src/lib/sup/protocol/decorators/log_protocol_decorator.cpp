@@ -20,7 +20,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/log_anyvalue_functor_decorator.h>
+#include <sup/protocol/log_protocol_decorator.h>
 
 #include <sup/dto/anyvalue.h>
 
@@ -29,20 +29,27 @@ namespace sup
 namespace protocol
 {
 
-LogAnyValueFunctorDecorator::LogAnyValueFunctorDecorator(
-  sup::dto::AnyFunctor& functor, LogFunction log_function)
-  : m_functor{functor}
+LogProtocolDecorator::LogProtocolDecorator(Protocol& protocol, LogFunction log_function)
+  : m_protocol{protocol}
   , m_log_function{log_function}
 {}
 
-LogAnyValueFunctorDecorator::~LogAnyValueFunctorDecorator() = default;
+LogProtocolDecorator::~LogProtocolDecorator() = default;
 
-sup::dto::AnyValue LogAnyValueFunctorDecorator::operator()(const sup::dto::AnyValue& input)
+ProtocolResult LogProtocolDecorator::Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
 {
-  m_log_function(input, kLogNetworkRequestTitle);
-  auto reply = m_functor(input);
-  m_log_function(reply, kLogNetworkReplyTitle);
-  return reply;
+  m_log_function(input, kLogProtocolRequestTitle);
+  auto result = m_protocol.Invoke(input, output);
+  m_log_function(output, kLogProtocolReplyTitle);
+  return result;
+}
+
+ProtocolResult LogProtocolDecorator::Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output)
+{
+  m_log_function(input, kLogProtocolServiceRequestTitle);
+  auto result = m_protocol.Service(input, output);
+  m_log_function(output, kLogProtocolServiceReplyTitle);
+  return result;
 }
 
 }  // namespace protocol

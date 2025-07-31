@@ -20,10 +20,10 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
-#define SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
+#ifndef SUP_PROTOCOL_LOG_PROTOCOL_DECORATOR_H_
+#define SUP_PROTOCOL_LOG_PROTOCOL_DECORATOR_H_
 
-#include <sup/dto/any_functor.h>
+#include <sup/protocol/protocol.h>
 
 #include <functional>
 
@@ -36,20 +36,24 @@ class AnyValue;
 
 namespace protocol
 {
-const std::string kLogNetworkRequestTitle = "Request network packet";
-const std::string kLogNetworkReplyTitle = "Reply network packet";
+const std::string kLogProtocolRequestTitle = "Request protocol packet";
+const std::string kLogProtocolReplyTitle = "Reply protocol packet";
 
-class LogAnyValueFunctorDecorator : public sup::dto::AnyFunctor
+const std::string kLogProtocolServiceRequestTitle = "Request protocol service packet";
+const std::string kLogProtocolServiceReplyTitle = "Reply protocol service packet";
+
+class LogProtocolDecorator : public Protocol
 {
 public:
   using LogFunction = std::function<void(const sup::dto::AnyValue&, const std::string&)>;
-  LogAnyValueFunctorDecorator(sup::dto::AnyFunctor& functor, LogFunction log_function);
-  ~LogAnyValueFunctorDecorator() override;
+  LogProtocolDecorator(Protocol& protocol, LogFunction log_function);
+  ~LogProtocolDecorator() override;
 
-  sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
+  ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
+  ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
 private:
-  sup::dto::AnyFunctor& m_functor;
+  Protocol& m_protocol;
   LogFunction m_log_function;
 };
 
@@ -57,4 +61,4 @@ private:
 
 }  // namespace sup
 
-#endif  // SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
+#endif  // SUP_PROTOCOL_LOG_PROTOCOL_DECORATOR_H_

@@ -62,9 +62,9 @@ TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
     auto reply = decorator(request);
     EXPECT_EQ(reply, request);
     ASSERT_EQ(m_log_entries.size(), 2);
-    EXPECT_EQ(m_log_entries[0].first, kLogRequestTitle);
+    EXPECT_EQ(m_log_entries[0].first, kLogNetworkRequestTitle);
     EXPECT_EQ(m_log_entries[0].second, request);
-    EXPECT_EQ(m_log_entries[1].first, kLogReplyTitle);
+    EXPECT_EQ(m_log_entries[1].first, kLogNetworkReplyTitle);
     EXPECT_EQ(m_log_entries[1].second, reply);
   }
   {
@@ -73,9 +73,9 @@ TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
     auto reply = decorator(request);
     EXPECT_EQ(reply, request);
     ASSERT_EQ(m_log_entries.size(), 4);
-    EXPECT_EQ(m_log_entries[2].first, kLogRequestTitle);
+    EXPECT_EQ(m_log_entries[2].first, kLogNetworkRequestTitle);
     EXPECT_EQ(m_log_entries[2].second, request);
-    EXPECT_EQ(m_log_entries[3].first, kLogReplyTitle);
+    EXPECT_EQ(m_log_entries[3].first, kLogNetworkReplyTitle);
     EXPECT_EQ(m_log_entries[3].second, reply);
   }
 }
