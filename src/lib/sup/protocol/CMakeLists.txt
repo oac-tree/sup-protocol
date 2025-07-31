@@ -20,6 +20,7 @@ target_link_libraries(sup-protocol
     sup-utils::sup-codec)
 
 add_subdirectory(base)
+add_subdirectory(decorators)
 add_subdirectory(factory)
 
 # -- Installation --
@@ -33,6 +34,7 @@ install(FILES
   function_protocol_extract.h
   function_protocol_pack.h
   function_protocol.h
+  log_anyvalue_functor_decorator.h
   process_variable.h
   protocol_factory_utils.h
   protocol_factory.h
