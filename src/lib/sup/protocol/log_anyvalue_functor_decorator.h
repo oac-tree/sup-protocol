@@ -36,6 +36,8 @@ class AnyValue;
 
 namespace protocol
 {
+const std::string kLogRequestTitle = "Request network packet";
+const std::string kLogReplyTitle = "Reply network packet";
 
 class LogAnyValueFunctorDecorator : public sup::dto::AnyFunctor
 {

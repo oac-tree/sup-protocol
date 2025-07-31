@@ -13,6 +13,7 @@ target_sources(sup-protocol-unit-tests
   function_protocol_extract_tests.cpp
   function_protocol_pack_tests.cpp
   function_protocol_tests.cpp
+  log_anyvalue_functor_decorator_tests.cpp
   process_variable_utils_tests.cpp
   process_variable_tests.cpp
   protocol_encodings_tests.cpp

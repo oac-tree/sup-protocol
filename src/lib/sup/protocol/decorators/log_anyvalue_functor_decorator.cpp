@@ -39,9 +39,9 @@ LogAnyValueFunctorDecorator::~LogAnyValueFunctorDecorator() = default;
 
 sup::dto::AnyValue LogAnyValueFunctorDecorator::operator()(const sup::dto::AnyValue& input)
 {
-  m_log_function(input, "Request network packet");
+  m_log_function(input, kLogRequestTitle);
   auto reply = m_functor(input);
-  m_log_function(reply, "Reply network packet");
+  m_log_function(reply, kLogReplyTitle);
   return reply;
 }
 
