@@ -50,11 +50,12 @@ protected:
 
   EchoFunctor m_functor;
   LogAnyValueFunctorDecorator::LogFunction m_log_function;
-  std::vector<std::pair<std::string, sup::dto::AnyValue>> m_log_entries;
+  std::vector<std::pair<LogAnyValueFunctorDecorator::PacketDirection, sup::dto::AnyValue>> m_log_entries;
 };
 
 TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
 {
+  using PacketDirection = LogAnyValueFunctorDecorator::PacketDirection;
   LogAnyValueFunctorDecorator decorator{m_functor, m_log_function};
   {
     // Test with empty payload
@@ -62,9 +63,9 @@ TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
     auto reply = decorator(request);
     EXPECT_EQ(reply, request);
     ASSERT_EQ(m_log_entries.size(), 2);
-    EXPECT_EQ(m_log_entries[0].first, kLogNetworkRequestTitle);
+    EXPECT_EQ(m_log_entries[0].first, PacketDirection::kInput);
     EXPECT_EQ(m_log_entries[0].second, request);
-    EXPECT_EQ(m_log_entries[1].first, kLogNetworkReplyTitle);
+    EXPECT_EQ(m_log_entries[1].first, PacketDirection::kOutput);
     EXPECT_EQ(m_log_entries[1].second, reply);
   }
   {
@@ -73,9 +74,9 @@ TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
     auto reply = decorator(request);
     EXPECT_EQ(reply, request);
     ASSERT_EQ(m_log_entries.size(), 4);
-    EXPECT_EQ(m_log_entries[2].first, kLogNetworkRequestTitle);
+    EXPECT_EQ(m_log_entries[2].first, PacketDirection::kInput);
     EXPECT_EQ(m_log_entries[2].second, request);
-    EXPECT_EQ(m_log_entries[3].first, kLogNetworkReplyTitle);
+    EXPECT_EQ(m_log_entries[3].first, PacketDirection::kOutput);
     EXPECT_EQ(m_log_entries[3].second, reply);
   }
 }
@@ -84,8 +85,9 @@ LogAnyValueFunctorDecoratorTest::LogAnyValueFunctorDecoratorTest()
   : m_functor{}
   , m_log_function{}
 {
-  m_log_function = [this](const sup::dto::AnyValue& value, const std::string& message) {
-    m_log_entries.emplace_back(message, value);
+  m_log_function = [this](const sup::dto::AnyValue& value,
+                          LogAnyValueFunctorDecorator::PacketDirection direction) {
+    m_log_entries.emplace_back(direction, value);
   };
 }
 

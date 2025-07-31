@@ -36,13 +36,15 @@ class AnyValue;
 
 namespace protocol
 {
-const std::string kLogNetworkRequestTitle = "Request network packet";
-const std::string kLogNetworkReplyTitle = "Reply network packet";
-
 class LogAnyValueFunctorDecorator : public sup::dto::AnyFunctor
 {
 public:
-  using LogFunction = std::function<void(const sup::dto::AnyValue&, const std::string&)>;
+  enum class PacketDirection
+  {
+    kInput = 0,
+    kOutput
+  };
+  using LogFunction = std::function<void(const sup::dto::AnyValue&, PacketDirection)>;
   LogAnyValueFunctorDecorator(sup::dto::AnyFunctor& functor, LogFunction log_function);
   ~LogAnyValueFunctorDecorator() override;
 
