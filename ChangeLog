@@ -1,3 +1,7 @@
+Changes for 2.6.0:
+
+- Add LogAnyValueFunctorDecorator and LogProtocolDecorator classes
+
 Changes for 2.5.0:
 
 - Add ProtocolResult::Success member function
