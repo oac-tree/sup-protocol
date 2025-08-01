@@ -20,8 +20,8 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
-#define SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
+#ifndef SUP_PROTOCOL_LOG_ANYFUNCTOR_DECORATOR_H_
+#define SUP_PROTOCOL_LOG_ANYFUNCTOR_DECORATOR_H_
 
 #include <sup/dto/any_functor.h>
 
@@ -36,7 +36,7 @@ class AnyValue;
 
 namespace protocol
 {
-class LogAnyValueFunctorDecorator : public sup::dto::AnyFunctor
+class LogAnyFunctorDecorator : public sup::dto::AnyFunctor
 {
 public:
   enum class PacketDirection
@@ -45,8 +45,8 @@ public:
     kOutput
   };
   using LogFunction = std::function<void(const sup::dto::AnyValue&, PacketDirection)>;
-  LogAnyValueFunctorDecorator(sup::dto::AnyFunctor& functor, LogFunction log_function);
-  ~LogAnyValueFunctorDecorator() override;
+  LogAnyFunctorDecorator(sup::dto::AnyFunctor& functor, LogFunction log_function);
+  ~LogAnyFunctorDecorator() override;
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 
@@ -59,4 +59,4 @@ private:
 
 }  // namespace sup
 
-#endif  // SUP_PROTOCOL_LOG_ANYVALUE_FUNCTOR_DECORATOR_H_
+#endif  // SUP_PROTOCOL_LOG_ANYFUNCTOR_DECORATOR_H_

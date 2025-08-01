@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 #include <sup/dto/anyvalue.h>
-#include <sup/protocol/log_anyvalue_functor_decorator.h>
+#include <sup/protocol/log_any_functor_decorator.h>
 
 #include <vector>
 #include <utility>
@@ -42,21 +42,21 @@ public:
   }
 };
 
-class LogAnyValueFunctorDecoratorTest : public ::testing::Test
+class LogAnyFunctorDecoratorTest : public ::testing::Test
 {
 protected:
-  LogAnyValueFunctorDecoratorTest();
-  virtual ~LogAnyValueFunctorDecoratorTest();
+  LogAnyFunctorDecoratorTest();
+  virtual ~LogAnyFunctorDecoratorTest();
 
   EchoFunctor m_functor;
-  LogAnyValueFunctorDecorator::LogFunction m_log_function;
-  std::vector<std::pair<LogAnyValueFunctorDecorator::PacketDirection, sup::dto::AnyValue>> m_log_entries;
+  LogAnyFunctorDecorator::LogFunction m_log_function;
+  std::vector<std::pair<LogAnyFunctorDecorator::PacketDirection, sup::dto::AnyValue>> m_log_entries;
 };
 
-TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
+TEST_F(LogAnyFunctorDecoratorTest, LogEntries)
 {
-  using PacketDirection = LogAnyValueFunctorDecorator::PacketDirection;
-  LogAnyValueFunctorDecorator decorator{m_functor, m_log_function};
+  using PacketDirection = LogAnyFunctorDecorator::PacketDirection;
+  LogAnyFunctorDecorator decorator{m_functor, m_log_function};
   {
     // Test with empty payload
     sup::dto::AnyValue request{};
@@ -81,14 +81,14 @@ TEST_F(LogAnyValueFunctorDecoratorTest, LogEntries)
   }
 }
 
-LogAnyValueFunctorDecoratorTest::LogAnyValueFunctorDecoratorTest()
+LogAnyFunctorDecoratorTest::LogAnyFunctorDecoratorTest()
   : m_functor{}
   , m_log_function{}
 {
   m_log_function = [this](const sup::dto::AnyValue& value,
-                          LogAnyValueFunctorDecorator::PacketDirection direction) {
+                          LogAnyFunctorDecorator::PacketDirection direction) {
     m_log_entries.emplace_back(direction, value);
   };
 }
 
-LogAnyValueFunctorDecoratorTest::~LogAnyValueFunctorDecoratorTest() = default;
+LogAnyFunctorDecoratorTest::~LogAnyFunctorDecoratorTest() = default;

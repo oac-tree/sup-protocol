@@ -20,7 +20,7 @@
  * of the distribution package.
  ******************************************************************************/
 
-#include <sup/protocol/log_anyvalue_functor_decorator.h>
+#include <sup/protocol/log_any_functor_decorator.h>
 
 #include <sup/dto/anyvalue.h>
 
@@ -29,15 +29,15 @@ namespace sup
 namespace protocol
 {
 
-LogAnyValueFunctorDecorator::LogAnyValueFunctorDecorator(
+LogAnyFunctorDecorator::LogAnyFunctorDecorator(
   sup::dto::AnyFunctor& functor, LogFunction log_function)
   : m_functor{functor}
   , m_log_function{log_function}
 {}
 
-LogAnyValueFunctorDecorator::~LogAnyValueFunctorDecorator() = default;
+LogAnyFunctorDecorator::~LogAnyFunctorDecorator() = default;
 
-sup::dto::AnyValue LogAnyValueFunctorDecorator::operator()(const sup::dto::AnyValue& input)
+sup::dto::AnyValue LogAnyFunctorDecorator::operator()(const sup::dto::AnyValue& input)
 {
   m_log_function(input, PacketDirection::kInput);
   auto reply = m_functor(input);
