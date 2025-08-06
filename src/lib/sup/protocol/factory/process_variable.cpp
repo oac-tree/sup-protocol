@@ -66,7 +66,7 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   auto callback = [&cv, &result, &mtx](const sup::dto::AnyValue&, bool connected) {
     {
       std::lock_guard<std::mutex> lock(mtx);
-      result = connected;;
+      result = connected;
     }
     cv.notify_one();
   };
