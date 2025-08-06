@@ -60,15 +60,13 @@ bool SetVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value)
 bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
                           double timeout_sec)
 {
+  std::mutex mtx;
   std::condition_variable cv;
-  std::atomic_bool result{false};
-  // Do not use same lock inside callback, since callbacks may be called while holding a lock,
-  // internal to the ProcessVariable and the wait_for may then have the opposite locking order,
-  // resulting in a possible deadlock.
-  auto callback = [&cv, &result, value](const sup::dto::AnyValue& updated, bool connected) {
-    if (connected)
+  bool result{true};
+  auto callback = [&cv, &result, &mtx](const sup::dto::AnyValue&, bool connected) {
     {
-      result.store(updated == value);
+      std::lock_guard<std::mutex> lock(mtx);
+      result = connected;;
     }
     cv.notify_one();
   };
@@ -77,18 +75,28 @@ bool WaitForVariableValue(ProcessVariable& var, const sup::dto::AnyValue& value,
   {
     return utils::BusyWaitForValue(var, value, timeout_sec);
   }
-  auto condition = [&result, &var, value]() {
-    if (result.load())
+  auto pred = [&result]() {
+    return result;
+  };
+  auto finish = std::chrono::system_clock::now() + std::chrono::duration<double>(timeout_sec);
+  while (true)
+  {
+    std::unique_lock<std::mutex> lk(mtx);
+    auto success = cv.wait_until(lk, finish, pred);
+    // Needed to ensure the next waits will not return true immediately and cause an infinite loop:
+    result = false;
+    lk.unlock();
+    if (!success)
+    {
+      break;
+    }
+    auto read_back = var.GetValue(0.0);
+    if (read_back.first && read_back.second == value)
     {
       return true;
     }
-    auto read_back = var.GetValue(0.0);
-    return read_back.first && (read_back.second == value);
-  };
-  std::mutex mtx;
-  std::unique_lock<std::mutex> lk(mtx);
-  auto timeout = std::chrono::duration<double>(timeout_sec);
-  return cv.wait_for(lk, timeout, condition);
+  }
+  return false;
 }
 
 }  // namespace protocol
