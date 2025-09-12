@@ -9,7 +9,7 @@ include(COASetupParasoft)
 cpptest_add_executable(sup-protocol-cpptest
   CPPTEST_PROJECT_LOC ${CMAKE_CURRENT_BINARY_DIR}
   CPPTEST_PROJECT_FOLDERS
-    sup-protocol=${CMAKE_CURRENT_SOURCE_DIR}/src/lib/sup/protocol
+    sup-protocol=${CMAKE_SOURCE_DIR}/src/lib/sup/protocol
   TARGETS sup-protocol
 )
 
@@ -21,4 +21,5 @@ target_link_libraries(sup-protocol-cpptest
   sup-di::sup-di
   sup-dto::sup-dto
   sup-utils::sup-codec
+  sup-protocol::sup-protocol
 )

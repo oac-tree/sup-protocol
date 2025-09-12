@@ -1,18 +1,20 @@
-add_library(sup-protocol SHARED)
-add_library(sup-protocol::sup-protocol ALIAS sup-protocol) # alias for build-tree usage
+set(library_name sup-protocol)
 
-set_target_properties(sup-protocol PROPERTIES
+add_library(${library_name} SHARED)
+add_library(${library_name}::${library_name} ALIAS ${library_name}) # alias for build-tree usage
+
+set_target_properties(${library_name} PROPERTIES
   VERSION ${LIBVERSION}
   SOVERSION ${LIBSOVERSION}
-  OUTPUT_NAME sup-protocol
+  EXPORT_NAME ${library_name}
 )
 
-target_include_directories(sup-protocol PUBLIC
+target_include_directories(${library_name} PUBLIC
   $<INSTALL_INTERFACE:include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../..>
 )
 
-target_link_libraries(sup-protocol
+target_link_libraries(${library_name}
   PUBLIC
     sup-dto::sup-dto
     sup-di::sup-di
@@ -24,7 +26,7 @@ add_subdirectory(decorators)
 add_subdirectory(factory)
 
 # -- Installation --
-install(TARGETS sup-protocol EXPORT sup-protocol-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS ${library_name} EXPORT ${library_name}-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
   base64_variable_codec.h
