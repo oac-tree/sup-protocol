@@ -20,6 +20,7 @@
  * of the distribution package.
  ******************************************************************************/
 
+#include <sup/dto/anyvalue.h>
 #include <sup/protocol/protocol_rpc.h>
 
 #include <sup/protocol/base/anyvalue_utils.h>
@@ -245,7 +246,7 @@ sup::dto::AnyValue CreateAsyncRPCNewRequestReply(sup::dto::uint64 id, PayloadEnc
 sup::dto::AnyValue CreateAsyncRPCPollReply(bool is_ready, PayloadEncoding encoding)
 {
   const sup::dto::AnyValue reply_payload = {{
-    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::BooleanType, is_ready }}
+    { constants::ASYNC_READY_FIELD_NAME, { sup::dto::BooleanType, dto::AnyValue{is_ready} }}
   }};
   return utils::CreateAsyncRPCReply(Success, reply_payload, encoding, AsyncCommand::kPoll);
 }
