@@ -24,6 +24,7 @@
 #define SUP_PROTOCOL_LOG_ANYFUNCTOR_DECORATOR_H_
 
 #include <sup/dto/any_functor.h>
+#include <sup/dto/basic_scalar_types.h>
 
 #include <functional>
 
@@ -39,7 +40,7 @@ namespace protocol
 class LogAnyFunctorDecorator : public sup::dto::AnyFunctor
 {
 public:
-  enum class PacketDirection
+  enum class PacketDirection : sup::dto::uint32
   {
     kInput = 0,
     kOutput

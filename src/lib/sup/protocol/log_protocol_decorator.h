@@ -23,6 +23,7 @@
 #ifndef SUP_PROTOCOL_LOG_PROTOCOL_DECORATOR_H_
 #define SUP_PROTOCOL_LOG_PROTOCOL_DECORATOR_H_
 
+#include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol.h>
 
 #include <functional>
@@ -39,7 +40,7 @@ namespace protocol
 class LogProtocolDecorator : public Protocol
 {
 public:
-  enum class PacketType
+  enum class PacketType : sup::dto::uint32
   {
     kNormal = 0,
     kService
