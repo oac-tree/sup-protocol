@@ -134,7 +134,7 @@ AsyncInvoke::Reply AsyncInvoke::AsyncInvokeImpl::GetReply()
   const AsyncInvoke::Reply failure{ InvalidAsynchronousOperationError, {} };
   if (!m_future.valid() ||
       (m_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) ||
-      m_invalidated)
+       m_invalidated)
   {
     return failure;
   }

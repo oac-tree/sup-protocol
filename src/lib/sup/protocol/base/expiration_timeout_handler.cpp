@@ -30,22 +30,14 @@ namespace protocol
 ExpirationTimeoutHandler::ExpirationTimeoutHandler(double cleanup_sec)
   : m_last_timestamp{0}
   , m_cleanup_ns{utils::ToNanoseconds(cleanup_sec)}
+  , m_mtx{}
 {}
 
 ExpirationTimeoutHandler::~ExpirationTimeoutHandler() = default;
 
-ExpirationTimeoutHandler::ExpirationTimeoutHandler(const ExpirationTimeoutHandler&) = default;
-
-ExpirationTimeoutHandler& ExpirationTimeoutHandler::operator=(
-  const ExpirationTimeoutHandler&) & = default;
-
-ExpirationTimeoutHandler::ExpirationTimeoutHandler(ExpirationTimeoutHandler&&) noexcept = default;
-
-ExpirationTimeoutHandler& ExpirationTimeoutHandler::operator=(
-  ExpirationTimeoutHandler&&) & noexcept = default;
-
 bool ExpirationTimeoutHandler::IsCleanUpNeeded()
 {
+  std::lock_guard<std::mutex> lk{m_mtx};
   auto now = utils::GetCurrentTimestamp();
   auto passed_ns = now - m_last_timestamp;
   if (passed_ns > m_cleanup_ns)

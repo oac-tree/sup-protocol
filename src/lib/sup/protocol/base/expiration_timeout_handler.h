@@ -25,6 +25,8 @@
 
 #include <sup/dto/basic_scalar_types.h>
 
+#include <mutex>
+
 namespace sup
 {
 namespace protocol
@@ -45,10 +47,10 @@ public:
   explicit ExpirationTimeoutHandler(double cleanup_sec);
   ~ExpirationTimeoutHandler();
 
-  ExpirationTimeoutHandler(const ExpirationTimeoutHandler& other);
-  ExpirationTimeoutHandler& operator=(const ExpirationTimeoutHandler& other) &;
-  ExpirationTimeoutHandler(ExpirationTimeoutHandler&&) noexcept;
-  ExpirationTimeoutHandler& operator=(ExpirationTimeoutHandler&&) & noexcept;
+  ExpirationTimeoutHandler(const ExpirationTimeoutHandler& other) = delete;
+  ExpirationTimeoutHandler& operator=(const ExpirationTimeoutHandler& other) = delete;
+  ExpirationTimeoutHandler(ExpirationTimeoutHandler&&) = delete;
+  ExpirationTimeoutHandler& operator=(ExpirationTimeoutHandler&&) = delete;
 
   /**
    * @brief Check if a new clean up is needed, based on the time expired from the last clean up.
@@ -62,6 +64,7 @@ public:
 private:
   sup::dto::uint64 m_last_timestamp;
   sup::dto::uint64 m_cleanup_ns;
+  std::mutex m_mtx;
 };
 
 }  // namespace protocol
