@@ -79,20 +79,6 @@ public:
     const sup::dto::AnyValue& var_definition) const = 0;
 
   /**
-   * @brief Creates an RPC server for the given Protocol and with the given server definition.
-   *
-   * @param protocol Protocol to inject into the server.
-   * @param server_definition Definition of the server: may include the used network protocol,
-   * server name, etc.
-   *
-   * @return RPC server.
-   * @throws InvalidOperationException when the factory cannot create a server with the given
-   * definition.
-   */
-  virtual std::unique_ptr<RPCServerInterface> CreateRPCServer(Protocol& protocol,
-    const sup::dto::AnyValue& server_definition) const = 0;
-
-  /**
    * @brief Creates an RPC client with the given client definition.
    *
    * @param client_definition Definition of the client: may include the used network protocol,
