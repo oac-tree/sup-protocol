@@ -22,22 +22,65 @@
 
 #include <sup/protocol/factory/rpc_logging_server_stack.h>
 
+#include <sup/protocol/log_any_functor_decorator.h>
+#include <sup/protocol/log_protocol_decorator.h>
+#include <sup/protocol/protocol_rpc_server.h>
+
+#include <sup/templates/decorate_with.h>
+
 namespace sup
 {
 namespace protocol
 {
+namespace
+{
+std::unique_ptr<Protocol> DecorateProtocolWithLogger(
+  std::unique_ptr<Protocol> protocol, const LoggingFunctions& log_functions);
+
+std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+  ProtocolRPCServerConfig config, Protocol& protocol,
+  const LoggingFunctions& log_functions);
+}
 
 RPCLoggingServerStack::RPCLoggingServerStack(
     std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
-    LogAnyFunctorDecorator::LogFunction log_function)
-  : m_protocol{std::move(protocol)}
-  , m_protocol_server{*m_protocol, config}
-  , m_log_decorator{m_protocol_server, log_function}
-  , m_rpc_server{factory_func(m_log_decorator)}
+    const LoggingFunctions& log_functions)
+  : m_protocol{DecorateProtocolWithLogger(std::move(protocol), log_functions)}
+  , m_functor{DecorateFunctorWithLogger(config, *m_protocol, log_functions)}
+  , m_rpc_server{factory_func(*m_functor)}
 {}
 
 RPCLoggingServerStack::~RPCLoggingServerStack() = default;
+
+namespace
+{
+std::unique_ptr<Protocol> DecorateProtocolWithLogger(
+  std::unique_ptr<Protocol> protocol, const LoggingFunctions& log_functions)
+{
+  if (log_functions.m_protocol_input_logger || log_functions.m_protocol_output_logger)
+  {
+    return sup::templates::DecorateWith<LogProtocolDecorator>(
+      std::move(protocol), log_functions.m_protocol_input_logger,
+      log_functions.m_protocol_output_logger);
+  }
+  return std::move(protocol);
+}
+
+std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+  ProtocolRPCServerConfig config, Protocol& protocol,
+  const LoggingFunctions& log_functions)
+{
+  std::unique_ptr<sup::dto::AnyFunctor> functor =
+    std::make_unique<ProtocolRPCServer>(protocol, config);
+  if (log_functions.m_network_logger)
+  {
+    return sup::templates::DecorateWith<LogAnyFunctorDecorator>(
+      std::move(functor), log_functions.m_network_logger);
+  }
+  return std::move(functor);
+}
+}
 
 }  // namespace protocol
 

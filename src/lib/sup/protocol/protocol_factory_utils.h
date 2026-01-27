@@ -24,6 +24,7 @@
 #define SUP_PROTOCOL_PROTOCOL_FACTORY_UTILS_H_
 
 #include <sup/protocol/log_any_functor_decorator.h>
+#include <sup/protocol/log_protocol_decorator.h>
 #include <sup/protocol/protocol.h>
 #include <sup/protocol/protocol_factory.h>
 #include <sup/protocol/protocol_rpc.h>
@@ -45,6 +46,13 @@ namespace protocol
 const std::string kEncoding = "Encoding";
 const std::string kEncoding_None = "None";
 const std::string kEncoding_Base64 = "Base64";
+
+struct LoggingFunctions
+{
+  LogAnyFunctorDecorator::LogFunction m_network_logger;
+  LogProtocolDecorator::LogInputFunction m_protocol_input_logger;
+  LogProtocolDecorator::LogOutputFunction m_protocol_output_logger;
+};
 
 /**
  * @brief Factory function that creates a server stack consisting of a ProtocolRPCServer
@@ -74,14 +82,14 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
  * @param factory_func Factory function for the network server taking a sup::dto::AnyFunctor.
  * @param config ProtocolRPCServerConfig object.
  * @param protocol Protocol to be injected into the encapsulated ProtocolRPCServer.
- * @param log_function Function to use for loggin network packets.
+ * @param log_functions Functions to use for loggin network and/or protocol packets.
  *
  * @return An RPCServerInterface implementation.
  */
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
   ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
-  LogAnyFunctorDecorator::LogFunction log_function);
+  const LoggingFunctions& log_functions);
 
 /**
  * @brief Factory function that creates a client stack consisting of a ProtocolRPCClient with an

@@ -41,20 +41,38 @@ LogProtocolDecorator::~LogProtocolDecorator() = default;
 ProtocolResult LogProtocolDecorator::Invoke(const sup::dto::AnyValue& input,
                                             sup::dto::AnyValue& output)
 {
-  m_log_input_function(input, PacketType::kNormal);
+  LogInput(input, PacketType::kNormal);
   auto result = m_protocol.Invoke(input, output);
-  m_log_output_function(result, output, PacketType::kNormal);
+  LogOutput(result, output, PacketType::kNormal);
   return result;
 }
 
 ProtocolResult LogProtocolDecorator::Service(const sup::dto::AnyValue& input,
                                              sup::dto::AnyValue& output)
 {
-  m_log_input_function(input, PacketType::kService);
+  LogInput(input, PacketType::kService);
   auto result = m_protocol.Service(input, output);
-  m_log_output_function(result, output, PacketType::kService);
+  LogOutput(result, output, PacketType::kService);
   return result;
 }
+
+void LogProtocolDecorator::LogInput(const sup::dto::AnyValue& input, PacketType packet_type) const
+{
+  if (m_log_input_function)
+  {
+    m_log_input_function(input, packet_type);
+  }
+}
+
+void LogProtocolDecorator::LogOutput(ProtocolResult result, const sup::dto::AnyValue& output,
+                                     PacketType packet_type) const
+{
+  if (m_log_output_function)
+  {
+    m_log_output_function(result, output, packet_type);
+  }
+}
+
 
 }  // namespace protocol
 

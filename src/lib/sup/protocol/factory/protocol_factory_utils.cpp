@@ -51,7 +51,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
   ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
-  LogAnyFunctorDecorator::LogFunction log_function)
+  const LoggingFunctions& log_functions)
 {
   if (protocol.get() == nullptr)
   {
@@ -59,7 +59,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
     throw InvalidOperationException(error);
   }
   return std::make_unique<RPCLoggingServerStack>(factory_func, config, std::move(protocol),
-                                                 log_function);
+                                                 log_functions);
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(

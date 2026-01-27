@@ -23,9 +23,9 @@
 #ifndef SUP_PROTOCOL_RPC_LOGGING_SERVER_STACK_H_
 #define SUP_PROTOCOL_RPC_LOGGING_SERVER_STACK_H_
 
-#include <sup/protocol/log_any_functor_decorator.h>
 #include <sup/protocol/protocol.h>
 #include <sup/protocol/protocol_factory.h>
+#include <sup/protocol/protocol_factory_utils.h>
 #include <sup/protocol/protocol_rpc_server.h>
 
 #include <functional>
@@ -47,14 +47,13 @@ public:
   RPCLoggingServerStack(
     std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
-    LogAnyFunctorDecorator::LogFunction log_function);
+    const LoggingFunctions& log_functions);
 
   ~RPCLoggingServerStack() override;
 
 private:
   std::unique_ptr<Protocol> m_protocol;
-  ProtocolRPCServer m_protocol_server;
-  LogAnyFunctorDecorator m_log_decorator;
+  std::unique_ptr<sup::dto::AnyFunctor> m_functor;
   std::unique_ptr<RPCServerInterface> m_rpc_server;
 };
 

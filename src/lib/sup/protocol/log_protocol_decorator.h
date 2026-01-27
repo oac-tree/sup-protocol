@@ -55,6 +55,9 @@ public:
   ProtocolResult Service(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
 private:
+  void LogInput(const sup::dto::AnyValue& input, PacketType packet_type) const;
+  void LogOutput(ProtocolResult result, const sup::dto::AnyValue& output,
+                 PacketType packet_type) const;
   Protocol& m_protocol;
   LogInputFunction m_log_input_function;
   LogOutputFunction m_log_output_function;
