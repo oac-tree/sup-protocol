@@ -36,9 +36,15 @@ namespace protocol
 
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  Protocol& protocol)
+  ProtocolRPCServerConfig config,
+  std::unique_ptr<Protocol> protocol)
 {
-  return std::make_unique<RPCServerStack>(factory_func, protocol);
+  if (protocol.get() == nullptr)
+  {
+    const std::string error = "CreateRPCServerStack: protocol pointer is nullptr";
+    throw InvalidOperationException(error);
+  }
+  return std::make_unique<RPCServerStack>(factory_func, config, std::move(protocol));
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(

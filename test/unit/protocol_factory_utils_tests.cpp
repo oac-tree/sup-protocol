@@ -70,12 +70,13 @@ protected:
 
 TEST_F(ProtocolFactoryUtilsTest, CreateServerStack)
 {
-  test::TestProtocol test_protocol{};
+  auto test_protocol = std::make_unique<test::TestProtocol>();
   TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
     return CreateTestRPCServer(protocol_server, server_handle);
   };
-  auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
+  auto server_stack = CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{},
+                                           std::move(test_protocol));
   ASSERT_NE(server_handle, nullptr);
   sup::dto::AnyValue payload = {{
     {"flag", {sup::dto::BooleanType, true}}
@@ -86,12 +87,13 @@ TEST_F(ProtocolFactoryUtilsTest, CreateServerStack)
 
 TEST_F(ProtocolFactoryUtilsTest, ServerStackEmptyRequest)
 {
-  test::TestProtocol test_protocol{};
+  auto test_protocol = std::make_unique<test::TestProtocol>();
   TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
     return CreateTestRPCServer(protocol_server, server_handle);
   };
-  auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
+  auto server_stack = CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{},
+                                           std::move(test_protocol));
   ASSERT_NE(server_handle, nullptr);
   sup::dto::AnyValue request;
   auto reply = server_handle->Call(request);
@@ -103,12 +105,14 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackEmptyRequest)
 
 TEST_F(ProtocolFactoryUtilsTest, ServerStackScalarPayload)
 {
-  test::TestProtocol test_protocol{};
+  auto test_protocol = std::make_unique<test::TestProtocol>();
+  auto protocol_handle = test_protocol.get();
   TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
     return CreateTestRPCServer(protocol_server, server_handle);
   };
-  auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
+  auto server_stack = CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{},
+                                           std::move(test_protocol));
   ASSERT_NE(server_handle, nullptr);
   sup::dto::AnyValue request = {{
     { constants::REQUEST_TIMESTAMP, {sup::dto::UnsignedInteger64Type, 54321u }},
@@ -119,7 +123,7 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackScalarPayload)
   EXPECT_EQ(reply[constants::REPLY_RESULT].As<unsigned int>(), Success.GetValue());
   EXPECT_FALSE(reply.HasField(constants::REPLY_PAYLOAD));
 
-  auto last_input = test_protocol.GetLastInput();
+  auto last_input = protocol_handle->GetLastInput();
   EXPECT_FALSE(sup::dto::IsEmptyValue(last_input));
   EXPECT_EQ(last_input.GetType(), sup::dto::UnsignedInteger8Type);
   EXPECT_EQ(last_input.As<sup::dto::uint8>(), 1);
@@ -127,12 +131,13 @@ TEST_F(ProtocolFactoryUtilsTest, ServerStackScalarPayload)
 
 TEST_F(ProtocolFactoryUtilsTest, ServerStackServiceRequest)
 {
-  test::TestProtocol test_protocol{};
+  auto test_protocol = std::make_unique<test::TestProtocol>();
   TestRPCServer* server_handle = nullptr;
   auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
     return CreateTestRPCServer(protocol_server, server_handle);
   };
-  auto server_stack = CreateRPCServerStack(factory_func, test_protocol);
+  auto server_stack = CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{},
+                                           std::move(test_protocol));
   ASSERT_NE(server_handle, nullptr);
   sup::dto::AnyValue payload{sup::dto::StringType, constants::APPLICATION_PROTOCOL_INFO_REQUEST};
   auto request = utils::CreateServiceRequest(payload, PayloadEncoding::kNone);

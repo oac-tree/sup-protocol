@@ -29,8 +29,10 @@ namespace protocol
 
 RPCServerStack::RPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  Protocol& protocol)
-  : m_protocol_server{protocol}
+  ProtocolRPCServerConfig config,
+  std::unique_ptr<Protocol> protocol)
+  : m_protocol{std::move(protocol)}
+  , m_protocol_server{*m_protocol, config}
   , m_rpc_server{factory_func(m_protocol_server)}
 {}
 

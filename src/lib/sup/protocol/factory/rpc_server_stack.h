@@ -43,11 +43,13 @@ class RPCServerStack : public RPCServerInterface
 {
 public:
   RPCServerStack(std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-                 Protocol& protocol);
+                 ProtocolRPCServerConfig config,
+                 std::unique_ptr<Protocol> protocol);
 
   ~RPCServerStack() override;
 
 private:
+  std::unique_ptr<Protocol> m_protocol;
   ProtocolRPCServer m_protocol_server;
   std::unique_ptr<RPCServerInterface> m_rpc_server;
 };

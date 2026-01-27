@@ -27,6 +27,7 @@
 #include <sup/protocol/protocol_factory.h>
 #include <sup/protocol/protocol_rpc.h>
 #include <sup/protocol/protocol_rpc_client_config.h>
+#include <sup/protocol/protocol_rpc_server_config.h>
 
 #include <functional>
 #include <memory>
@@ -60,7 +61,8 @@ const std::string kEncoding_Base64 = "Base64";
  */
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  Protocol& protocol);
+  ProtocolRPCServerConfig config,
+  std::unique_ptr<Protocol> protocol);
 
 /**
  * @brief Factory function that creates a client stack consisting of a ProtocolRPCClient with an
