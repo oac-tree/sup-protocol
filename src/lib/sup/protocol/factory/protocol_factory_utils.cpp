@@ -40,7 +40,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   ProtocolRPCServerConfig config,
   std::unique_ptr<Protocol> protocol)
 {
-  if (protocol.get() == nullptr)
+  if (!protocol)
   {
     const std::string error = "CreateRPCServerStack: protocol pointer is nullptr";
     throw InvalidOperationException(error);
@@ -53,7 +53,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
   const LoggingFunctions& log_functions)
 {
-  if (protocol.get() == nullptr)
+  if (!protocol)
   {
     const std::string error = "CreateRPCServerStack: protocol pointer is nullptr";
     throw InvalidOperationException(error);
@@ -67,7 +67,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::unique_ptr<sup::dto::AnyFunctor> functor,
   const LogAnyFunctorDecorator::LogFunction& log_function)
 {
-  if (functor.get() == nullptr)
+  if (!functor)
   {
     const std::string error = "CreateRPCServerStack: functor pointer is nullptr";
     throw InvalidOperationException(error);
