@@ -37,9 +37,13 @@ namespace
 std::unique_ptr<Protocol> DecorateProtocolWithLogger(
   std::unique_ptr<Protocol> protocol, const LoggingFunctions& log_functions);
 
-std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+std::unique_ptr<sup::dto::AnyFunctor> BuildFunctorFromProtocol(
   ProtocolRPCServerConfig config, Protocol& protocol,
   const LoggingFunctions& log_functions);
+
+std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+  std::unique_ptr<sup::dto::AnyFunctor> functor,
+  const LogAnyFunctorDecorator::LogFunction& log_function);
 }
 
 RPCLoggingServerStack::RPCLoggingServerStack(
@@ -47,7 +51,7 @@ RPCLoggingServerStack::RPCLoggingServerStack(
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
     const LoggingFunctions& log_functions)
   : m_protocol{DecorateProtocolWithLogger(std::move(protocol), log_functions)}
-  , m_functor{DecorateFunctorWithLogger(config, *m_protocol, log_functions)}
+  , m_functor{BuildFunctorFromProtocol(config, *m_protocol, log_functions)}
   , m_rpc_server{factory_func(*m_functor)}
 {}
 
@@ -67,16 +71,23 @@ std::unique_ptr<Protocol> DecorateProtocolWithLogger(
   return protocol;
 }
 
-std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+std::unique_ptr<sup::dto::AnyFunctor> BuildFunctorFromProtocol(
   ProtocolRPCServerConfig config, Protocol& protocol,
   const LoggingFunctions& log_functions)
 {
   std::unique_ptr<sup::dto::AnyFunctor> functor =
     std::make_unique<ProtocolRPCServer>(protocol, config);
-  if (log_functions.m_network_logger)
+  return DecorateFunctorWithLogger(std::move(functor), log_functions.m_network_logger);
+}
+
+std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
+  std::unique_ptr<sup::dto::AnyFunctor> functor,
+  const LogAnyFunctorDecorator::LogFunction& log_function)
+{
+  if (log_function)
   {
     return sup::templates::DecorateWith<LogAnyFunctorDecorator>(
-      std::move(functor), log_functions.m_network_logger);
+      std::move(functor), log_function);
   }
   return functor;
 }
