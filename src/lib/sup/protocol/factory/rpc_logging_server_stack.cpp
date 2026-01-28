@@ -64,7 +64,7 @@ std::unique_ptr<Protocol> DecorateProtocolWithLogger(
       std::move(protocol), log_functions.m_protocol_input_logger,
       log_functions.m_protocol_output_logger);
   }
-  return std::move(protocol);
+  return protocol;
 }
 
 std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
@@ -78,7 +78,7 @@ std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
     return sup::templates::DecorateWith<LogAnyFunctorDecorator>(
       std::move(functor), log_functions.m_network_logger);
   }
-  return std::move(functor);
+  return functor;
 }
 }
 
