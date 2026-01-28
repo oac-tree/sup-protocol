@@ -55,6 +55,15 @@ RPCLoggingServerStack::RPCLoggingServerStack(
   , m_rpc_server{factory_func(*m_functor)}
 {}
 
+RPCLoggingServerStack::RPCLoggingServerStack(
+    std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+    std::unique_ptr<sup::dto::AnyFunctor> functor,
+    const LogAnyFunctorDecorator::LogFunction& log_function)
+  : m_protocol{}
+  , m_functor{DecorateFunctorWithLogger(std::move(functor), log_function)}
+  , m_rpc_server{factory_func(*m_functor)}
+{}
+
 RPCLoggingServerStack::~RPCLoggingServerStack() = default;
 
 namespace

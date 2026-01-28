@@ -62,6 +62,19 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
                                                  log_functions);
 }
 
+std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
+  std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+  std::unique_ptr<sup::dto::AnyFunctor> functor,
+  const LogAnyFunctorDecorator::LogFunction& log_function)
+{
+  if (functor.get() == nullptr)
+  {
+    const std::string error = "CreateRPCServerStack: functor pointer is nullptr";
+    throw InvalidOperationException(error);
+  }
+  return std::make_unique<RPCLoggingServerStack>(factory_func, std::move(functor), log_function);
+}
+
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
 {

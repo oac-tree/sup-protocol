@@ -88,8 +88,24 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
  */
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
   std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
-  ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
+  ProtocolRPCServerConfig config,
+  std::unique_ptr<Protocol> protocol,
   const LoggingFunctions& log_functions);
+
+/**
+ * @brief Factory function that creates a logging server stack consisting of an AnyFunctor,
+ * injected into a network server (with optional network packet logging).
+ *
+ * @param factory_func Factory function for the network server taking a sup::dto::AnyFunctor.
+ * @param functor AnyFunctor to be injected into the encapsulated ProtocolRPCServer.
+ * @param log_function Optional function to log network packets.
+ *
+ * @return An RPCServerInterface implementation.
+ */
+std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
+  std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+  std::unique_ptr<sup::dto::AnyFunctor> functor,
+  const LogAnyFunctorDecorator::LogFunction& log_function);
 
 /**
  * @brief Factory function that creates a client stack consisting of a ProtocolRPCClient with an

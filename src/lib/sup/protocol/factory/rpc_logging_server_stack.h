@@ -49,6 +49,11 @@ public:
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
     const LoggingFunctions& log_functions);
 
+  RPCLoggingServerStack(
+    std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+    std::unique_ptr<sup::dto::AnyFunctor> functor,
+    const LogAnyFunctorDecorator::LogFunction& log_function);
+
   ~RPCLoggingServerStack() override;
 
 private:
