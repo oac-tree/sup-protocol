@@ -97,7 +97,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
  * injected into a network server (with optional network packet logging).
  *
  * @param factory_func Factory function for the network server taking a sup::dto::AnyFunctor.
- * @param functor AnyFunctor to be injected into the encapsulated ProtocolRPCServer.
+ * @param functor AnyFunctor to be injected into the RPC server.
  * @param log_function Optional function to log network packets.
  *
  * @return An RPCServerInterface implementation.
