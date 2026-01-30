@@ -20,10 +20,11 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_PROTOCOL_RPC_CLIENT_STACK_H_
-#define SUP_PROTOCOL_RPC_CLIENT_STACK_H_
+#ifndef SUP_PROTOCOL_LOGGING_RPC_CLIENT_STACK_H_
+#define SUP_PROTOCOL_LOGGING_RPC_CLIENT_STACK_H_
 
 #include <sup/protocol/protocol.h>
+#include <sup/protocol/protocol_factory_utils.h>
 #include <sup/protocol/protocol_rpc_client.h>
 
 #include <functional>
@@ -35,19 +36,22 @@ namespace protocol
 {
 
 /**
- * @brief RPCClientStack is a Protocol that encapsulates both the client's network implementation
- * and a ProtocolRPCClient.
+ * @brief RPCLoggingClientStack is a logging implementation of Protocol that encapsulates both
+ * the client's network implementation and a ProtocolRPCClient.
  */
-class RPCClientStack : public Protocol
+class RPCLoggingClientStack : public Protocol
 {
 public:
-  RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
                  PayloadEncoding encoding);
 
-  RPCClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
                  ProtocolRPCClientConfig config);
 
-  ~RPCClientStack() override;
+  RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+                 ProtocolRPCClientConfig config, const LoggingFunctions& log_functions);
+
+  ~RPCLoggingClientStack() override;
 
   ProtocolResult Invoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output) override;
 
@@ -55,11 +59,11 @@ public:
 
 private:
   std::unique_ptr<sup::dto::AnyFunctor> m_rpc_client;
-  ProtocolRPCClient m_protocol_client;
+  std::unique_ptr<sup::protocol::Protocol> m_protocol_client;
 };
 
 }  // namespace protocol
 
 }  // namespace sup
 
-#endif  // SUP_PROTOCOL_RPC_CLIENT_STACK_H_
+#endif  // SUP_PROTOCOL_LOGGING_RPC_CLIENT_STACK_H_

@@ -139,6 +139,24 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
   ProtocolRPCClientConfig config);
 
 /**
+ * @brief Factory function that creates a logging client stack consisting of a ProtocolRPCClient
+ * with an injected network client (created by the provided function).
+ *
+ * @details This function facilitates the creation of an RPC client, since it is typically
+ * required to create a ProtocolRPCClient from a network client implementation.
+ *
+ * @param factory_func Factory function for the network client.
+ * @param config Configuration parameters for the ProtocolRPCClient.
+ * @param log_functions Functions to use for loggin network and/or protocol packets.
+ *
+ * @return A Protocol implementation, which will be a ProtocolRPCClient.
+ */
+std::unique_ptr<Protocol> CreateRPCClientStack(
+  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  ProtocolRPCClientConfig config,
+  const LoggingFunctions& log_functions);
+
+/**
  * @brief Parse the encoding field of a configuration AnyValue.
  *
  * @param config configuration AnyValue.

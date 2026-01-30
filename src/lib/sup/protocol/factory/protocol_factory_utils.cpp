@@ -24,7 +24,7 @@
 
 #include <sup/protocol/exceptions.h>
 
-#include <sup/protocol/factory/rpc_client_stack.h>
+#include <sup/protocol/factory/rpc_logging_client_stack.h>
 #include <sup/protocol/factory/rpc_logging_server_stack.h>
 
 #include <map>
@@ -77,14 +77,22 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
 {
-  return std::make_unique<RPCClientStack>(factory_func, encoding);
+  return std::make_unique<RPCLoggingClientStack>(factory_func, encoding);
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
   ProtocolRPCClientConfig config)
 {
-  return std::make_unique<RPCClientStack>(factory_func, config);
+  return std::make_unique<RPCLoggingClientStack>(factory_func, config);
+}
+
+std::unique_ptr<Protocol> CreateRPCClientStack(
+  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  ProtocolRPCClientConfig config,
+  const LoggingFunctions& log_functions)
+{
+  return std::make_unique<RPCLoggingClientStack>(factory_func, config, log_functions);
 }
 
 PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)
