@@ -158,7 +158,8 @@ TEST_F(ProtocolFactoryUtilsTest, CreateClientStack)
   auto factory_func = [this, &functor_handle]() {
     return CreateTestFunctor(functor_handle);
   };
-  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kNone);
+  auto client_stack = CreateRPCClientStack(factory_func,
+                                           ProtocolRPCClientConfig{PayloadEncoding::kNone});
   ASSERT_NE(functor_handle, nullptr);
   sup::dto::AnyValue input = {{
     {"flag", {sup::dto::BooleanType, true}}
@@ -191,7 +192,8 @@ TEST_F(ProtocolFactoryUtilsTest, ClientStackEmptyPayload)
   auto factory_func = [this, &functor_handle]() {
     return CreateTestFunctor(functor_handle);
   };
-  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kNone);
+  auto client_stack = CreateRPCClientStack(factory_func,
+                                           ProtocolRPCClientConfig{PayloadEncoding::kNone});
   ASSERT_NE(functor_handle, nullptr);
   sup::dto::AnyValue input;
   sup::dto::AnyValue output{};
@@ -206,7 +208,8 @@ TEST_F(ProtocolFactoryUtilsTest, ClientStackScalarPayload)
   auto factory_func = [this, &functor_handle]() {
     return CreateTestFunctor(functor_handle);
   };
-  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kBase64);
+  auto client_stack = CreateRPCClientStack(factory_func,
+                                           ProtocolRPCClientConfig{PayloadEncoding::kBase64});
   ASSERT_NE(functor_handle, nullptr);
   sup::dto::AnyValue input{sup::dto::SignedInteger32Type, 42};
   sup::dto::AnyValue output{};
@@ -231,7 +234,8 @@ TEST_F(ProtocolFactoryUtilsTest, ClientStackServiceRequest)
   auto factory_func = [this, &functor_handle]() {
     return CreateTestFunctor(functor_handle);
   };
-  auto client_stack = CreateRPCClientStack(factory_func, PayloadEncoding::kBase64);
+  auto client_stack = CreateRPCClientStack(factory_func,
+                                           ProtocolRPCClientConfig{PayloadEncoding::kBase64});
   ASSERT_NE(functor_handle, nullptr);
   {
     // successful service call

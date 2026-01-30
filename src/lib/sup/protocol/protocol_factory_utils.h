@@ -115,21 +115,6 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
  * required to create a ProtocolRPCClient from a network client implementation.
  *
  * @param factory_func Factory function for the network client.
- * @param encoding PayloadEncoding to be used for the ProtocolRPCClient.
- *
- * @return A Protocol implementation, which will be a ProtocolRPCClient.
- */
-std::unique_ptr<Protocol> CreateRPCClientStack(
-  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding);
-
-/**
- * @brief Factory function that creates a client stack consisting of a ProtocolRPCClient with an
- * injected network client (created by the provided function).
- *
- * @details This function facilitates the creation of an RPC client, since it is typically
- * required to create a ProtocolRPCClient from a network client implementation.
- *
- * @param factory_func Factory function for the network client.
  * @param config Configuration parameters for the ProtocolRPCClient.
  *
  * @return A Protocol implementation, which will be a ProtocolRPCClient.

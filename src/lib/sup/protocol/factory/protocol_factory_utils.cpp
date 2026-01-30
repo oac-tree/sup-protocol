@@ -75,12 +75,6 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
 }
 
 std::unique_ptr<Protocol> CreateRPCClientStack(
-  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func, PayloadEncoding encoding)
-{
-  return std::make_unique<RPCLoggingClientStack>(factory_func, encoding);
-}
-
-std::unique_ptr<Protocol> CreateRPCClientStack(
   std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
   ProtocolRPCClientConfig config)
 {

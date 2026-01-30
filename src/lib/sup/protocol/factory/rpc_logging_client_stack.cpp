@@ -36,13 +36,7 @@ std::unique_ptr<Protocol> DecorateProtocolWithLogger(
 std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
   std::unique_ptr<sup::dto::AnyFunctor> functor,
   const LogAnyFunctorDecorator::LogFunction& log_function);
-}
-
-
-RPCLoggingClientStack::RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
-                               PayloadEncoding encoding)
-  : RPCLoggingClientStack{factory_func, ProtocolRPCClientConfig{encoding}, {} }
-{}
+}  // unnamed namespace
 
 RPCLoggingClientStack::RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
                                ProtocolRPCClientConfig config)
@@ -95,7 +89,7 @@ std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
   }
   return functor;
 }
-}
+}  // unnamed namespace
 
 }  // namespace protocol
 

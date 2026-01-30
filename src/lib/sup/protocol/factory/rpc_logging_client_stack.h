@@ -43,9 +43,6 @@ class RPCLoggingClientStack : public Protocol
 {
 public:
   RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
-                 PayloadEncoding encoding);
-
-  RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
                  ProtocolRPCClientConfig config);
 
   RPCLoggingClientStack(std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,

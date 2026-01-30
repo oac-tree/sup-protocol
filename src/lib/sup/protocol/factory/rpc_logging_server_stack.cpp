@@ -44,7 +44,7 @@ std::unique_ptr<sup::dto::AnyFunctor> BuildFunctorFromProtocol(
 std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
   std::unique_ptr<sup::dto::AnyFunctor> functor,
   const LogAnyFunctorDecorator::LogFunction& log_function);
-}
+}  // unnamed namespace
 
 RPCLoggingServerStack::RPCLoggingServerStack(
     std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
@@ -106,7 +106,7 @@ std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
   }
   return functor;
 }
-}
+}  // unnamed namespace
 
 }  // namespace protocol
 
