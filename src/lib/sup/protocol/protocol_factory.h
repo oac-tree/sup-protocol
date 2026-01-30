@@ -77,19 +77,6 @@ public:
    */
   virtual std::unique_ptr<ProcessVariable> CreateProcessVariable(
     const sup::dto::AnyValue& var_definition) const = 0;
-
-  /**
-   * @brief Creates an RPC client with the given client definition.
-   *
-   * @param client_definition Definition of the client: may include the used network protocol,
-   * server name to connect to, etc.
-   *
-   * @return Protocol encapsulating the RPC client.
-   * @throws InvalidOperationException when the factory cannot create a client with the given
-   * definition.
-   */
-  virtual std::unique_ptr<Protocol> CreateRPCClient(
-    const sup::dto::AnyValue& client_definition) const = 0;
 };
 
 }  // namespace protocol

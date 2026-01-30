@@ -21,11 +21,11 @@
  ******************************************************************************/
 
 #include <sup/protocol/protocol_factory_utils.h>
-
 #include <sup/protocol/exceptions.h>
-
 #include <sup/protocol/factory/rpc_logging_client_stack.h>
 #include <sup/protocol/factory/rpc_logging_server_stack.h>
+
+#include <sup/templates/decorate_with.h>
 
 #include <map>
 
@@ -87,6 +87,19 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
   const LoggingFunctions& log_functions)
 {
   return std::make_unique<RPCLoggingClientStack>(factory_func, config, log_functions);
+}
+
+std::unique_ptr<sup::dto::AnyFunctor> CreateRPCClientStack(
+  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  const LogAnyFunctorDecorator::LogFunction& log_function)
+{
+  auto network_client = factory_func();
+  if (log_function)
+  {
+    return sup::templates::DecorateWith<LogAnyFunctorDecorator>(
+      std::move(network_client), log_function);
+  }
+  return network_client;
 }
 
 PayloadEncoding ParsePayloadEncoding(const sup::dto::AnyValue& config)

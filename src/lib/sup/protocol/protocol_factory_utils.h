@@ -142,6 +142,18 @@ std::unique_ptr<Protocol> CreateRPCClientStack(
   const LoggingFunctions& log_functions);
 
 /**
+ * @brief Factory function that creates a logging client stack as an AnyFunctor.
+ *
+ * @param factory_func Factory function for the network client.
+ * @param log_function Optional function to log network packets.
+ *
+ * @return An AnyFunctor implementation.
+ */
+std::unique_ptr<sup::dto::AnyFunctor> CreateRPCClientStack(
+  std::function<std::unique_ptr<sup::dto::AnyFunctor>()> factory_func,
+  const LogAnyFunctorDecorator::LogFunction& log_function);
+
+/**
  * @brief Parse the encoding field of a configuration AnyValue.
  *
  * @param config configuration AnyValue.
