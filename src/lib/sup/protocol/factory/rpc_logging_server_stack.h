@@ -46,6 +46,10 @@ class RPCLoggingServerStack : public RPCServerInterface
 public:
   RPCLoggingServerStack(
     std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+    ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol);
+
+  RPCLoggingServerStack(
+    std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
     const LoggingFunctions& log_functions);
 

@@ -48,6 +48,12 @@ std::unique_ptr<sup::dto::AnyFunctor> DecorateFunctorWithLogger(
 
 RPCLoggingServerStack::RPCLoggingServerStack(
     std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
+    ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol)
+  : RPCLoggingServerStack{factory_func, config, std::move(protocol), {} }
+{}
+
+RPCLoggingServerStack::RPCLoggingServerStack(
+    std::function<std::unique_ptr<RPCServerInterface>(sup::dto::AnyFunctor&)> factory_func,
     ProtocolRPCServerConfig config, std::unique_ptr<Protocol> protocol,
     const LoggingFunctions& log_functions)
   : m_protocol{DecorateProtocolWithLogger(std::move(protocol), log_functions)}

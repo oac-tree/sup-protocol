@@ -7,6 +7,5 @@ target_sources(sup-protocol
   protocol_factory.cpp
   rpc_client_stack.cpp
   rpc_logging_server_stack.cpp
-  rpc_server_stack.cpp
   variable_callback_guard.cpp
 )

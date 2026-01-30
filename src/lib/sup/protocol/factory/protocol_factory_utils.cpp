@@ -26,7 +26,6 @@
 
 #include <sup/protocol/factory/rpc_client_stack.h>
 #include <sup/protocol/factory/rpc_logging_server_stack.h>
-#include <sup/protocol/factory/rpc_server_stack.h>
 
 #include <map>
 
@@ -45,7 +44,7 @@ std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
     const std::string error = "CreateRPCServerStack: protocol pointer is nullptr";
     throw InvalidOperationException(error);
   }
-  return std::make_unique<RPCServerStack>(factory_func, config, std::move(protocol));
+  return std::make_unique<RPCLoggingServerStack>(factory_func, config, std::move(protocol));
 }
 
 std::unique_ptr<RPCServerInterface> CreateRPCServerStack(
