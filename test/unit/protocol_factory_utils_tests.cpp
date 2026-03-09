@@ -85,6 +85,56 @@ TEST_F(ProtocolFactoryUtilsTest, CreateServerStack)
   EXPECT_NO_THROW(server_handle->Call(request));
 }
 
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStackNullProtocol)
+{
+  auto factory_func = [](sup::dto::AnyFunctor&) -> std::unique_ptr<RPCServerInterface> {
+    return nullptr;
+  };
+  EXPECT_THROW(CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{}, nullptr),
+               InvalidOperationException);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStackWithLoggingNullProtocol)
+{
+  auto factory_func = [](sup::dto::AnyFunctor&) -> std::unique_ptr<RPCServerInterface> {
+    return nullptr;
+  };
+  EXPECT_THROW(
+    CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{}, nullptr, LoggingFunctions{}),
+    InvalidOperationException);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStackWithLogging)
+{
+  auto test_protocol = std::make_unique<test::TestProtocol>();
+  TestRPCServer* server_handle = nullptr;
+  auto factory_func = [this, &server_handle](sup::dto::AnyFunctor& protocol_server) {
+    return CreateTestRPCServer(protocol_server, server_handle);
+  };
+  auto server_stack = CreateRPCServerStack(factory_func, ProtocolRPCServerConfig{},
+                                           std::move(test_protocol), LoggingFunctions{});
+  EXPECT_NE(server_stack, nullptr);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStackWithFunctorNullFunctor)
+{
+  auto factory_func = [](sup::dto::AnyFunctor&) -> std::unique_ptr<RPCServerInterface> {
+    return nullptr;
+  };
+  EXPECT_THROW(CreateRPCServerStack(factory_func, nullptr, nullptr), InvalidOperationException);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateServerStackWithFunctor)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto functor = CreateTestFunctor(functor_handle);
+  auto factory_func = [](sup::dto::AnyFunctor&) -> std::unique_ptr<RPCServerInterface> {
+    return nullptr;
+  };
+  auto server_stack = CreateRPCServerStack(factory_func, std::move(functor), nullptr);
+  EXPECT_NE(server_stack, nullptr);
+}
+
 TEST_F(ProtocolFactoryUtilsTest, ServerStackEmptyRequest)
 {
   auto test_protocol = std::make_unique<test::TestProtocol>();
@@ -184,6 +234,41 @@ TEST_F(ProtocolFactoryUtilsTest, CreateClientStackWithConfig)
   sup::dto::AnyValue output{};
   EXPECT_NO_THROW(client_stack->Invoke(input, output));
   EXPECT_TRUE(utils::CheckRequestFormat(functor_handle->GetLastRequest()));
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateClientStackWithLogging)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  auto client_stack = CreateRPCClientStack(factory_func, ProtocolRPCClientConfig{},
+                                           LoggingFunctions{});
+  EXPECT_NE(client_stack, nullptr);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateClientFunctorStackNoLogging)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  // null log function: returns the network client directly (line 102)
+  auto functor = CreateRPCClientStack(factory_func, nullptr);
+  EXPECT_NE(functor, nullptr);
+}
+
+TEST_F(ProtocolFactoryUtilsTest, CreateClientFunctorStackWithLogging)
+{
+  test::TestFunctor* functor_handle = nullptr;
+  auto factory_func = [this, &functor_handle]() {
+    return CreateTestFunctor(functor_handle);
+  };
+  // valid log function: returns decorated functor (lines 97-99)
+  LogAnyFunctorDecorator::LogFunction log_func = [](const sup::dto::AnyValue&,
+                                                     LogAnyFunctorDecorator::PacketDirection) {};
+  auto functor = CreateRPCClientStack(factory_func, log_func);
+  EXPECT_NE(functor, nullptr);
 }
 
 TEST_F(ProtocolFactoryUtilsTest, ClientStackEmptyPayload)
