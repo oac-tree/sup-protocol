@@ -46,8 +46,17 @@ public:
     kOutput
   };
   using LogFunction = std::function<void(const sup::dto::AnyValue&, PacketDirection)>;
+
   LogAnyFunctorDecorator(sup::dto::AnyFunctor& functor, LogFunction log_function);
   ~LogAnyFunctorDecorator() override;
+
+  /**
+   * @brief Copy/move construction and assigment.
+   */
+  LogAnyFunctorDecorator(const LogAnyFunctorDecorator& other) = delete;
+  LogAnyFunctorDecorator& operator=(const LogAnyFunctorDecorator& other) & = delete;
+  LogAnyFunctorDecorator(LogAnyFunctorDecorator&&) = delete;
+  LogAnyFunctorDecorator& operator=(LogAnyFunctorDecorator&&) & = delete;
 
   sup::dto::AnyValue operator()(const sup::dto::AnyValue& input) override;
 
