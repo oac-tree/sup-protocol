@@ -1,6 +1,4 @@
 /******************************************************************************
- * $HeadURL: $
- * $Id: $
  *
  * Project       : SUP RPC protocol stack
  *
@@ -26,8 +24,8 @@
 #include <sup/dto/any_functor.h>
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/protocol/protocol.h>
-#include <sup/protocol/protocol_rpc_client_config.h>
 #include <sup/protocol/protocol_rpc.h>
+#include <sup/protocol/protocol_rpc_client_config.h>
 
 #include <tuple>
 
@@ -65,10 +63,6 @@ public:
 private:
   ProtocolResult HandleSyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
   ProtocolResult HandleAsyncInvoke(const sup::dto::AnyValue& input, sup::dto::AnyValue& output);
-  std::tuple<sup::dto::uint64, ProtocolResult, sup::dto::AnyValue> AsyncSendRequest(
-    const sup::dto::AnyValue& input);
-  std::pair<bool, ProtocolResult> AsyncPoll(sup::dto::uint64 id);
-  std::pair<ProtocolResult, sup::dto::AnyValue> AsyncGetReply(sup::dto::uint64 id);
   sup::dto::AnyFunctor& m_any_functor;
   ProtocolRPCClientConfig m_config;
 };

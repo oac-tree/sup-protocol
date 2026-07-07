@@ -29,6 +29,7 @@ add_subdirectory(factory)
 install(TARGETS ${library_name} EXPORT ${library_name}-targets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES
+  async_invocation.h
   base64_variable_codec.h
   encoded_variable_t.h
   encoded_variables.h
