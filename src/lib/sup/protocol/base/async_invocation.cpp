@@ -100,7 +100,12 @@ ProtocolResult AsyncInvocation::Start(const sup::dto::AnyValue& input)
   auto async_info = utils::GetAsyncInfo(reply);
   if (!async_info.first)
   {
-    // Server replied synchronously: keep the reply for GetReply().
+    // Server replied synchronously: only accept a structurally valid reply and keep it for
+    // GetReply(). This ensures IsSynchronous() never coexists with a malformed/empty reply.
+    if (!utils::CheckReplyFormat(reply))
+    {
+      return ClientTransportDecodingError;
+    }
     m_synchronous = true;
     m_sync_reply = reply;
     return Success;

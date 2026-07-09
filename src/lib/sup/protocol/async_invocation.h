@@ -68,7 +68,8 @@ public:
    * @brief Send the initial asynchronous request.
    * @param input Application level input payload (cannot be empty).
    * @return Success if the request was accepted (asynchronous handle obtained) or if the server
-   * replied synchronously; an error code otherwise.
+   * replied synchronously with a well-formed reply; an error code otherwise (including a
+   * synchronous reply that is malformed).
    *
    * @note When the server chooses to reply synchronously, IsSynchronous() returns true and the
    * reply can be retrieved directly with GetReply() (PollOnce() will report ready immediately).
@@ -96,7 +97,8 @@ public:
   void Invalidate();
 
   /**
-   * @brief Whether the server replied synchronously to Start().
+   * @brief Whether the server replied synchronously to Start(). Only becomes true for a
+   * well-formed synchronous reply.
    */
   bool IsSynchronous() const;
 

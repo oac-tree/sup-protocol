@@ -5,6 +5,7 @@ set_target_properties(sup-protocol-unit-tests PROPERTIES RUNTIME_OUTPUT_DIRECTOR
 
 target_sources(sup-protocol-unit-tests
   PRIVATE
+  async_invocation_tests.cpp
   async_invoke_server_tests.cpp
   async_invoke_tests.cpp
   encoded_variables_tests.cpp
