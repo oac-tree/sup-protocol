@@ -28,6 +28,7 @@
 
 namespace sup
 {
+//! @brief Namespace for sup-protocol (comment added to satisfy Doxygen)
 namespace protocol
 {
 class Protocol;
